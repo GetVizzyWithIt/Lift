@@ -44,7 +44,7 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 | Step | What | Status |
 | --- | --- | --- |
 | 1 | **Diagnose**: per-song loss breakdown, a stem check on the missed notes of the 6 weakest songs, and the flagged takes (Najee, Burning Daylight, Just the Two of Us) | Done 2026-11-13: 87% of missed or wrong-pitch notes are still in the stem, so the note finder is the bottleneck; about half our notes in the flagged pop bars overlap vocals (log, 2026-11-13 diagnosis) |
-| 2 | **Note-end ear check**: Austin listens to about 100 note ends on 3 songs, to decide whether the 60 target counts note ends | Not started |
+| 2 | **Note-end ear check**: Austin listens to about 100 note ends on 3 songs, to decide whether the 60 target counts note ends | Done 2026-11-14: page-style key ends run late 91% of the time (Weimar median 17.4 ms, worst tenth 120 ms), and E77's ends are as close as the best key ends. Austin's call: judge mainly on note F1 without note ends; the 60 target is that score (ADR-0044) |
 | 3 | **New test set**: bars from Austin's flags, 3–5 pop songs with vocals, 3 soprano songs | Not started |
 | 4 | **E82, vocals**: check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide | Done: E82 round 3 adopted 2026-11-13 (Mega's vocal stem on every band record, marks only; ADR-0043); code merged in PR #167 |
 | 5 | **E83**: whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano) | Done 2026-11-14: E83 not adopted. Neither arm beat E77 (note F1 50.9 for all three); more mostly-older jazz doesn't move the finder, so new data must be pop, R&B, and soprano |
@@ -54,8 +54,6 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 **Running on the Mac now:** E84 (pre-registered 2026-11-14, Austin's go 17:14Z): the held-out swap retrain (E84a) and an all-in note finder (E84b), scored once on the 33 songs against E77 under the E83 rule.
 
 **Waiting on Austin:**
-- Step 2 ear check when it's ready.
-- Which note F1 the 60 target means: with note ends or without.
 - Filosax dataset access: if Zenodo hasn't answered by about 11-14, send the drafted email.
 
 _Plan last changed 2026-11-14._

@@ -82,3 +82,4 @@ Plain-language meanings of terms used in the code and these docs.
 | Match check | The check that an answer key fits its recording (`match_check.py`, or Austin's verdict in the app's Needs review tab). Every chart/audio pair must pass it before training or scoring ([ADR-0042](decisions/0042-match-check-and-benchmark-rule.md)) |
 | Benchmark | The songs the Results page tracks progress on: key passed the match check or Austin marked it good, not marked wrong, and no model trained on it ([ADR-0042](decisions/0042-match-check-and-benchmark-rule.md)) |
 | Match review verdict | Austin's call on a key in the app: good, wrong, unsure or none, with a note; stored on the Mac in `keys/match_review.jsonl` |
+| Review hub | The Mac's one page for every listening queue (`~/saxscribe-runs/review/`, port 8770); "same recording?" verdicts also go to `keys/match_review.jsonl` |

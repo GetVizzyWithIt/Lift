@@ -126,6 +126,16 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### 2026-11-14 — Step 2 note-end check: how far off are the keys' note ends? (finding, no E-number)
+- **Go**: Austin, automating step 2 of the plan (Build, 23:03Z). This is a diagnosis, not a model change.
+- **Question**: how much of the gap between note F1 with and without note ends comes from the answer keys' own note ends?
+- **Weimar keys (127 solos, 63,341 notes)**: when a note's end is placed at the next note's start, the way a page reads, the end comes late 91% of the time. The typical error is 17.4 ms (median absolute), and 1 note in 10 is off by more than 119.6 ms. Ends taken from the note's written value on a 16th grid, cut at the next start, do better: 13.1 ms typical, 37.8 ms for the worst tenth.
+- **E77 on its held-out players (13,411 notes)**: 12.9 ms typical, 45.6 ms for the worst tenth. So our note finder's ends are as close as the best key ends.
+- **Finding**: page-style key ends make notes too long. Part of the gap between note F1 with and without note ends is error in the keys, not in the transcription. That fits the first 7 hand-tapped clips, where our ends were closer than the key's on 5.
+- **Automatic end judges**: a loudness-fade judge and a pitch-voicing judge both came out at about 22 ms typical and about 125 ms for the worst tenth. They failed the 7-tap check, so they only sort clips for listening and never decide one.
+- **New tool**: a review hub on the Mac (`~/saxscribe-runs/review/server.py`, port 8770), with one queue per review type. Its "same recording?" verdicts also write to `keys/match_review.jsonl`. Files and calibration notes: `~/saxscribe-runs/exp/endcheck/` (`calib.md`).
+- **Decision (Austin, 23:30Z)**: skip the rest of the tapping; the Weimar result answers it. Page-key note ends are unreliable, so models are judged mainly on note F1 without note ends, with the with-ends score still reported. The 60 target is the no-offset score ([ADR-0044](../decisions/0044-judge-on-note-f1-without-note-ends.md)).
+
 ### E84 — 2026-11-14 — Held-out swap retrain, then an all-in note finder (pre-registered, running)
 - **Go**: Austin, "go held-out swap" (Build, 17:14Z); two-stage plan agreed in Build at 17:16Z. Pre-registered at 17:30Z, before any training or scoring: [e84-preregistration.md](e84-preregistration.md).
 - **Question**: does a note finder with Coltrane, Getz and Potter in training (and a new held-out set for picking the checkpoint) beat E77 on the 33-song benchmark? And does a final model trained on every player beat it?
