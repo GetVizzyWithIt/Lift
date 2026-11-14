@@ -17,13 +17,15 @@
   <div class="tab" id="tab-progress" role="tabpanel" data-tab="progress">
     <p class="quiet lede">How well Saxscribe transcribes band records today, and how it got here. Every number on
       this page is measured on the same benchmark, so a step up means the transcriber got better, not that the
-      test changed.</p>
+      test changed. The main score is note F1 ignoring note ends: the notes&rsquo; starts and pitches must match the
+      answer key, but not their ends, because keys read from a page get note ends wrong (ADR-0044). The score with note
+      ends is shown beside it.</p>
     <p class="note-box small" id="bench-note"></p>
     <div class="tiles" id="tiles"></div>
     <section class="card">
       <h2>How we got here</h2>
       <p class="quiet small">One step per change that became the default, oldest first. The line is the average note
-        F1 over the benchmark songs; a step is drawn only once every song has been re-scored at that version, so all
+        F1, ignoring note ends, over the benchmark songs; a step is drawn only once every song has been re-scored at that version, so all
         steps compare the same songs. The dashed line is the band-record target (60).</p>
       <div class="scroll" id="stairs"></div>
     </section>
@@ -43,7 +45,7 @@
     </div>
     <section class="card">
       <h2>By player, horn, style, and era</h2>
-      <p class="quiet small">Average note F1 on the benchmark songs in each group, today and with the default before.
+      <p class="quiet small">Average note F1, ignoring note ends, on the benchmark songs in each group, today and with the default before.
         Where it is weakest shows which songs to add or work on next.</p>
       <div class="filters"><div class="seg" id="tag-by" role="group" aria-label="Group by">
         <button type="button" data-v="horn" class="on">Horn</button><button type="button" data-v="style">Style</button><button type="button" data-v="era">Era</button><button type="button" data-v="player">Player</button>
@@ -59,7 +61,7 @@
       our models, where its notes go, and how it does bar by bar.</p>
     <section class="card" id="areas-card">
       <h2>By area</h2>
-      <p class="quiet small">Average note F1 with today&rsquo;s default in each area, and how many songs or test sets
+      <p class="quiet small">Average note F1 with today&rsquo;s default in each area (ignoring note ends on band records; with note ends on clean sax, whose older scorecards don&rsquo;t have the other score), and how many songs or test sets
         reach the target (80 for sax recorded alone, 60 in a band). Tap an area to see its songs, sorted by title.
         Clean sax is measured on the scorecard test sets of the sax alone, which use the standard path.</p>
       <div id="areas"></div>
@@ -77,7 +79,7 @@
       <h2 id="hist-title">Song history</h2>
       <p class="quiet small" id="hist-meta"></p>
       <p class="quiet small">Every version of the transcriber that has scored this song, oldest first, on the same
-        answer key. The blue line is note F1; the dashed grey line ignores note ends. Below it is every setup ever run on
+        answer key. The blue line is note F1 ignoring note ends; the dashed grey line counts note ends too. Below it is every setup ever run on
         the song: the milestones first, then tests that never became the default.</p>
       <div class="scroll" id="hist-chart"></div>
       <div class="scroll"><table class="grid compare" id="hist-table"></table></div>
@@ -122,7 +124,7 @@
     </div>
     <div class="filters" id="metric-row">
       <label class="small">Score <select id="grid-metric" aria-label="Score shown">
-        <option value="note_f1" selected>Note F1</option><option value="note_f1_no_offset">Note F1, ignoring note ends</option><option value="onset_f1">Onset F1</option><option value="low_found">Low notes found</option><option value="sax_found">Sax found</option><option value="sax_purity">Sax purity</option><option value="onset_recall">Onset recall</option><option value="pitch_accuracy">Pitch</option><option value="sax_found_heard">Found, heard key notes</option><option value="short_found">Short notes found</option><option value="bars_right">Bars right</option><option value="notes_in_place">Notes in the right spot</option>
+        <option value="note_f1_no_offset" selected>Note F1, ignoring note ends</option><option value="note_f1">Note F1 with note ends</option><option value="onset_f1">Onset F1</option><option value="low_found">Low notes found</option><option value="sax_found">Sax found</option><option value="sax_purity">Sax purity</option><option value="onset_recall">Onset recall</option><option value="pitch_accuracy">Pitch</option><option value="sax_found_heard">Found, heard key notes</option><option value="short_found">Short notes found</option><option value="bars_right">Bars right</option><option value="notes_in_place">Notes in the right spot</option>
       </select></label>
     </div>
 
