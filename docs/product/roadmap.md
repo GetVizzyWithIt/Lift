@@ -1,7 +1,27 @@
 # Roadmap
 
 Phases end when their gate is **measured and met**, not when features are
-built. No dates. Status as of 2026-11-02.
+built. No dates. Phase lists below were last fully reviewed 2026-11-02; the
+"Now" section is current as of 2026-11-14.
+
+## Now (2026-11-14)
+
+- **Current priority: a clean, healthy dataset.** Austin's goal (2026-11-14):
+  every PDF transcription is matched confidently to its recording, or excluded.
+  A chart we can't read well enough to line up is excluded; a chart that doesn't
+  match its recording gets the right recording found. Tracked in the PDF ledger
+  (`~/saxscribe-runs/catalog/ledger/`, snapshot in [docs/data/ledger/](../data/ledger/))
+  and the Results page's **Dataset health** tab (PR #177). First ledger run:
+  750 PDFs, 118 of 681 charts matched (17%), 187 of 750 resolved (25%).
+- **Answer-key audit and proofreading** (2026-11-14): 13 keys fixed so far. The
+  benchmark keys are proofread, then frozen by hash before E84 is scored
+  ([E84 pre-registration](../evaluation/e84-preregistration.md)).
+- **E84 on hold until the data is clean.** Pre-registered and approved, including
+  the held-out player swap (Austin's go 2026-11-14 17:14Z: train on Coltrane,
+  Getz and Potter; hold out Byas, Stitt, Marsh, Berg, Mobley, Sims and two alto
+  players) and the new session rule. E83 (2026-11-14) found more of the same
+  older jazz data doesn't move the note finder; E77 stays.
+- **Paused:** the video-to-chart pilot.
 
 ## Phase 0: wiring and baseline — done
 
@@ -138,3 +158,14 @@ Austin's ideas (2026-11-10):
 Austin's ideas (2026-11-13):
 
 - Our own vocal detector: E82 round 3 showed MVSep Mega's vocal stem tells voice from sax well (112 good review marks, 0 bad on 11 songs), but Mega takes about 3.5 times the song's length on the Mac's CPU. Austin: "growing our own vocal detector could help too". Distil Mega's vocal decisions into a small, fast voice-vs-sax detector: for example a MERT probe like the sax judge (E79), or a small network on the vocal and sax band energies. The labels come from Mega's vocal stem on many band records, so no hand labelling is needed. Goal: Mega's accuracy in seconds instead of minutes, removing the speed cost. Score it against Mega's marks, and against Austin's flagged takes (test only). It needs a tuning set with real vocals first (plan step 3). Needs Austin's go in the build thread.
+
+Parked ideas (as of 2026-11-14). Each is written up in the log or an earlier thread and needs Austin's go in the build thread:
+
+- Vocal fix (rule E): the fix offered for Just the Two of Us, where Bill Withers' vocals were charted as sax.
+- Chord not-sax test: chords in a single-sax part mean another instrument has leaked in; test it as a not-sax signal.
+- Listener pre-flags: open doubtful answer keys in the listener with the disagreeing bars already flagged, so Austin taps right or wrong.
+- Held-note split on slow written studies (log E75): stop vibrato from splitting held notes.
+- Fine-tune Beat This! on the Weimar Jazz Database, Filosax and JSIR beats.
+- Score-informed timbre training: train the sax judge on notes the answer keys say are sax (Weimar).
+- A trust score per answer key, from the match check, the audit and the proofreading, so training and scoring can weight or skip weak keys.
+- A device option for the key tools' stem pitch line (`stem_contour.py`) to run on MPS, so building keys from the sax stem is faster on the Mac.
