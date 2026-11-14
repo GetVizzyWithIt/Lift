@@ -134,7 +134,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Finding**: page-style key ends make notes too long. Part of the gap between note F1 with and without note ends is error in the keys, not in the transcription. That fits the first 7 hand-tapped clips, where our ends were closer than the key's on 5.
 - **Automatic end judges**: a loudness-fade judge and a pitch-voicing judge both came out at about 22 ms typical and about 125 ms for the worst tenth. They failed the 7-tap check, so they only sort clips for listening and never decide one.
 - **New tool**: a review hub on the Mac (`~/saxscribe-runs/review/server.py`, port 8770), with one queue per review type. Its "same recording?" verdicts also write to `keys/match_review.jsonl`. Files and calibration notes: `~/saxscribe-runs/exp/endcheck/` (`calib.md`).
-- **Open**: Austin is deciding whether to tap more clips. Which note F1 the 60 target means (with or without note ends) is still his call.
+- **Decision (Austin, 23:30Z)**: skip the rest of the tapping; the Weimar result answers it. Page-key note ends are unreliable, so models are judged mainly on note F1 without note ends, with the with-ends score still reported. The 60 target is the no-offset score ([ADR-0044](../decisions/0044-judge-on-note-f1-without-note-ends.md)).
 
 ### E84 — 2026-11-14 — Held-out swap retrain, then an all-in note finder (pre-registered, running)
 - **Go**: Austin, "go held-out swap" (Build, 17:14Z); two-stage plan agreed in Build at 17:16Z. Pre-registered at 17:30Z, before any training or scoring: [e84-preregistration.md](e84-preregistration.md).
