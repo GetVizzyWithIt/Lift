@@ -12,7 +12,7 @@
       "step": 2,
       "title": "Note-end ear check",
       "what": "Austin listens to about 100 note ends on 3 songs, to decide whether the 60 target counts note ends",
-      "status": "Not started"
+      "status": "Done (automated) 2026-11-14: page-style key ends run late 91% of the time (Weimar median 17.4 ms, worst tenth 120 ms); E77's ends are as close as the best key ends, so part of the note-end loss is in the keys. Austin may tap more clips"
     },
     {
       "step": 3,
@@ -47,7 +47,6 @@
   ],
   "running": "E84 (pre-registered 2026-11-14, Austin's go 17:14Z): the held-out swap retrain (E84a) and an all-in note finder (E84b), scored once on the 33 songs against E77 under the E83 rule.",
   "waiting": [
-    "Step 2 ear check when it's ready.",
     "Which note F1 the 60 target means: with note ends or without.",
     "Filosax dataset access: if Zenodo hasn't answered by about 11-14, send the drafted email."
   ]
