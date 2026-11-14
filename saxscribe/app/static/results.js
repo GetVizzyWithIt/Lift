@@ -310,6 +310,7 @@ function runTable() {
 function render() {
   if (typeof renderCompare === 'function') renderCompare();
   if (typeof renderProgress === 'function') renderProgress();
+  if (typeof renderHealth === 'function') renderHealth();
   standings(); legend(); charts(); changeTable(); runTable();
 }
 

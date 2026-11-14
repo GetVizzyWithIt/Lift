@@ -1,0 +1,204 @@
+{
+ "generated": "2026-11-14 21:30",
+ "schema": 1,
+ "total_pdfs": 750,
+ "charts": 681,
+ "healthy": 118,
+ "healthy_share": 0.173,
+ "counts": {
+  "matched": 118,
+  "check": 82,
+  "wrong_audio": 30,
+  "needs_audio": 139,
+  "unreadable": 16,
+  "not_started": 123,
+  "unsorted": 173,
+  "excluded": 69
+ },
+ "by_source": {
+  "book_split": {
+   "matched": 3,
+   "check": 3,
+   "needs_audio": 33
+  },
+  "excerpt": {
+   "needs_audio": 1,
+   "not_started": 69
+  },
+  "inbox": {
+   "unsorted": 173
+  },
+  "loose": {
+   "excluded": 59
+  },
+  "other instrument: bass": {
+   "not_started": 6
+  },
+  "other instrument: clarinet": {
+   "not_started": 8
+  },
+  "other instrument: guitar": {
+   "not_started": 9
+  },
+  "other instrument: piano": {
+   "not_started": 10
+  },
+  "other instrument: trombone": {
+   "not_started": 2
+  },
+  "other instrument: trumpet": {
+   "not_started": 14
+  },
+  "other instrument: vibes": {
+   "not_started": 2
+  },
+  "site_pdf": {
+   "needs_audio": 105,
+   "excluded": 4
+  },
+  "test_tune": {
+   "matched": 5,
+   "check": 1,
+   "excluded": 5
+  },
+  "transcribed": {
+   "matched": 59,
+   "check": 77,
+   "wrong_audio": 30,
+   "unreadable": 16,
+   "not_started": 3,
+   "excluded": 1
+  },
+  "youtube_etude": {
+   "matched": 51,
+   "check": 1
+  }
+ },
+ "top_reasons": [
+  {
+   "status": "needs_audio",
+   "reason": "pdf only, needs a recording",
+   "n": 128
+  },
+  {
+   "status": "unsorted",
+   "reason": "not identified yet (one solo, # pages)",
+   "n": 90
+  },
+  {
+   "status": "unsorted",
+   "reason": "not identified yet (one-page excerpt, # pages)",
+   "n": 80
+  },
+  {
+   "status": "not_started",
+   "reason": "chart and recording here, no key yet",
+   "n": 69
+  },
+  {
+   "status": "not_started",
+   "reason": "no answer key yet",
+   "n": 54
+  },
+  {
+   "status": "check",
+   "reason": "heard agreement # (below #); tempo jumps in # of # bars (exp",
+   "n": 22
+  },
+  {
+   "status": "excluded",
+   "reason": "method book or etude collection with no single recording",
+   "n": 15
+  },
+  {
+   "status": "wrong_audio",
+   "reason": "chart and recording don't line up (heard agreement #); exact",
+   "n": 14
+  },
+  {
+   "status": "wrong_audio",
+   "reason": "chart and recording don't line up; exact recording listed",
+   "n": 14
+  },
+  {
+   "status": "excluded",
+   "reason": "another PDF of the same chart: ~/saxscribe-runs/sheet-music/",
+   "n": 13
+  },
+  {
+   "status": "check",
+   "reason": "heard agreement # (below #) (expected length not on file); a",
+   "n": 12
+  },
+  {
+   "status": "check",
+   "reason": "heard agreement # (below #) (expected length not on file)",
+   "n": 10
+  },
+  {
+   "status": "excluded",
+   "reason": "paper or thesis (solos inside not split out yet)",
+   "n": 9
+  },
+  {
+   "status": "check",
+   "reason": "audit: high-priority misread bars",
+   "n": 7
+  },
+  {
+   "status": "unreadable",
+   "reason": "page reader produced no notes",
+   "n": 7
+  },
+  {
+   "status": "check",
+   "reason": "audit: # bars read in the wrong octave or step (re-read thos",
+   "n": 5
+  },
+  {
+   "status": "check",
+   "reason": "tempo jumps in # of # bars (expected length not on file)",
+   "n": 5
+  },
+  {
+   "status": "unreadable",
+   "reason": "chart probably misread: chart and recording don't line up",
+   "n": 5
+  },
+  {
+   "status": "check",
+   "reason": "tempo jumps in # of # bars (expected length not on file); au",
+   "n": 4
+  },
+  {
+   "status": "unreadable",
+   "reason": "chart probably misread: chart and recording don't line up (h",
+   "n": 4
+  },
+  {
+   "status": "excluded",
+   "reason": "identical copy of ~/saxscribe-runs/keys/transcribed/lester-y",
+   "n": 4
+  },
+  {
+   "status": "check",
+   "reason": "heard agreement # (below #); audit: # bars read in the wrong",
+   "n": 3
+  },
+  {
+   "status": "check",
+   "reason": "octave fix pending (octave_check#py --fix): key sits +# octa",
+   "n": 3
+  },
+  {
+   "status": "excluded",
+   "reason": "another PDF of the same chart: ~/saxscribe-runs/keys/bfmj/so",
+   "n": 3
+  },
+  {
+   "status": "excluded",
+   "reason": "identical copy of ~/saxscribe-runs/keys/transcribed/earl-bos",
+   "n": 3
+  }
+ ]
+}

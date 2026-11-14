@@ -194,3 +194,25 @@ details.area tr.pick { cursor: pointer; }
 details.area tr.pick:hover td { background: var(--track); }
 @media (max-width: 560px) { details.area > summary { grid-template-columns: 1fr 3rem; } details.area > summary .abar { grid-column: 1 / -1; grid-row: 2; } }
 #judge h3, #song-history h3 { margin: 20px 0 4px; font-size: 1rem; }
+
+/* Dataset health tab: status colours (validated as an adjacent categorical order, light and dark; excluded is a neutral grey) */
+:root { --st-matched: #008300; --st-check: #2a78d6; --st-wrong: #eb6834; --st-needs: #1baf7a; --st-unread: #eda100;
+        --st-notstarted: #e87ba4; --st-unsorted: #6250d6; --st-excluded: #a19d94; }
+@media (prefers-color-scheme: dark) {
+  :root { --st-matched: #0ca30c; --st-check: #3987e5; --st-wrong: #d95926; --st-needs: #199e70; --st-unread: #c98500;
+          --st-notstarted: #d55181; --st-unsorted: #9085e9; --st-excluded: #78756f; }
+}
+#health-bar svg, #health-sources svg, #health-history svg { display: block; max-width: none; }
+#health-bar { margin-top: 12px; }
+#health-legend { margin: 16px 4px 16px; }
+#tab-health .hseg:hover { opacity: 0.8; }
+#tab-health .hsrc { cursor: pointer; }
+#tab-health svg text { font-size: 13px; fill: var(--ink2); }
+#tab-health svg text.hval, #tab-health svg text.hlab { font-variant-numeric: tabular-nums; }
+#tab-health svg text.hax { font-size: 11px; fill: var(--muted); }
+#tab-health svg .hgrid { stroke: var(--grid); stroke-width: 1; }
+#tab-health svg .hbase { stroke: var(--axis); stroke-width: 1; }
+#tab-health .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
+#tab-health tr.click { cursor: pointer; }
+#tab-health .filters input[type=search] { flex: 1 1 260px; min-width: 0; }
+#tab-health .filters select { flex: 0 1 220px; min-width: 0; }
