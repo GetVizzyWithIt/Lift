@@ -74,7 +74,7 @@ const KINDS = [
 ];
 const FLAG_DROP = 0.03;   // sax found (or onset recall) this much under the default setup: lost sax
 
-const cmp = {metric: 'note_f1', setup: null, record: null};
+const cmp = {metric: 'note_f1_no_offset', setup: null, record: null};  // ADR-0044: the main score ignores note ends
 let EXP = [];
 
 // Names the Mac and the log use for the same thing.
