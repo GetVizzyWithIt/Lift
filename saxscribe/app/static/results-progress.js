@@ -20,7 +20,7 @@ const BAND_TARGET = 0.6;
 const prog = {};
 
 // ---------- tabs ----------
-const TABS = ['progress', 'songs', 'lab', 'log', 'review'];
+const TABS = ['progress', 'songs', 'lab', 'log', 'health', 'review'];
 function showTab(name, scroll = true) {
   if (!TABS.includes(name)) name = 'progress';
   for (const p of document.querySelectorAll('.tab')) p.hidden = p.dataset.tab !== name;
@@ -28,6 +28,7 @@ function showTab(name, scroll = true) {
   if (location.hash.slice(1) !== name) history.replaceState(null, '', `#${name}`);
   // charts measure their box, so draw them once they can be seen
   if (name === 'log' && typeof panels !== 'undefined') panels.forEach(p => p.draw());
+  if (name === 'health' && typeof renderHealth === 'function' && typeof DATA !== 'undefined' && DATA) renderHealth();
   if (scroll) scrollTo({top: 0});
 }
 addEventListener('hashchange', () => showTab(location.hash.slice(1)));

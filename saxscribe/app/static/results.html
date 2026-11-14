@@ -11,7 +11,7 @@
 <div class="wrap wide">
   <div class="head"><h1>Results</h1><a class="button" href="/">Library</a></div>
   <nav class="tabs" role="tablist" aria-label="Results pages">
-    <a role="tab" href="#progress" data-tab="progress">Progress</a><a role="tab" href="#songs" data-tab="songs">Songs</a><a role="tab" href="#lab" data-tab="lab">Lab</a><a role="tab" href="#log" data-tab="log">Log</a><a role="tab" href="#review" data-tab="review">Needs review <span class="count" id="review-count" hidden></span></a>
+    <a role="tab" href="#progress" data-tab="progress">Progress</a><a role="tab" href="#songs" data-tab="songs">Songs</a><a role="tab" href="#lab" data-tab="lab">Lab</a><a role="tab" href="#log" data-tab="log">Log</a><a role="tab" href="#health" data-tab="health">Dataset health</a><a role="tab" href="#review" data-tab="review">Needs review <span class="count" id="review-count" hidden></span></a>
   </nav>
 
   <div class="tab" id="tab-progress" role="tabpanel" data-tab="progress">
@@ -273,6 +273,53 @@
     <p class="quiet small" id="sources"></p>
   </div>
 
+  <div class="tab" id="tab-health" role="tabpanel" data-tab="health" hidden>
+    <p class="quiet lede">Every PDF transcription we hold, on its way to a confident match with its recording. A chart is
+      only used for training or scoring once it is matched; a chart we can't read or can't match is excluded, not
+      guessed at.</p>
+    <p class="note-box small" id="health-asof"></p>
+    <div class="tiles" id="health-tiles"></div>
+    <section class="card">
+      <h2>Where every PDF stands</h2>
+      <p class="quiet small">One bar for all the PDFs, split by status. Resolved means matched or excluded on purpose;
+        everything else still needs work.</p>
+      <div id="health-bar"></div>
+      <div class="scroll"><table class="grid" id="health-status"></table></div>
+    </section>
+    <section class="card">
+      <h2>By source</h2>
+      <p class="quiet small">Where the PDFs came from and how far each source has got. Tap a bar to list its PDFs below.</p>
+      <div class="filters"><div class="seg" id="health-scale" role="group" aria-label="Scale">
+        <button type="button" data-v="count" class="on">Count</button><button type="button" data-v="share">Share</button>
+      </div></div>
+      <div class="legend" id="health-legend"></div>
+      <div class="scroll" id="health-sources"></div>
+    </section>
+    <section class="card">
+      <h2>Progress over time</h2>
+      <p class="quiet small">One column per ledger run. Green should grow and the colours above it shrink.</p>
+      <div class="scroll" id="health-history"></div>
+      <p class="quiet small" id="health-history-note"></p>
+    </section>
+    <section class="card">
+      <h2>Most common reasons</h2>
+      <p class="quiet small">Why the PDFs that aren't matched are where they are, most common first.</p>
+      <div class="scroll"><table class="grid" id="health-reasons"></table></div>
+    </section>
+    <section class="card">
+      <h2>Every PDF</h2>
+      <div class="filters">
+        <input type="search" id="health-q" placeholder="Search player, tune, or recording" aria-label="Search">
+        <select id="health-st" aria-label="Status"></select>
+        <select id="health-kind" aria-label="Source"></select>
+      </div>
+      <p class="quiet small" id="health-count"></p>
+      <div class="scroll"><table class="grid" id="health-pdfs"></table></div>
+      <p><button type="button" id="health-more" hidden>Show more</button></p>
+    </section>
+    <p class="quiet small" id="health-empty" hidden>No PDF ledger yet (docs/data/ledger/ or ~/saxscribe-runs/catalog/ledger/).</p>
+  </div>
+
   <div class="tab" id="tab-review" role="tabpanel" data-tab="review" hidden>
     <p class="quiet lede">Chart and recording pairs the match check is unsure of. Listen with the key playing along and
       say whether they match. Nothing here is used for training or the benchmark until it passes the check or you
@@ -292,6 +339,7 @@
 <script src="/static/results-compare.js"></script>
 <script src="/static/results.js"></script>
 <script src="/static/results-progress.js"></script>
+<script src="/static/results-health.js"></script>
 <script src="/static/results-review.js"></script>
 </body>
 </html>

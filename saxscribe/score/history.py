@@ -117,12 +117,13 @@ def changes() -> list[dict]:
 
 
 def dashboard_data(runs: str | Path | None = None) -> dict:
-    from . import experiments
+    from . import experiments, ledger
     from .card import MIX_SETS, TARGETS
     return {"runs": load(runs), "changes": changes(), "experiments": experiments.load(runs),
             "targets": {k: {"solo": v[0], "mix": v[1]} for k, v in TARGETS.items()},
             "mix_sets": sorted(MIX_SETS),
-            "cards": _json(CARDS).get("cards", []), "tags": _json(TAGS).get("songs", {})}
+            "cards": _json(CARDS).get("cards", []), "tags": _json(TAGS).get("songs", {}),
+            "ledger": ledger.load(runs)}
 
 
 def _json(path: Path) -> dict:
