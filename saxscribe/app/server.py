@@ -1,7 +1,8 @@
 """The web server: FastAPI routes over the library and its take folders.
 
 Pages:
-  /                  the library: upload a recording, see every take
+  /                  upload a recording, see every take
+  /library           every answer key matched to its recording, plus finished takes (catalog.py)
   /take/<id>         the play-along for one take
   /take/<id>/pdf     the PDF (MuseScore's), or the print page when there is none
   /take/<id>/print   the score as letter pages, to print or save as PDF from the browser
@@ -10,6 +11,7 @@ Pages:
 
 API (JSON unless noted):
   GET  /api/info                  addresses to open the app from another device
+  GET  /api/library               the Library's songs: matched answer keys and finished takes
   GET  /api/results               scorecard runs, change markers and targets (score/history.py)
   GET  /api/review                the match check's chart/recording pairs and Austin's verdicts (score/review.py)
   POST /api/review/<id>           Austin's verdict on one pair: {verdict: good|wrong|unsure|null, note}
@@ -100,6 +102,15 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
     @app.get("/", include_in_schema=False)
     def index():
         return FileResponse(STATIC / "index.html")
+
+    @app.get("/library", include_in_schema=False)
+    def library_page():
+        return FileResponse(STATIC / "library.html")
+
+    @app.get("/api/library")
+    def library_songs():
+        from . import catalog
+        return catalog.load(runs, library.list())
 
     @app.get("/results", include_in_schema=False)
     def results_page():

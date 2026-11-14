@@ -204,3 +204,34 @@ button.danger { color: var(--bad); margin-left: auto; }
 .sec input.t { min-height: var(--tap); width: 88px; min-width: 0; flex: none; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line);
   background: var(--bg); color: var(--ink); font: inherit; font-size: 1rem; font-variant-numeric: tabular-nums; }
 .sec .x { min-width: var(--tap); }
+
+/* Library (2026-11-14) */
+.wrap.wide { max-width: 1200px; }
+.headacts { display: flex; gap: 8px; flex-wrap: wrap; }
+.libtools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
+.libtools input[type=search] { flex: 1 1 240px; min-height: var(--tap); padding: 0 12px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--card); color: var(--ink); font: inherit; font-size: 1rem; min-width: 0; }
+.libtools label { display: inline-flex; align-items: center; gap: 6px; }
+.libtools .seg button { min-width: 0; padding: 0 12px; }
+.grp { margin-top: 14px; }
+.grp summary { display: flex; align-items: baseline; gap: 10px; cursor: pointer; padding: 6px 0; list-style: none; }
+.grp summary::-webkit-details-marker { display: none; }
+.grp summary::before { content: "▸"; color: var(--quiet); width: 1em; }
+.grp[open] summary::before { content: "▾"; }
+.songs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 6px; }
+.song { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: flex;
+  flex-direction: column; gap: 3px; min-width: 0; color: var(--ink); text-decoration: none; }
+.song.link:hover, .song.link:focus-visible { border-color: var(--accent); }
+.song .t { font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.song .chips, .songlist .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.chip { display: inline-flex; align-items: center; font-size: 0.74rem; border-radius: 999px; padding: 2px 9px; border: 1px solid var(--line);
+  color: var(--quiet); white-space: nowrap; }
+.chip.key { color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, transparent); }
+.chip.made { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+.scroll { overflow-x: auto; }
+.songlist { width: 100%; border-collapse: collapse; font-size: 0.92rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
+.songlist td { padding: 8px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+.songlist tr:first-child td { border-top: 0; }
+.songlist td.t { font-weight: 600; min-width: 180px; }
+.songlist td:nth-child(2) { white-space: nowrap; }
+.songlist .chips { margin-top: 0; flex-wrap: nowrap; }

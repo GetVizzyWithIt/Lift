@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saxscribe Library</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="wrap wide">
+  <div class="head"><h1>Library</h1><div class="headacts"><a class="button" href="/">Transcribe</a><a class="button" href="/results">Results</a></div></div>
+  <p class="quiet small" id="ready">Loading…</p>
+  <div class="bar" id="readyBar" hidden><div></div></div>
+
+  <div class="libtools">
+    <input type="search" id="q" placeholder="Search songs, players, records…" aria-label="Search">
+    <div class="seg" id="src" role="group" aria-label="Where the notes came from"><button type="button" data-v="" class="on">Everything</button><button type="button" data-v="key">Answer keys</button><button type="button" data-v="saxscribe">Made by Saxscribe</button></div>
+    <div class="seg" id="horn" role="group" aria-label="Horn"><button type="button" data-v="" class="on">All horns</button><button type="button" data-v="alto">Alto</button><button type="button" data-v="tenor">Tenor</button></div>
+    <label class="small quiet">Group <select id="group" aria-label="Group by">
+      <option value="player">Player</option><option value="horn">Horn</option><option value="decade">Decade</option>
+      <option value="source">Source</option><option value="use">Training or benchmark</option><option value="kind">Kind of chart</option><option value="">No groups</option></select></label>
+    <label class="small quiet">Sort <select id="sort" aria-label="Sort by">
+      <option value="title">Title</option><option value="player">Player</option><option value="new">Year, newest</option>
+      <option value="old">Year, oldest</option><option value="heard">Key heard, best first</option></select></label>
+    <div class="seg" id="view" role="group" aria-label="Show as"><button type="button" data-v="cards" class="on">Cards</button><button type="button" data-v="list">List</button></div>
+  </div>
+  <p class="quiet small" id="shown"></p>
+  <div id="shelf"></div>
+  <p class="quiet small" id="hiddenNote" hidden></p>
+</div>
+<div class="toast" id="toast"></div>
+<script src="/static/common.js"></script>
+<script src="/static/library.js"></script>
+</body>
+</html>

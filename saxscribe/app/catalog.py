@@ -1,0 +1,181 @@
+"""The Library: every answer key that is confidently matched to its recording, plus finished takes.
+
+An answer key is a PDF chart paired with its recording. The list comes from the PDF ledger
+(score/ledger.py): only rows whose status is "matched" are shown, so the Library grows as the
+matching work finishes. Before a chart is shown, its PDF is checked against the fingerprint
+(sha256) the ledger recorded; a PDF that moved or changed since it was matched is left out and
+counted, never shown with a stale match.
+
+Songs the app transcribed itself (finished takes) are listed too, marked "Made by Saxscribe".
+
+Read-only: nothing here writes to the runs folder or the ledger. Paths and fingerprints stay
+on the Mac; the page only gets the fields below.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+from pathlib import Path
+
+from ..score import ledger, review
+
+TAGS = Path(__file__).resolve().parents[2] / "docs" / "evaluation" / "benchmark_tags.json"
+HORNS = {"as": "alto", "alto": "alto", "ts": "tenor", "tenor": "tenor", "ss": "soprano", "soprano": "soprano",
+         "bs": "baritone", "baritone": "baritone"}
+KINDS = {"transcribed": "Transcribed solo", "book_split": "Book transcription", "youtube_etude": "Etude",
+         "test_tune": "Your test tune", "site_pdf": "Transcription site", "excerpt": "Excerpt"}
+# "48 Famous Studies (Ferling) p. Etude No. 1, Adagio" / "Selected Studies ... (ed. Voxman, Rubank) p.13 Ferling Etude No. 8"
+ETUDE = re.compile(r"^(?P<book>.+?)\s*\((?P<paren>[^)]*)\)\s*p\.\s*(?P<page>\d*)\s*(?P<rest>.*)$")
+
+_hashes: dict[tuple[str, int, int], str] = {}  # (path, size, mtime_ns) -> sha256, so each PDF is read once
+
+
+def sha256(path: Path) -> str:
+    st = path.stat()
+    key = (str(path), st.st_size, st.st_mtime_ns)
+    if key not in _hashes:
+        h = hashlib.sha256()
+        with path.open("rb") as f:
+            for block in iter(lambda: f.read(1 << 20), b""):
+                h.update(block)
+        _hashes[key] = h.hexdigest()
+    return _hashes[key]
+
+
+def runs_dir(runs: str | Path | None) -> Path:
+    return Path(runs).expanduser() if runs else Path.home() / "saxscribe-runs"
+
+
+def local_path(runs: str | Path | None, value: str) -> Path | None:
+    """A ledger path on this machine. The ledger writes ~/saxscribe-runs/...; that prefix maps to the
+    runs folder the app was started with."""
+    if not value:
+        return None
+    for prefix in ("~/saxscribe-runs/", str(Path.home() / "saxscribe-runs") + "/"):
+        if value.startswith(prefix):
+            return runs_dir(runs) / value[len(prefix):]
+    return Path(value).expanduser()
+
+
+def fingerprint_ok(runs: str | Path | None, row: dict) -> str:
+    """"ok", "missing" (no file there) or "changed" (the file differs from the one that was matched)."""
+    p = local_path(runs, row.get("pdf", ""))
+    if p is None or not p.is_file():
+        return "missing"
+    want = (row.get("sha256") or "").strip().lower()
+    if want and sha256(p) != want:
+        return "changed"
+    return "ok"
+
+
+def benchmark_tags() -> dict:
+    try:
+        return json.loads(TAGS.read_text()).get("songs", {})
+    except (OSError, ValueError):
+        return {}
+
+
+def fraction(v) -> float | None:
+    """Ledger scores come as percent (85.0) or as a fraction (0.85); the page gets a fraction."""
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return round(f / 100 if f > 1 else f, 3)
+
+
+def year_of(chart_id: str) -> int | None:
+    m = re.search(r"_((?:18|19|20)\d\d)$", chart_id or "")
+    return int(m.group(1)) if m else None
+
+
+def etude(row: dict) -> dict:
+    """Etudes group under their composer (Ferling, Voxman, Luft), like a player; whoever played the
+    recording is listed as the recording."""
+    cid = row.get("chart_id", "")
+    composer = re.match(r"[a-z]+", cid)
+    composer = composer.group(0).title() if composer else ""
+    tune = row.get("tune", "")
+    m = ETUDE.match(tune)
+    book, title = (m.group("book").strip(), m.group("rest").strip()) if m else ("", tune)
+    if composer and title.lower().startswith(composer.lower()):
+        title = title[len(composer):].strip()
+    if m and not title:
+        title = f"Page {m.group('page')}" if m.group("page") else tune
+    return {"player": composer or row.get("performer", ""), "title": title or tune, "book": book,
+            "played_by": row.get("performer", "")}
+
+
+ENSEMBLE = re.compile(r"\s+(quartet|quintet|sextet|trio|orchestra|big band|band|group)$", re.I)
+
+
+def player_name(name: str) -> str:
+    """"Stan Getz, Oscar Peterson Trio" -> "Stan Getz"; "Stan Getz Quartet" -> "Stan Getz"."""
+    first = (name or "").split(",")[0].strip()
+    return ENSEMBLE.sub("", first).strip() or (name or "").strip()
+
+
+def horn_from_name(path: str) -> str:
+    m = re.search(r"\b(alto|tenor|soprano|baritone|bari)\b", Path(path or "").name, re.I)
+    word = m.group(1).lower() if m else ""
+    return "baritone" if word == "bari" else HORNS.get(word, "")
+
+
+def key_item(row: dict, tags: dict, report: dict) -> dict:
+    cid = row.get("chart_id", "")
+    tag = tags.get(cid) or {}
+    rep = report.get(cid) or {}
+    kind = row.get("kind", "")
+    item = {"id": cid, "source": "key", "kind": kind, "kind_name": KINDS.get(kind, kind.replace("_", " ")),
+            "title": row.get("tune", "") or cid, "player": tag.get("player") or player_name(row.get("performer", "")),
+            "played_by": "", "book": "", "record": row.get("recording", "") or tag.get("album") or "",
+            "horn": HORNS.get((row.get("horn") or "").lower()) or HORNS.get((tag.get("horn") or "").lower(), "")
+            or horn_from_name(row.get("pdf", "")),
+            "year": tag.get("year") or year_of(cid), "style": tag.get("style") or "",
+            "heard": fraction(row.get("heard_agree")), "coverage": fraction(row.get("coverage")),
+            "audit": row.get("audit", ""), "href": None}
+    if kind == "youtube_etude":
+        item.update(etude(row))
+    if tag.get("title") and kind != "youtube_etude":
+        item["title"] = tag["title"]
+    item["decade"] = f"{item['year'] // 10 * 10}s" if item["year"] else ""
+    if rep.get("in_training"):
+        item["use"] = "training"
+    elif cid in tags or rep.get("benchmark"):
+        item["use"] = "benchmark"
+    else:
+        item["use"] = None
+    return item
+
+
+def take_item(job: dict) -> dict:
+    added = job.get("added") or ""
+    return {"id": job["id"], "source": "saxscribe", "kind": "take",
+            "kind_name": "Band record" if job.get("mix") else "Solo take",
+            "title": job.get("title") or job["id"], "player": job.get("artist") or "", "played_by": "", "book": "",
+            "record": "", "horn": job.get("horn", ""), "year": int(added[:4]) if added[:4].isdigit() else None,
+            "decade": "", "style": "", "heard": None, "coverage": None, "audit": "", "use": None,
+            "added": added, "href": f"/take/{job['id']}"}
+
+
+def load(runs: str | Path | None = None, takes: list[dict] | None = None) -> dict:
+    """{songs: [...], counts: {...}, ledger: {generated, from} or None}."""
+    found = ledger.full_rows(runs)
+    rows, about = found if found else ([], None)
+    tags = benchmark_tags()
+    report = {e["id"]: e for e in review.load(runs)["entries"]}
+    songs, hidden = [], {"missing": 0, "changed": 0}
+    matched = [r for r in rows if r.get("status") == "matched"]
+    for row in matched:
+        state = fingerprint_ok(runs, row)
+        if state != "ok":
+            hidden[state] += 1
+            continue
+        songs.append(key_item(row, tags, report))
+    done = [take_item(j) for j in (takes or []) if j.get("state") == "done"]
+    charts = (about or {}).get("charts") or sum(1 for r in rows if r.get("status") != "excluded")
+    return {"songs": songs + done,
+            "counts": {"keys": len(songs), "takes": len(done), "matched": len(matched), "charts": charts,
+                       "hidden_missing": hidden["missing"], "hidden_changed": hidden["changed"]},
+            "ledger": about}
