@@ -45,12 +45,33 @@ def _read(folder: Path) -> dict | None:
     return out
 
 
-def load(runs: str | Path | None = None) -> dict | None:
-    """The newest ledger: this machine's (<runs>/catalog/ledger) or the repo snapshot; None when neither exists."""
+def _newest(runs: str | Path | None) -> tuple[dict, str, Path] | None:
     local = (Path(runs).expanduser() if runs else Path.home() / "saxscribe-runs") / "catalog" / "ledger"
-    found = [(d, src) for d, src in ((_read(local), "this Mac"), (_read(REPO_LEDGER), "the repo snapshot")) if d]
+    found = [(d, src, folder) for folder, src in ((local, "this Mac"), (REPO_LEDGER, "the repo snapshot"))
+             if (d := _read(folder))]
     if not found:
         return None
-    data, src = max(found, key=lambda x: x[0]["status"].get("generated", ""))
+    return max(found, key=lambda x: x[0]["status"].get("generated", ""))
+
+
+def load(runs: str | Path | None = None) -> dict | None:
+    """The newest ledger: this machine's (<runs>/catalog/ledger) or the repo snapshot; None when neither exists."""
+    found = _newest(runs)
+    if not found:
+        return None
+    data, src, _ = found
     data["from"] = src
     return data
+
+
+def full_rows(runs: str | Path | None = None) -> tuple[list[dict], dict] | None:
+    """Every column of pdf_ledger.csv (PDF path and fingerprint included) from the same copy load() picks,
+    plus {generated, from}. For the app's Library, which runs on the Mac; never sent to a page as is."""
+    found = _newest(runs)
+    if not found:
+        return None
+    data, src, folder = found
+    path = folder / "pdf_ledger.csv"
+    rows = list(csv.DictReader(path.open(newline=""))) if path.exists() else []
+    return rows, {"generated": data["status"].get("generated", ""), "from": src,
+                  "charts": data["status"].get("charts")}
