@@ -21,6 +21,8 @@
       <section class="card" id="rec">
         <h2>Recording</h2>
         <div class="field" id="whichField" hidden><div class="seg" id="which"><button type="button" data-v="record" class="on">Record</button><button type="button" data-v="stem">Sax only</button></div></div>
+        <div class="field" id="clipField" hidden><div class="seg" id="clipSel"><button type="button" data-v="solo" class="on">Just the solo</button><button type="button" data-v="full">Full track</button></div>
+          <span class="quiet small" id="clipNote"></span></div>
         <audio id="audio" controls preload="metadata"></audio>
         <div class="field">
           <label class="small" id="keyLabel" hidden><input type="checkbox" id="keyAlong"> Play the answer key along as soft tones</label>

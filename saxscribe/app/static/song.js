@@ -4,6 +4,7 @@
 const songId = decodeURIComponent(location.pathname.split('/').pop());
 const api = `/api/library/${encodeURIComponent(songId)}`;
 const audio = $('#audio');
+let clip = null;
 const USE = {training: 'In training: a model learned from this song', benchmark: 'Benchmark: held out, used only to score the model'};
 const AUDIT = {low: 'Low', medium: 'Medium', high: 'High'};
 const pct = v => v == null ? '–' : `${Math.round(100 * v)}%`;
@@ -43,6 +44,17 @@ async function main() {
       audio.addEventListener('loadedmetadata', () => { audio.currentTime = t; setSpeed(); if (playing) audio.play(); }, {once: true});
     });
     $('#keyLabel').hidden = !s.has_key;
+    // just the transcribed solo by default, with a few seconds either side; Full track plays it all
+    clip = soloClip(audio, s.clip);
+    if (s.clip) {
+      $('#clipNote').textContent = `Solo ${clipLabel(s.clip)}`;
+      segment($('#clipSel'), v => clip.set(v === 'solo'));
+      audio.addEventListener('loadedmetadata', () => {
+        const show = clip.worth(audio.duration);
+        $('#clipField').hidden = !show;
+        if (!show) clip.set(false);
+      }, {once: true});
+    }
   } else {
     audio.hidden = true; $('#noAudio').hidden = false;
   }

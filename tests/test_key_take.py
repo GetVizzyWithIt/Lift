@@ -126,3 +126,31 @@ def test_library_play_routes(tmp_path, monkeypatch):
     assert c.get("/api/library/nope/job").status_code == 404
     (song / "key.json").unlink()
     assert c.get(f"/api/library/{SONG}/job").status_code in (404, 409)
+
+
+def test_solo_clip_pads_the_key_notes(tmp_path):
+    from saxscribe.app import catalog
+    k = tmp_path / "k.json"
+    k.write_text(json.dumps([{"onset": 95.0, "offset": 95.5, "pitch": 60}, {"onset": 140.2, "offset": 141.0, "pitch": 62}]))
+    assert catalog.solo_clip(k) == {"start": 92.0, "end": 144.0, "first_note": 95.0, "last_note": 141.0}
+    k.write_text(json.dumps([{"onset": 1.0, "offset": 2.0, "pitch": 60}]))
+    assert catalog.solo_clip(k)["start"] == 0.0  # never before the record starts
+    k.write_text("[]")
+    assert catalog.solo_clip(k) is None and catalog.solo_clip(None) is None
+
+
+def test_song_and_play_along_carry_the_solo_clip(tmp_path):
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from saxscribe.app.library import Library
+    from saxscribe.app.server import create_app
+
+    runs = make_runs(tmp_path)
+    song = runs / "keys" / "transcribed" / SONG
+    notes = [{**n, "onset": n["onset"] + 60, "offset": n["offset"] + 60} for n in key_notes()]
+    (song / "key.json").write_text(json.dumps(notes))
+    c = TestClient(create_app(Library(tmp_path / "lib", inline=True), runs=runs))
+    clip = c.get(f"/api/library/{SONG}").json()["clip"]
+    assert clip["start"] == 57.0 and clip["first_note"] == 60.0 and clip["end"] == round(max(n["offset"] for n in notes) + 3, 2)
+    assert c.get(f"/api/library/{SONG}/job").json()["clip"] == clip

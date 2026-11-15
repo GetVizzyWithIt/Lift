@@ -249,11 +249,29 @@ def song(runs: str | Path | None, song_id: str) -> tuple[dict, dict]:
     f = files(runs, row, rep, etude_links(runs))
     rep = rep or {}
     item.update(href=f"/library/{song_id}", has_audio=f["audio"] is not None, has_stem=f["stem"] is not None,
-                has_key=f["key"] is not None,
+                has_key=f["key"] is not None, clip=solo_clip(f["key"]) if f["audio"] is not None else None,
                 match={"verdict": rep.get("verdict"), "reason": rep.get("reason") or row.get("reason", ""),
                        "length_s": rep.get("length_s"), "tempo_jumps": rep.get("tempo_jumps"),
                        "checked": rep.get("checked"), "austin": rep.get("austin_verdict") or None})
     return item, f
+
+
+CLIP_PAD = 3.0  # seconds of the record kept before the solo's first note and after its last
+
+
+def solo_clip(key: Path | None, pad: float = CLIP_PAD) -> dict | None:
+    """Where the transcribed solo sits in the record: {start, end} in seconds, padded, from the key's
+    own note times (the line-up check put them on the record's clock). None without a key."""
+    try:
+        notes = review.notes_in(key)
+    except (OSError, ValueError):
+        return None
+    if not notes:
+        return None
+    first = min(n["onset"] for n in notes)
+    last = max(n.get("offset") or n["onset"] for n in notes)
+    return {"start": round(max(0.0, first - pad), 2), "end": round(last + pad, 2),
+            "first_note": round(first, 2), "last_note": round(last, 2)}
 
 
 def bars_file(runs: str | Path | None, song_id: str, key: Path | None) -> Path | None:
@@ -292,5 +310,6 @@ def play_take(runs: str | Path | None, song_id: str, library_root: Path):
                           item["title"], item["player"])
     job = {"id": song_id, "title": item["title"], "artist": item["player"], "horn": item["horn"] or "concert",
            "mix": item.get("has_stem", False), "engine": "answer_key", "state": "done", "library": True,
-           "pdf": f"/api/library/{song_id}/pdf", "credit": "Answer key from the chart"}
+           "pdf": f"/api/library/{song_id}/pdf", "credit": "Answer key from the chart",
+           "clip": item.get("clip")}
     return take, job, f

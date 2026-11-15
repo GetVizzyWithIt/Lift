@@ -31,3 +31,28 @@ async function download(url) {
   setTimeout(() => URL.revokeObjectURL(a.href), 60000);
 }
 const HORN_NAMES = {soprano: 'Soprano', alto: 'Alto', tenor: 'Tenor', baritone: 'Baritone', concert: 'Concert'};
+
+// Solo clip: while on, an <audio> plays only the transcribed solo (clip = {start, end} in seconds of the
+// record, a few seconds padded each side). The record itself is untouched; this only moves the playhead.
+// Returns {on, set(on), span()}; when the solo is most of the track the switch isn't worth showing.
+function soloClip(audio, clip) {
+  const c = {on: !!clip, clip};
+  const outside = () => audio.currentTime < c.clip.start - 0.05 || audio.currentTime >= c.clip.end - 0.05;
+  audio.addEventListener('play', () => { if (c.on && outside()) audio.currentTime = c.clip.start; });
+  audio.addEventListener('timeupdate', () => {
+    if (c.on && audio.currentTime >= c.clip.end) { audio.pause(); audio.currentTime = c.clip.start; }
+  });
+  audio.addEventListener('loadedmetadata', () => { if (c.on && audio.currentTime < c.clip.start) audio.currentTime = c.clip.start; });
+  audio.addEventListener('seeked', () => { if (c.on && outside()) audio.currentTime = c.clip.start; });
+  c.set = on => {
+    c.on = !!(on && clip);
+    if (c.on && outside()) audio.currentTime = c.clip.start;
+  };
+  c.worth = duration => !!clip && !(duration > 0 && clip.end - clip.start >= 0.9 * duration);
+  c.span = () => c.on ? [c.clip.start, Math.min(c.clip.end, audio.duration || c.clip.end)] : [0, audio.duration || 0];
+  return c;
+}
+function clipLabel(clip) {
+  const m = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  return `${m(clip.first_note ?? clip.start)}–${m(clip.last_note ?? clip.end)}`;
+}
