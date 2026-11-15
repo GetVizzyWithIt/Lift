@@ -13,6 +13,7 @@ let size = 1;
 try { size = parseInt(localStorage.getItem('saxscribe-size') ?? '1', 10); } catch (e) {}
 if (!(size >= 0 && size <= 3)) size = 1;
 let barOf = {};
+let clip = null;  // Library songs: play just the solo (common.js soloClip)
 let job, view, starts = [], measures = [], qOf = {}, lit = [], litMeasure = null, follow = true, nBars = 1;
 const BEATS = 4;  // quarter notes per bar (layers/notation.py BEATS_PER_BAR)
 // Charts can change meter: the server then sends where every bar starts (quarter notes from the top).
@@ -66,6 +67,16 @@ async function loadJob() {
   if (job.mix) {
     $('#audioSel').hidden = false;
     segment($('#audioSel'), which => setAudio(which));
+  }
+  if (job.clip) {
+    clip = soloClip(audio, job.clip);
+    segment($('#clipSel'), v => { clip.set(v === 'solo'); update(true); });
+    audio.addEventListener('loadedmetadata', () => {
+      const show = clip.worth(audio.duration);
+      $('#clipSel').hidden = !show;
+      if (!show) clip.set(false);
+      update(true);
+    }, {once: true});
   }
   setAudio('source');
   await loadScore(job.horn);
@@ -124,7 +135,10 @@ async function loadScore(v) {
 function update(force) {
   const t = audio.currentTime || 0, d = audio.duration || 0;
   $('#time').textContent = `${clock(t)} / ${clock(d)}`;
-  if (!seeking) { $('#seek').max = d || 1; $('#seek').value = t; }
+  if (!seeking) {
+    const [lo, hi] = clip ? clip.span() : [0, d];
+    $('#seek').min = lo; $('#seek').max = hi || 1; $('#seek').value = t;
+  }
   const q = tToQ(t);
   const i = lastAtOrBefore(starts, q);
   const ids = i >= 0 && (audio.currentTime > 0 || !audio.paused) ? starts[i].ids : [];
