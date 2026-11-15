@@ -254,3 +254,43 @@ def song(runs: str | Path | None, song_id: str) -> tuple[dict, dict]:
                        "length_s": rep.get("length_s"), "tempo_jumps": rep.get("tempo_jumps"),
                        "checked": rep.get("checked"), "austin": rep.get("austin_verdict") or None})
     return item, f
+
+
+def bars_file(runs: str | Path | None, song_id: str, key: Path | None) -> Path | None:
+    """The page reading (score reader's bars, written pitch) that goes with a key, if any."""
+    cands = []
+    if key is not None:
+        cands.append(key.parent / f"{song_id}_bars.txt")
+    m = re.match(r"(ferling|luft)(\d+)_", song_id)
+    if m:
+        etude_keys = runs_dir(runs) / "keys" / "etudes" / "keys"
+        cands.append(etude_keys / (f"study{int(m.group(2)):02d}_bars.txt" if m.group(1) == "ferling"
+                                   else f"luft{int(m.group(2)):02d}_bars.txt"))
+    return next((c for c in cands if c.is_file()), None)
+
+
+def masks(runs: str | Path | None, song_id: str) -> str:
+    """Bars the newest answer-key audit says to mask for this song ("9-17 35-38"), or ""."""
+    audits = sorted((runs_dir(runs) / "keys" / "_audit").glob("*/masks_suggested.csv"))
+    for path in reversed(audits):
+        with path.open(newline="") as f:
+            for row in csv.DictReader(f):
+                if row.get("id") == song_id:
+                    return row.get("bars_to_mask", "")
+    return ""
+
+
+def play_take(runs: str | Path | None, song_id: str, library_root: Path):
+    """(the key as a take folder, a job dict for the player) for one matched song.
+    KeyError when the song isn't in the Library; LookupError when it has no key or recording."""
+    from . import key_take
+    item, f = song(runs, song_id)
+    if f["key"] is None or f["audio"] is None:
+        raise LookupError("This song has no answer key or recording to play along with on this Mac.")
+    take = key_take.build(f["key"], bars_file(runs, song_id, f["key"]), item["horn"],
+                          Path(library_root) / "_keys" / song_id / "take", masks(runs, song_id),
+                          item["title"], item["player"])
+    job = {"id": song_id, "title": item["title"], "artist": item["player"], "horn": item["horn"] or "concert",
+           "mix": item.get("has_stem", False), "engine": "answer_key", "state": "done", "library": True,
+           "pdf": f"/api/library/{song_id}/pdf", "credit": "Answer key from the chart"}
+    return take, job, f

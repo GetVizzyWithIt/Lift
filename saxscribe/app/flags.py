@@ -40,7 +40,6 @@ import uuid
 from fractions import Fraction
 from pathlib import Path
 
-from ..layers.notation import BEATS_PER_BAR
 from ..take import Take
 
 # key -> words on the page. The order is the order of the buttons.
@@ -136,21 +135,23 @@ def _clock_of(take: Take):
 def bar_context(take: Take, bar: int, picked: list[float], to: int | None = None) -> dict:
     """Where bars `bar`..`to` are in the recording, and the notes written in them.
     picked = quarter-note positions (from bar 1) of the notes tapped."""
+    from .score_view import bar_q
     to = max(bar, to or bar)
     at = _clock_of(take)
     played = json.loads(take.notes.read_text())["notes"]
     nota = json.loads(take.notation.read_text())
+    start_of = bar_q(nota)
     notes = []
     for n in nota["notes"]:
         if not bar <= n["bar"] <= to:
             continue
-        q = (n["bar"] - 1) * BEATS_PER_BAR + float(Fraction(n["beat"])) - 1
+        q = float(start_of(n["bar"]) + Fraction(n["beat"])) - 1
         p = played[n["index"]]
         notes.append({"index": n["index"], "bar": n["bar"], "pitch": n["pitch"], "name": pitch_name(n["pitch"]),
                       "beat": n["beat"], "length_beats": n["length_beats"],
                       "onset": round(float(p["onset"]), 3), "offset": round(float(p["offset"]), 3),
                       "picked": any(abs(q - x) < 1e-3 for x in picked)})
-    return {"start": round(at((bar - 1) * BEATS_PER_BAR), 3), "end": round(at(to * BEATS_PER_BAR), 3),
+    return {"start": round(at(float(start_of(bar))), 3), "end": round(at(float(start_of(to + 1))), 3),
             "notes": notes}
 
 
@@ -170,7 +171,8 @@ def run_info(take: Take, job: dict) -> dict:
     engine = job.get("engine", "standard")
     tool = (layers.get("notes") or {}).get("tool")
     # Name the path that actually ran ("auto" picks per recording).
-    name = ("Sax model" if tool == "filosax" else "Standard") if tool else ENGINES.get(engine, engine.capitalize())
+    name = ({"filosax": "Sax model", "answer_key": "Answer key"}.get(tool, "Standard") if tool
+            else ENGINES.get(engine, engine.capitalize()))
     date = ""
     try:
         t = time.strptime(made[:19], "%Y-%m-%dT%H:%M:%S")
