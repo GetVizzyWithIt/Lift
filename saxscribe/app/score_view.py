@@ -90,7 +90,7 @@ def pages(take: Take, view: str, song: dict | None = None) -> list[str]:
     from .meta import stamp
     song = song or {}
     xml = stamp(musicxml(take, view, song).read_text(encoding="utf-8"),
-                song.get("title", ""), song.get("artist", ""), credits=True)
+                song.get("title", ""), song.get("artist", ""), credits=True, credit=song.get("credit"))
     if not tk.loadData(xml):
         raise ValueError(f"Verovio could not read the {view} score")
     out = [tk.renderToSVG(p) for p in range(1, tk.getPageCount() + 1)]
@@ -119,14 +119,34 @@ def render(take: Take, view: str, size: int = 1, song: dict | None = None) -> di
     from .meta import stamp
     xml = musicxml(take, view, song).read_text(encoding="utf-8")
     if song:
-        xml = stamp(xml, song.get("title", ""), song.get("artist", ""), credits=True)
+        xml = stamp(xml, song.get("title", ""), song.get("artist", ""), credits=True, credit=song.get("credit"))
     if not tk.loadData(xml):
         raise ValueError(f"Verovio could not read the {view} score")
     svg = "".join(tk.renderToSVG(p) for p in range(1, tk.getPageCount() + 1))
     if song and song.get("title"):
         svg = bold_title(svg, song["title"])
     timemap = tk.renderToTimemap({"includeMeasures": True, "includeRests": True})
-    return {"view": view, "svg": svg, "timemap": timemap, "sync": sync(take)}
+    out = {"view": view, "svg": svg, "timemap": timemap, "sync": sync(take)}
+    nota = json.loads(take.notation.read_text())
+    if nota.get("bar_starts"):  # bars of different lengths: the page needs each bar's start
+        out["bar_starts"] = [float(Fraction(x)) for x in nota["bar_starts"]]
+        out["bar_numbers"] = nota.get("bar_numbers")
+        if nota.get("bar_end"):
+            out["bar_end"] = float(Fraction(nota["bar_end"]))
+        out["masked_bars"] = nota.get("masked_bars", [])
+    return out
+
+
+def bar_q(nota: dict):
+    """bar number -> quarter notes from the top to that bar's first beat. Takes have four beats in
+    every bar; an answer key (key_take.py) can change meter and lists where each bar starts."""
+    if nota.get("bar_starts"):
+        starts = {b: Fraction(s) for b, s in zip(nota.get("bar_numbers") or range(1, len(nota["bar_starts"]) + 1),
+                                                 nota["bar_starts"])}
+        last = max(starts) if starts else 0
+        end = Fraction(nota.get("bar_end") or (starts.get(last, Fraction(0)) + BEATS_PER_BAR))
+        return lambda bar: starts[bar] if bar in starts else end + BEATS_PER_BAR * (bar - last - 1)
+    return lambda bar: Fraction((bar - 1) * BEATS_PER_BAR)
 
 
 def sync(take: Take) -> list[list[float]]:
@@ -135,17 +155,21 @@ def sync(take: Take) -> list[list[float]]:
     nota = json.loads(take.notation.read_text())
     shift = Fraction(nota.get("beat_shift", "0"))
     played = notes["notes"]
+    start_of = bar_q(nota)
 
     # Written notes at the moment they were played.
     pts = []
     for n in nota["notes"]:
-        q = (n["bar"] - 1) * BEATS_PER_BAR + Fraction(n["beat"]) - 1
+        q = start_of(n["bar"]) + Fraction(n["beat"]) - 1
         pts.append((float(q), float(played[n["index"]]["onset"])))
     pts.sort()
     anchors: list[tuple[float, float]] = []
     for q, t in pts:
         if not anchors or (q > anchors[-1][0] and t > anchors[-1][1]):
             anchors.append((q, t))
+
+    if nota.get("sync") == "notes":  # an answer key: its notes are the whole timing, no beat grid
+        return [[round(q, 4), round(t, 4)] for q, t in anchors]
 
     # The beat grid between them: tracked beat i sits at i + shift in the score.
     beats = notes.get("beats") or []

@@ -4,6 +4,7 @@ Pages:
   /                  upload a recording, see every take
   /library           every answer key matched to its recording, plus finished takes (catalog.py)
   /library/<id>      one song: the chart's pages, its recording, and the match facts
+  /library/<id>/play the play-along on the song's answer key (key_take.py), same player as a take
   /take/<id>         the play-along for one take
   /take/<id>/pdf     the PDF (MuseScore's), or the print page when there is none
   /take/<id>/print   the score as letter pages, to print or save as PDF from the browser
@@ -18,6 +19,11 @@ API (JSON unless noted):
   GET  /api/library/<id>/pdf      the chart PDF itself
   GET  /api/library/<id>/audio/<which>  record or stem (sax only), only the files the match used
   GET  /api/library/<id>/key      the answer key's notes, for playing it along as soft tones
+  GET  /api/library/<id>/job      the play-along's view of the song (title, horn, sax-only stem or not)
+  GET  /api/library/<id>/score    the answer key as a score: ?view=&size=, like a take's
+  GET  /api/library/<id>/file/musicxml   the answer key's score as MusicXML (?view=)
+  .../flags, flags.txt, flags.json, heard, suggestions, flags/<fid>: as for a take, saved in
+                                  <library>/_keys/<id>/flags.json
   GET  /api/results               scorecard runs, change markers and targets (score/history.py)
   GET  /api/review                the match check's chart/recording pairs and Austin's verdicts (score/review.py)
   POST /api/review/<id>           Austin's verdict on one pair: {verdict: good|wrong|unsure|null, note}
@@ -159,7 +165,7 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
     @app.get("/api/library/{song_id}/audio/{which}")
     def song_audio(song_id: str, which: str):
         _, f = song_or_404(song_id)
-        p = {"record": f["audio"], "stem": f["stem"]}.get(which)
+        p = {"record": f["audio"], "source": f["audio"], "stem": f["stem"]}.get(which)
         if p is None:
             raise HTTPException(404, "No such recording for this song")
         return FileResponse(p)
@@ -172,6 +178,109 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
             return {"notes": review.notes_in(f["key"])}
         except (OSError, ValueError) as e:
             raise HTTPException(422, f"Could not read the key: {e}")
+
+    # ---- the play-along on a Library song's answer key (key_take.py): the take player and its flags
+    def key_or_404(song_id: str):
+        from . import catalog
+        try:
+            take, job, _ = catalog.play_take(runs, song_id, library.root)
+        except KeyError:
+            raise HTTPException(404, "No such song in the Library")
+        except LookupError as e:
+            raise HTTPException(409, str(e))
+        except (OSError, ValueError) as e:
+            raise HTTPException(422, f"Could not turn the answer key into a score: {e}")
+        return library.root / "_keys" / song_id, take, job
+
+    @app.get("/library/{song_id}/play", include_in_schema=False)
+    def song_play(song_id: str):
+        song_or_404(song_id)
+        return FileResponse(STATIC / "play.html")
+
+    @app.get("/api/library/{song_id}/job")
+    def song_job(song_id: str):
+        return key_or_404(song_id)[2]
+
+    @app.get("/api/library/{song_id}/score")
+    def song_score(song_id: str, view: str | None = None, size: int = 1):
+        _, take, job = key_or_404(song_id)
+        return score_view.render(take, view_or_400(job, view), size, job)
+
+    @app.get("/api/library/{song_id}/file/musicxml")
+    def song_musicxml(song_id: str, view: str | None = None):
+        _, take, job = key_or_404(song_id)
+        view = view_or_400(job, view)
+        return FileResponse(score_view.musicxml(take, view, job), media_type="application/vnd.recordare.musicxml+xml",
+                            filename=f"{file_name(job, view)} (answer key).musicxml")
+
+    def key_flags(folder, take, job, last=None):
+        out = flag_store.page(folder, take, job)
+        if last is not None:
+            out["last"] = last
+        return out
+
+    @app.get("/api/library/{song_id}/flags")
+    def song_flags(song_id: str):
+        return key_flags(*key_or_404(song_id))
+
+    @app.get("/api/library/{song_id}/flags.txt")
+    def song_flags_text(song_id: str):
+        return PlainTextResponse(key_flags(*key_or_404(song_id))["text"])
+
+    @app.get("/api/library/{song_id}/flags.json")
+    def song_flags_file(song_id: str):
+        folder, _, job = key_or_404(song_id)
+        p = flag_store.path(folder)
+        if not p.exists():
+            raise HTTPException(404, "No bars flagged yet")
+        return FileResponse(p, media_type="application/json", filename=f"{file_name(job, job['horn'])} key flags.json")
+
+    @app.post("/api/library/{song_id}/flags")
+    def song_add_flag(song_id: str, body: dict = Body(...)):
+        folder, take, job = key_or_404(song_id)
+        try:
+            flag = flag_store.save(folder, take, job, body)
+        except (ValueError, TypeError) as e:
+            raise HTTPException(400, str(e))
+        return key_flags(folder, take, job, {"id": flag["id"], "bar": flag["bar"], "to": flag["to"], "undo": flag["undo"]})
+
+    @app.post("/api/library/{song_id}/heard")
+    def song_heard(song_id: str, body: dict = Body(...)):
+        folder, take, job = key_or_404(song_id)
+        try:
+            flag_store.heard(folder, take, job, list(body.get("bars", [])))
+        except (ValueError, TypeError) as e:
+            raise HTTPException(400, str(e))
+        return key_flags(folder, take, job)
+
+    @app.post("/api/library/{song_id}/suggestions")
+    def song_suggestion(song_id: str, body: dict = Body(...)):
+        folder, take, job = key_or_404(song_id)
+        try:
+            flag_store.review(folder, take, job, body.get("bars", []), body.get("answer", ""))
+        except (ValueError, IndexError, TypeError) as e:
+            raise HTTPException(400, str(e))
+        return key_flags(folder, take, job)
+
+    @app.put("/api/library/{song_id}/flags/{flag_id}")
+    def song_change_flag(song_id: str, flag_id: str, body: dict = Body(...)):
+        folder, take, job = key_or_404(song_id)
+        try:
+            flag_store.save(folder, take, job, body, flag_id)
+        except (ValueError, TypeError) as e:
+            raise HTTPException(400, str(e))
+        except KeyError:
+            raise HTTPException(404, "No such flag")
+        return key_flags(folder, take, job)
+
+    @app.delete("/api/library/{song_id}/flags/{flag_id}")
+    def song_remove_flag(song_id: str, flag_id: str):
+        folder, take, job = key_or_404(song_id)
+        try:
+            flag_store.remove(folder, flag_id)
+        except KeyError:
+            raise HTTPException(404, "No such flag")
+        return key_flags(folder, take, job)
 
     @app.get("/results", include_in_schema=False)
     def results_page():

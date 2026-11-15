@@ -3,7 +3,11 @@
 // built from the exact onsets in notes.json and the beat grid.
 // Below the scroller: feedback. Flag bars while it plays, sort the flags afterwards, and
 // keep a tracker of what was flagged on which run (server: flags.py).
-const takeId = location.pathname.split('/').pop();
+// Two homes: a take (/take/<id>) or a Library song's answer key (/library/<id>/play).
+const parts = location.pathname.split('/').filter(Boolean);
+const libraryId = parts[0] === 'library' ? decodeURIComponent(parts[1]) : null;
+const takeId = libraryId ?? parts[parts.length - 1];
+const API = libraryId ? `/api/library/${encodeURIComponent(libraryId)}` : `/api/takes/${takeId}`;
 const audio = $('#audio');
 let size = 1;
 try { size = parseInt(localStorage.getItem('saxscribe-size') ?? '1', 10); } catch (e) {}
@@ -11,6 +15,19 @@ if (!(size >= 0 && size <= 3)) size = 1;
 let barOf = {};
 let job, view, starts = [], measures = [], qOf = {}, lit = [], litMeasure = null, follow = true, nBars = 1;
 const BEATS = 4;  // quarter notes per bar (layers/notation.py BEATS_PER_BAR)
+// Charts can change meter: the server then sends where every bar starts (quarter notes from the top).
+let BAR = null;  // {num: [bar numbers], q: [start of each], end, at: {num: q}}
+const barQ = b => {
+  if (!BAR) return (b - 1) * BEATS;
+  if (b in BAR.at) return BAR.at[b];
+  const last = BAR.num[BAR.num.length - 1];
+  return b > last ? BAR.end + BEATS * (b - last - 1) : BAR.q[0] - BEATS * (BAR.num[0] - b);
+};
+const barOfQ = q => {
+  if (!BAR) return Math.floor(q / BEATS + 1e-6) + 1;
+  let i = 0; while (i + 1 < BAR.q.length && BAR.q[i + 1] <= q + 1e-6) i++;
+  return BAR.num[i];
+};
 
 // ---- time <-> score position, straight lines between sync points, extended past both ends
 function interp(x, xs, ys) {
@@ -25,8 +42,8 @@ function interp(x, xs, ys) {
 let Q = [], T = [];
 const qToT = q => interp(q, Q, T);
 const tToQ = t => interp(t, T, Q);
-const barStart = b => Math.max(0, qToT((b - 1) * BEATS));
-const barEnd = b => qToT(b * BEATS);
+const barStart = b => Math.max(0, qToT(barQ(b)));
+const barEnd = b => qToT(barQ(b + 1));
 
 function lastAtOrBefore(list, q) {
   let lo = 0, hi = list.length - 1, best = -1;
@@ -36,8 +53,16 @@ function lastAtOrBefore(list, q) {
 
 // ---- loading. The chart is always the horn it was made for; transposing will live in the library.
 async function loadJob() {
-  job = await (await fetch(`/api/takes/${takeId}`)).json();
+  job = await (await fetch(libraryId ? `${API}/job` : API)).json();
   document.title = `${job.title} · Saxscribe`;
+  if (libraryId) {
+    // An answer key: back goes to its song page, the PDF is the chart itself, and there is no band-only track.
+    const back = $('.top a.button'); back.href = `/library/${encodeURIComponent(libraryId)}`; back.textContent = '‹ Song';
+    const band = $('#audioSel [data-v="accompaniment"]'); if (band) band.remove();
+    $('#midi').hidden = true;
+    $('#pdf').textContent = 'PDF chart (the original)';
+    if (!job.pdf) $('#pdf').hidden = true;
+  }
   if (job.mix) {
     $('#audioSel').hidden = false;
     segment($('#audioSel'), which => setAudio(which));
@@ -48,7 +73,7 @@ async function loadJob() {
 
 function setAudio(which) {
   const at = audio.currentTime || 0, playing = !audio.paused;
-  audio.src = `/api/takes/${takeId}/audio/${which}`;
+  audio.src = `${API}/audio/${which}`;
   audio.addEventListener('loadedmetadata', () => {
     audio.currentTime = at; setSpeed();
     if (playing) playAudio();
@@ -59,11 +84,17 @@ async function loadScore(v) {
   view = v;
   const box = $('#score');
   box.innerHTML = '<div class="loading">Drawing the score…</div>';
-  const r = await fetch(`/api/takes/${takeId}/score?view=${v}&size=${size}`);
+  const r = await fetch(`${API}/score?view=${v}&size=${size}`);
   if (!r.ok) { box.innerHTML = `<div class="loading">Could not draw the score: ${esc((await r.json()).detail || r.status)}</div>`; return; }
   const data = await r.json();
   box.innerHTML = data.svg;
   Q = data.sync.map(p => p[0]); T = data.sync.map(p => p[1]);
+  BAR = null;
+  if (data.bar_starts && data.bar_starts.length) {
+    const num = data.bar_numbers || data.bar_starts.map((_, i) => i + 1);
+    BAR = {num, q: data.bar_starts, end: data.bar_end ?? (data.bar_starts[data.bar_starts.length - 1] + BEATS), at: {}};
+    num.forEach((n, i) => { BAR.at[n] = data.bar_starts[i]; });
+  }
   starts = []; measures = []; qOf = {}; barOf = {}; lit = []; litMeasure = null;
   // Verovio's clock can slip by a tuplet note (a tie inside a 16th triplet loses 1/6 beat), which
   // put later bars one number low. Every bar starts on a whole bar in notation.json, so re-anchor
@@ -71,9 +102,13 @@ async function loadScore(v) {
   let shift = 0;
   for (const e of data.timemap) {
     if (e.measureOn) {
-      const at = Math.round(e.qstamp / BEATS) * BEATS;
+      let at, bar;
+      if (BAR) {  // the nearest bar line the server knows
+        let i = 0; BAR.q.forEach((q, k) => { if (Math.abs(q - e.qstamp) < Math.abs(BAR.q[i] - e.qstamp)) i = k; });
+        at = BAR.q[i]; bar = BAR.num[i];
+      } else { at = Math.round(e.qstamp / BEATS) * BEATS; bar = at / BEATS + 1; }
       shift = at - e.qstamp;
-      measures.push({q: at, id: e.measureOn}); barOf[e.measureOn] = at / BEATS + 1;
+      measures.push({q: at, id: e.measureOn}); barOf[e.measureOn] = bar;
     }
     const q = e.qstamp + shift;
     const ids = (e.on || []).filter(id => { const el = document.getElementById(id); return el && el.classList.contains('note'); });
@@ -157,16 +192,18 @@ $('#smaller').addEventListener('click', () => resize(-1));
 $('#bigger').addEventListener('click', () => resize(1));
 document.addEventListener('click', e => { if (!e.target.closest('#dl')) $('#dl').open = false; });
 $('#dl').addEventListener('click', e => { if (e.target.closest('.list button')) $('#dl').open = false; });
-$('#pdf').addEventListener('click', () => { location.href = `/take/${takeId}/pdf?view=${view}`; });
-$('#xml').addEventListener('click', () => download(`/api/takes/${takeId}/file/musicxml?view=${view}`));
-$('#midi').addEventListener('click', () => download(`/api/takes/${takeId}/file/midi`));
+$('#pdf').addEventListener('click', () => {
+  if (libraryId) window.open(job.pdf, '_blank'); else location.href = `/take/${takeId}/pdf?view=${view}`;
+});
+$('#xml').addEventListener('click', () => download(`${API}/file/musicxml?view=${view}`));
+$('#midi').addEventListener('click', () => download(`${API}/file/midi`));
 
 // ---- feedback. Flags never change the transcription; they go to flags.json next to the take,
 // with a copy on the Desktop. Each one is saved against the run of the song it was made on.
 let flags = [], past = [], categories = {}, GROUPS = {}, suggested = [], run = {}, flagsText = '';
 let editing = null, heard = new Set(), heardSent = new Set(), lastUndo = null, loopRange = null, sortSpeed = null;
 const groupOf = c => Object.keys(GROUPS).find(g => g === c || GROUPS[g].keys.includes(c));
-const barAtTime = t => Math.max(1, Math.min(nBars, Math.floor(tToQ(t) / BEATS + 1e-6) + 1));
+const barAtTime = t => Math.max(1, Math.min(nBars, barOfQ(tToQ(t))));
 const nowBar = () => barAtTime(audio.currentTime || 0);
 const flagFor = b => flags.find(f => b >= f.bar && b <= (f.to || f.bar));
 const isSorted = f => !!((f.categories && f.categories.length) || f.text);
@@ -174,7 +211,7 @@ const rangeName = f => (f.to || f.bar) === f.bar ? `Bar ${f.bar}` : `Bars ${f.ba
 const toSort = () => flags.filter(f => !isSorted(f)).sort((a, b) => a.bar - b.bar);
 const post = (url, body, method = 'POST') => fetch(url, {method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
 
-async function loadFlags() { const r = await fetch(`/api/takes/${takeId}/flags`); if (r.ok) gotFlags(await r.json()); }
+async function loadFlags() { const r = await fetch(`${API}/flags`); if (r.ok) gotFlags(await r.json()); }
 function gotFlags(data) {
   flags = data.flags; past = data.past || []; categories = data.categories; GROUPS = data.groups || GROUPS;
   suggested = data.suggested || []; run = data.run || {}; flagsText = data.text;
@@ -396,12 +433,12 @@ async function sendHeard() {
   const bars = [...heard].filter(b => !heardSent.has(b));
   if (!bars.length) return;
   bars.forEach(b => heardSent.add(b));
-  try { const r = await post(`/api/takes/${takeId}/heard`, {bars}); if (r.ok) drawTracker((await r.json()).looks_right || []); }
+  try { const r = await post(`${API}/heard`, {bars}); if (r.ok) drawTracker((await r.json()).looks_right || []); }
   catch (e) { bars.forEach(b => heardSent.delete(b)); }
 }
 window.addEventListener('pagehide', () => {
   const bars = [...heard].filter(b => !heardSent.has(b));
-  if (bars.length && navigator.sendBeacon) navigator.sendBeacon(`/api/takes/${takeId}/heard`, new Blob([JSON.stringify({bars})], {type: 'application/json'}));
+  if (bars.length && navigator.sendBeacon) navigator.sendBeacon(`${API}/heard`, new Blob([JSON.stringify({bars})], {type: 'application/json'}));
 });
 
 // ---- "Sax?" questions pop up as those bars go by; one tap answers without stopping the music
@@ -426,7 +463,7 @@ $('#ask').addEventListener('click', async e => {
   const b = e.target.closest('button[data-a]'); if (!b) return;
   if (!b.dataset.a) { hideAsk(); return; }
   const x = suggested[+b.dataset.i];
-  const r = await post(`/api/takes/${takeId}/suggestions`, {bars: x.bars, answer: b.dataset.a});
+  const r = await post(`${API}/suggestions`, {bars: x.bars, answer: b.dataset.a});
   if (r.ok) { gotFlags(await r.json()); hideAsk(); toast(b.dataset.a === 'sax' ? 'Saved: it’s sax.' : 'Saved: not sax.'); }
   else toast('Could not save that answer.');
 });
@@ -454,7 +491,7 @@ async function flagUp() {
     if (f) openSheet(f, !isSorted(f)); else openSheet({bar: from, to, categories: [], scope: 'bar', picked: [], text: ''});
     return;
   }
-  const r = await post(`/api/takes/${takeId}/flags`, {bar: from, to, categories: [], scope: 'bar', picked: [], text: '', view, merge: true});
+  const r = await post(`${API}/flags`, {bar: from, to, categories: [], scope: 'bar', picked: [], text: '', view, merge: true});
   if (!r.ok) { toast('Could not save the flag.'); return; }
   const data = await r.json(); gotFlags(data);
   lastUndo = data.last ? data.last.undo : null;
@@ -478,8 +515,8 @@ fb.addEventListener('click', e => e.preventDefault());
 document.addEventListener('click', async e => {
   if (!e.target.closest('#undo') || !lastUndo) return;
   const u = lastUndo; lastUndo = null;
-  const r = u.delete ? await fetch(`/api/takes/${takeId}/flags/${u.delete}`, {method: 'DELETE'})
-                     : await post(`/api/takes/${takeId}/flags/${u.put}`, u.body, 'PUT');
+  const r = u.delete ? await fetch(`${API}/flags/${u.delete}`, {method: 'DELETE'})
+                     : await post(`${API}/flags/${u.put}`, u.body, 'PUT');
   if (r.ok) { gotFlags(await r.json()); toast('Undone.'); } else toast('Could not undo that.');
 });
 
@@ -553,7 +590,7 @@ $('#range').addEventListener('click', e => {
   const [end, by] = b.dataset.r.split(':'); const n = +by;
   if (end === 'from') editing.bar = Math.max(1, Math.min(editing.to, editing.bar + n));
   else editing.to = Math.max(editing.bar, Math.min(nBars, editing.to + n));
-  editing.picked = editing.picked.filter(q => q >= (editing.bar - 1) * BEATS && q < editing.to * BEATS);
+  editing.picked = editing.picked.filter(q => q >= barQ(editing.bar) && q < barQ(editing.to + 1));
   drawRange(); if (loopRange) setLoop(true); drawFlags();
 });
 // Or type the bar numbers. The other end follows if needed, so 1 then 32 just works.
@@ -564,7 +601,7 @@ function typedBar(which) {
   const b = Math.max(1, Math.min(nBars, n));
   if (which === 'from') { editing.bar = b; editing.to = Math.max(editing.to, b); }
   else { editing.to = b; editing.bar = Math.min(editing.bar, b); }
-  editing.picked = editing.picked.filter(q => q >= (editing.bar - 1) * BEATS && q < editing.to * BEATS);
+  editing.picked = editing.picked.filter(q => q >= barQ(editing.bar) && q < barQ(editing.to + 1));
   drawRange(); if (loopRange) setLoop(true); drawFlags();
   if (which === 'from') { seekTo(barStart(editing.bar) - 0.05); showBar(editing.bar); }
 }
@@ -617,7 +654,7 @@ async function saveFlag() {
   if (editing.scope === 'notes' && !editing.picked.length) { toast('Tap the notes, or choose Whole bar.'); return; }
   const body = {bar: editing.bar, to: editing.to, categories: finalCats, scope: editing.scope,
                 picked: editing.scope === 'notes' ? editing.picked : [], text, view};
-  const r = await post(editing.id ? `/api/takes/${takeId}/flags/${editing.id}` : `/api/takes/${takeId}/flags`, body, editing.id ? 'PUT' : 'POST');
+  const r = await post(editing.id ? `${API}/flags/${editing.id}` : `${API}/flags`, body, editing.id ? 'PUT' : 'POST');
   if (!r.ok) { let msg = 'Could not save the flag.'; try { msg = (await r.json()).detail || msg; } catch (e) {} toast(msg); return; }
   const was = editing; gotFlags(await r.json());
   const next = was.sorting && toSort()[0];
@@ -626,7 +663,7 @@ async function saveFlag() {
 }
 $('#deleteFlag').addEventListener('click', async () => {
   if (!editing || !editing.id) return;
-  const r = await fetch(`/api/takes/${takeId}/flags/${editing.id}`, {method: 'DELETE'});
+  const r = await fetch(`${API}/flags/${editing.id}`, {method: 'DELETE'});
   if (!r.ok) { toast('Could not delete the flag.'); return; }
   gotFlags(await r.json()); closeSheet(); toast('Flag deleted.');
 });
@@ -656,9 +693,9 @@ $('#copyFlags').addEventListener('click', () => {
 });
 function showText() {
   toast('Select all and copy the text that opened.');
-  window.open(`/api/takes/${takeId}/flags.txt`, '_blank');
+  window.open(`${API}/flags.txt`, '_blank');
 }
-$('#dlFlags').addEventListener('click', () => download(`/api/takes/${takeId}/flags.json`));
+$('#dlFlags').addEventListener('click', () => download(`${API}/flags.json`));
 
 // ---- keys (Mac): F flag (hold for a stretch), S open the flag screen (next to sort, else this bar),
 // space play/pause (also in the flag screen), ← back 2 s, 1–4 pick a reason, Enter save, Esc close.

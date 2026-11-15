@@ -20,6 +20,9 @@ async function main() {
   $('#crumb').textContent = `› ${s.player || ''}`;
   $('#sub').textContent = [s.player, s.year, HORN_NAMES[s.horn], s.played_by && `played by ${s.played_by}`].filter(Boolean).join(' · ');
   $('#openPdf').href = `${api}/pdf`;
+  // the play-along on the engraved answer key needs both the key and the record
+  if (s.has_key && s.has_audio) { $('#playAlong').href = `${location.pathname.replace(/\/$/, '')}/play`; $('#playAlong').hidden = false; }
+  else { $('#noPlay').textContent = s.has_key ? 'No recording to play along with' : 'No answer key to play along with'; $('#noPlay').hidden = false; }
 
   // the chart, page by page
   const box = $('#pages');
