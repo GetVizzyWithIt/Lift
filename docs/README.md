@@ -6,7 +6,7 @@ it uses, how well it does, and why it was built this way. The requirements doc
 stays the source of truth for intent; these pages turn it into something that
 can be checked against the code and the scorecards.
 
-Last full review: 2026-11-03. PR state 2026-11-09: everything through #134 merged; #135 (E78 and this catch-up) open. `main` is protected since 2026-11-08: changes need a pull request and a green `pytest` check. #124–#127 are tooling, not model changes: numpy 2 safe-loader test fix, pinned Python and `requirements.lock`, CI running pytest on every PR, and development standards ([development-standards.md](development-standards.md), ADR-0038). Bias checks standard adopted 2026-11-10 ([standards/bias-checks.md](standards/bias-checks.md), ADR-0040). #84 stays closed; its change merged as #93.
+Last full review: 2026-11-15 (every page checked against where the project is now). PR state 2026-11-15: everything through #185 merged. `main` is protected since 2026-11-08: changes need a pull request and a green `pytest` check. Development standards: [development-standards.md](development-standards.md) is how this repo applies them (ADR-0038); [dev-standards.md](dev-standards.md) is Austin's shared standard, synced from Dev Buddy (PR #185). Bias checks standard adopted 2026-11-10 ([standards/bias-checks.md](standards/bias-checks.md), ADR-0040). Current priority: a clean dataset before any more training ([ADR-0045](decisions/0045-clean-data-before-training.md)); the PDF ledger and its snapshot are in [data/ledger/](data/ledger/).
 
 **Start here:** [HANDBOOK.md](../HANDBOOK.md) has where things stand, what's next, how the tool works and the commands to run it.
 
@@ -29,7 +29,7 @@ evaluation, deployment).
 | | [models/](models/README.md) | One model card per model (Mitchell et al. "Model Cards" format) |
 | Evaluation | [evaluation/protocol.md](evaluation/protocol.md) | Metrics, tolerances, test sets, targets |
 | | [evaluation/log.md](evaluation/log.md) | Every scorecard run, dated, with settings and commit |
-| Deployment | [architecture/system.md#deployment](architecture/system.md#deployment) | Mac-local CLI now; local web app for v1 |
+| Deployment | [architecture/system.md#deployment](architecture/system.md#deployment) | Mac-local CLI and local web app (Transcribe, Library, Results) |
 | Across all phases | [decisions/](decisions/README.md) | Architecture decision records (ADRs): one page per lasting choice |
 | | [glossary.md](glossary.md) | Music, signal and ML terms in plain language |
 

@@ -2,25 +2,46 @@
 
 Phases end when their gate is **measured and met**, not when features are
 built. No dates. Phase lists below were last fully reviewed 2026-11-02; the
-"Now" section is current as of 2026-11-14.
+"Now" section is current as of 2026-11-15.
 
-## Now (2026-11-14)
+## Now (2026-11-15)
 
-- **Current priority: a clean, healthy dataset.** Austin's goal (2026-11-14):
-  every PDF transcription is matched confidently to its recording, or excluded.
-  A chart we can't read well enough to line up is excluded; a chart that doesn't
-  match its recording gets the right recording found. Tracked in the PDF ledger
-  (`~/saxscribe-runs/catalog/ledger/`, snapshot in [docs/data/ledger/](../data/ledger/))
-  and the Results page's **Dataset health** tab (PR #177). First ledger run:
-  750 PDFs, 118 of 681 charts matched (17%), 187 of 750 resolved (25%).
-- **Answer-key audit and proofreading** (2026-11-14): 13 keys fixed so far. The
-  benchmark keys are proofread, then frozen by hash before E84 is scored
-  ([E84 pre-registration](../evaluation/e84-preregistration.md)).
-- **E84 on hold until the data is clean.** Pre-registered and approved, including
-  the held-out player swap (Austin's go 2026-11-14 17:14Z: train on Coltrane,
-  Getz and Potter; hold out Byas, Stitt, Marsh, Berg, Mobley, Sims and two alto
-  players) and the new session rule. E83 (2026-11-14) found more of the same
-  older jazz data doesn't move the note finder; E77 stays.
+- **Current priority: a clean, healthy dataset** ([ADR-0045](../decisions/0045-clean-data-before-training.md)).
+  Austin's goal (2026-11-14): every PDF transcription is matched confidently to
+  its recording, or excluded. A chart we can't read well enough to line up is
+  excluded; a chart that doesn't match its recording gets the right recording
+  found. Tracked in the PDF ledger (`~/saxscribe-runs/catalog/ledger/`,
+  snapshot in [docs/data/ledger/](../data/ledger/)) and the Results page's
+  **Dataset health** tab (PR #177). Latest sax counts (Mac, 2026-11-14 18:35
+  PT): about 500 sax charts; 119 matched, 93 check, 63 wrong recording, 139 no
+  recording, 71 not keyed yet, 16 unreadable. Alto 73 of 151 matched, tenor 40
+  of 227.
+- **Re-score on the sax stem, running.** Every set-aside and wrong-recording
+  chart is lined up again on the Filosax sax stem (the P11 fix): the 106
+  Anderson charts are done, the 444 alternative recordings are under way, one
+  job at a time since the Mac crashed on 2026-11-15 with two running. It
+  finishes around 1 to 2 PM PT on 11-15; then match check and the ledger run
+  again, and the "check" list goes back to proofreading. So far it rescues
+  mostly non-sax charts (clarinet, piano, trumpet), which are re-scored only
+  and never train.
+- **Finding recordings** ([ADR-0046](../decisions/0046-audio-sourcing-order.md)):
+  Internet Archive first (`archive_fetch.py`, `archive_check.py`; 47 files for
+  202 charts so far, mostly 78 rpm transfers), then Austin's library CDs, then
+  spotDL, which Austin runs himself on what's left. A pitch correction for 78
+  rpm transfers was tried and didn't help (log, 2026-11-15).
+- **Answer-key audit and proofreading** (2026-11-14): 13 keys fixed and copied
+  to the Mac, with masks for leftover misread bars. Paused until the re-score
+  finishes.
+- **E84 on hold until the data is clean.** Pre-registered and approved,
+  including the held-out player swap (Austin's go 2026-11-14 17:14Z: train on
+  Coltrane, Getz and Potter; hold out Byas, Stitt, Marsh, Berg, Mobley, Sims
+  and two alto players) and the new session rule. It is rebuilt on the cleaned
+  keys. E83 found more of the same older jazz doesn't move the note finder;
+  E77 stays.
+- **Library** (app): steps 1 to 3 merged 2026-11-14 (PR #181 Library page,
+  #182 song pages, #183 play-along on the answer key) plus #184 (play just the
+  solo). Step 4, the Library as the home screen, waits on Austin's go.
+- **Logo**: concepts in progress (project files, `design/logo/`).
 - **Paused:** the video-to-chart pilot.
 
 ## Phase 0: wiring and baseline — done
@@ -127,7 +148,7 @@ Runs alongside the phases. Design doc: https://claude.ai/artifact/WDFJbXxU1WtLeQ
 3. Viewer and looper (stacked lanes: audio, pitch line, notes, notation at the bottom). Review flags in the play-along (PR #116, merged): flag a bar or notes by error type, saved to `flags.json` without changing the transcription.
 4. Developer compare view against an answer key.
 5. Editor; edits saved as diffs (training data).
-6. Library and review queue.
+6. Library (PRs #181–#184: matched answer keys and finished takes, song pages, play-along on the answer key, solo-only playback; step 4, Library as home screen, waits on Austin's go) and the review hub on the Mac (`~/saxscribe-runs/review/`).
 7. Timing and intonation report for Austin's own takes.
 
 Not now (Austin, 2026-11-04): an Auto horn-detect button. The horn stays a user choice (alto default); the range rules (PR #69) only suggest another `--horn` in the log when many notes fall out of range.

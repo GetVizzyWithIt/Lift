@@ -14,7 +14,7 @@ const ST = [
 const ST_BY = Object.fromEntries(ST.map(s => [s.k, s]));
 const SRC_KINDS = {transcribed: 'Transcribed keys', book_split: 'Books, split per solo', site_pdf: 'Transcription sites',
                excerpt: 'One-page excerpts', youtube_etude: 'Etudes (YouTube)', test_tune: 'Austin’s test tunes',
-               loose: 'Loose copies', inbox: 'Inbox, not identified', other: 'Other instruments'};
+               loose: 'Loose copies', inbox: 'Inbox, not identified', 'Anderson batch': 'Anderson charts', other: 'Other instruments'};
 const LEDGER_HORNS = {as: 'alto', alto: 'alto', ts: 'tenor', tenor: 'tenor', ss: 'soprano', bs: 'baritone'};
 const health = {scale: 'count', kind: '', status: '', q: '', shown: 100};
 
