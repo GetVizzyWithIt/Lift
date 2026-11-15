@@ -13,6 +13,7 @@ on the Mac; the page only gets the fields below.
 """
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 import re
@@ -159,23 +160,97 @@ def take_item(job: dict) -> dict:
             "added": added, "href": f"/take/{job['id']}"}
 
 
-def load(runs: str | Path | None = None, takes: list[dict] | None = None) -> dict:
-    """{songs: [...], counts: {...}, ledger: {generated, from} or None}."""
+AUDIO = {".mp3", ".wav", ".flac", ".m4a", ".aif", ".aiff", ".ogg"}
+
+
+def etude_links(runs: str | Path | None) -> dict:
+    """keys/etudes/links.csv by take: where each etude recording and its lined-up key live."""
+    path = runs_dir(runs) / "keys" / "etudes" / "links.csv"
+    if not path.exists():
+        return {}
+    with path.open(newline="") as f:
+        return {r["take"]: r for r in csv.DictReader(f) if r.get("take")}
+
+
+def files(runs: str | Path | None, row: dict, rep: dict | None, etudes: dict) -> dict:
+    """This song's files on the Mac: pdf, audio (the recording the match used), key (its answer key
+    lined up with that recording) and stem (a sax-only stem in the song's folder, when one was made).
+    Audio that the links file fingerprints is checked like the PDF; a changed recording is left out."""
+    out = {"pdf": local_path(runs, row.get("pdf", "")), "audio": None, "key": None, "stem": None}
+    if rep:
+        out["audio"] = review.resolve(runs, rep.get("audio"))
+        out["key"] = review.resolve(runs, rep.get("key_json"))
+    if out["audio"] is None and row.get("chart_id") in etudes:
+        link = etudes[row["chart_id"]]
+        audio = local_path(runs, link.get("audio_mac", ""))
+        want = (link.get("audio_sha256") or "").strip().lower()
+        if audio is not None and audio.is_file() and (not want or sha256(audio) == want):
+            out["audio"] = audio
+        key = runs_dir(runs) / "keys" / "etudes" / (link.get("aligned_key") or "")
+        out["key"] = key if link.get("aligned_key") and key.is_file() else None
+    a = out["audio"]
+    if a is not None and (not a.is_file() or a.suffix.lower() not in AUDIO):
+        out["audio"] = a = None
+    if out["key"] is not None and out["key"].suffix.lower() != ".json":
+        out["key"] = None
+    if a is not None and a.parent.name == row.get("chart_id"):  # only a song's own folder, never a shared one
+        stems = sorted(a.parent.glob("extras/**/stem.wav"))
+        out["stem"] = stems[0] if stems else None
+    return out
+
+
+def _matched(runs: str | Path | None):
+    """(rows, about, hidden): the matched ledger rows whose PDF is unchanged, one per chart."""
     found = ledger.full_rows(runs)
     rows, about = found if found else ([], None)
-    tags = benchmark_tags()
-    report = {e["id"]: e for e in review.load(runs)["entries"]}
-    songs, hidden = [], {"missing": 0, "changed": 0}
+    ok, seen, hidden = [], set(), {"missing": 0, "changed": 0}
     matched = [r for r in rows if r.get("status") == "matched"]
     for row in matched:
+        if row.get("chart_id") in seen:
+            continue  # a second copy of the same chart (e.g. a book split twice)
         state = fingerprint_ok(runs, row)
         if state != "ok":
             hidden[state] += 1
             continue
-        songs.append(key_item(row, tags, report))
+        seen.add(row.get("chart_id"))
+        ok.append(row)
+    return ok, about, hidden, rows, len({r.get("chart_id") for r in matched})
+
+
+def load(runs: str | Path | None = None, takes: list[dict] | None = None) -> dict:
+    """{songs: [...], counts: {...}, ledger: {generated, from} or None}."""
+    ok, about, hidden, rows, n_matched = _matched(runs)
+    tags = benchmark_tags()
+    report = {e["id"]: e for e in review.load(runs)["entries"]}
+    etudes = etude_links(runs)
+    songs = []
+    for row in ok:
+        item = key_item(row, tags, report)
+        f = files(runs, row, report.get(row.get("chart_id")), etudes)
+        item.update(href=f"/library/{item['id']}", has_audio=f["audio"] is not None)
+        songs.append(item)
     done = [take_item(j) for j in (takes or []) if j.get("state") == "done"]
     charts = (about or {}).get("charts") or sum(1 for r in rows if r.get("status") != "excluded")
     return {"songs": songs + done,
-            "counts": {"keys": len(songs), "takes": len(done), "matched": len(matched), "charts": charts,
+            "counts": {"keys": len(songs), "takes": len(done), "matched": n_matched, "charts": charts,
                        "hidden_missing": hidden["missing"], "hidden_changed": hidden["changed"]},
             "ledger": about}
+
+
+def song(runs: str | Path | None, song_id: str) -> tuple[dict, dict]:
+    """(the song's page fields, its files on the Mac) for one matched chart; KeyError otherwise."""
+    ok, _, _, _, _ = _matched(runs)
+    row = next((r for r in ok if r.get("chart_id") == song_id), None)
+    if row is None:
+        raise KeyError(song_id)
+    report = {e["id"]: e for e in review.load(runs)["entries"]}
+    rep = report.get(song_id)
+    item = key_item(row, benchmark_tags(), report)
+    f = files(runs, row, rep, etude_links(runs))
+    rep = rep or {}
+    item.update(href=f"/library/{song_id}", has_audio=f["audio"] is not None, has_stem=f["stem"] is not None,
+                has_key=f["key"] is not None,
+                match={"verdict": rep.get("verdict"), "reason": rep.get("reason") or row.get("reason", ""),
+                       "length_s": rep.get("length_s"), "tempo_jumps": rep.get("tempo_jumps"),
+                       "checked": rep.get("checked"), "austin": rep.get("austin_verdict") or None})
+    return item, f

@@ -29,6 +29,7 @@ fastapi>=0.110              # the local web server behind the upload and play-al
 uvicorn>=0.29               # runs that server
 python-multipart>=0.0.9     # reads uploaded audio files
 verovio>=4.3                # draws the score on the play-along page, with each note's timing
+pypdfium2>=4.30             # draws chart PDF pages as images for the Library song page (iPad Safari shows only page 1 of a PDF)
 
 # Scoring and tests.
 mir_eval>=0.7               # the standard MIR scores (onset F1, note F1, pitch accuracy)

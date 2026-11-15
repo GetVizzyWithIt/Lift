@@ -3,6 +3,7 @@
 Pages:
   /                  upload a recording, see every take
   /library           every answer key matched to its recording, plus finished takes (catalog.py)
+  /library/<id>      one song: the chart's pages, its recording, and the match facts
   /take/<id>         the play-along for one take
   /take/<id>/pdf     the PDF (MuseScore's), or the print page when there is none
   /take/<id>/print   the score as letter pages, to print or save as PDF from the browser
@@ -12,6 +13,11 @@ Pages:
 API (JSON unless noted):
   GET  /api/info                  addresses to open the app from another device
   GET  /api/library               the Library's songs: matched answer keys and finished takes
+  GET  /api/library/<id>          one song's fields, match facts, page count, and which files it has
+  GET  /api/library/<id>/page/<n> page n of the chart PDF as a PNG (drawn once, then cached)
+  GET  /api/library/<id>/pdf      the chart PDF itself
+  GET  /api/library/<id>/audio/<which>  record or stem (sax only), only the files the match used
+  GET  /api/library/<id>/key      the answer key's notes, for playing it along as soft tones
   GET  /api/results               scorecard runs, change markers and targets (score/history.py)
   GET  /api/review                the match check's chart/recording pairs and Austin's verdicts (score/review.py)
   POST /api/review/<id>           Austin's verdict on one pair: {verdict: good|wrong|unsure|null, note}
@@ -111,6 +117,61 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
     def library_songs():
         from . import catalog
         return catalog.load(runs, library.list())
+
+    def song_or_404(song_id: str):
+        from . import catalog
+        try:
+            return catalog.song(runs, song_id)
+        except KeyError:
+            raise HTTPException(404, "No such song in the Library")
+
+    @app.get("/library/{song_id}", include_in_schema=False)
+    def song_page(song_id: str):
+        song_or_404(song_id)
+        return FileResponse(STATIC / "song.html")
+
+    @app.get("/api/library/{song_id}")
+    def song_info(song_id: str):
+        from . import pdf_pages
+        item, f = song_or_404(song_id)
+        try:
+            item["pages"] = pdf_pages.count(f["pdf"])
+        except Exception as e:  # an unreadable PDF still leaves the recording usable
+            item["pages"], item["pdf_error"] = 0, f"Could not read the PDF: {e}"
+        return item
+
+    @app.get("/api/library/{song_id}/page/{n}")
+    def song_page_png(song_id: str, n: int):
+        from . import catalog, pdf_pages
+        _, f = song_or_404(song_id)
+        try:
+            return FileResponse(pdf_pages.png(f["pdf"], catalog.sha256(f["pdf"]), n), media_type="image/png")
+        except IndexError:
+            raise HTTPException(404, "No such page")
+
+    @app.get("/api/library/{song_id}/pdf")
+    def song_pdf(song_id: str):
+        item, f = song_or_404(song_id)
+        name = re.sub(r'[\\/:*?"<>|]+', "", f"{item['title']} - {item['player']}").strip() or song_id
+        return FileResponse(f["pdf"], media_type="application/pdf", filename=f"{name}.pdf",
+                            content_disposition_type="inline")
+
+    @app.get("/api/library/{song_id}/audio/{which}")
+    def song_audio(song_id: str, which: str):
+        _, f = song_or_404(song_id)
+        p = {"record": f["audio"], "stem": f["stem"]}.get(which)
+        if p is None:
+            raise HTTPException(404, "No such recording for this song")
+        return FileResponse(p)
+
+    @app.get("/api/library/{song_id}/key")
+    def song_key(song_id: str):
+        from ..score import review
+        _, f = song_or_404(song_id)
+        try:
+            return {"notes": review.notes_in(f["key"])}
+        except (OSError, ValueError) as e:
+            raise HTTPException(422, f"Could not read the key: {e}")
 
     @app.get("/results", include_in_schema=False)
     def results_page():
