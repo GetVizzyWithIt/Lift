@@ -128,3 +128,27 @@ without guessing.
 - **Why:** Stay on a supported version, and upgrade on purpose in its own PR.
 - **How:** Stay on versions that still get security fixes. Make major upgrades on purpose, in their own PR, after reading the upgrade guide.
 - **Applies to:** Web app
+
+### 19. Screen changes checked in the running app
+
+- **Why:** Passing tests is not the same as the feature working: reviewers turn down a large share of code that passes every test, and a broken screen can pass them all.
+- **How:** When a change touches a screen, write two to five acceptance steps in plain words (what a person does, what they should see), run the app, walk through them as a user would, and put the steps and a screenshot or short recording in the PR. Say which steps weren't walked through and why. For the one or two flows that would hurt most if they broke, keep a small automated end-to-end test that CI runs.
+- **Applies to:** Every project with code
+
+### 20. A changed test is called out in the PR
+
+- **Why:** A builder fixing a failing test can make it pass by weakening the test or special-casing its inputs, and that looks just like a real fix.
+- **How:** Fix the code, not the test, unless the test is wrong. When an existing test's expected result changes, or a test is skipped or deleted, list it under its own heading in the PR with the reason. Never add code that recognises test inputs.
+- **Applies to:** Every project with code
+
+### 21. AI features scored on fixed examples
+
+- **Why:** A prompt or model change that improves one answer can quietly break others, and AI output varies from run to run, so one good try proves little.
+- **How:** For features that call a hosted AI model, keep 10 to 30 real example inputs, each with what a good answer must or must never contain (for example, never shows a salary). Run them before and after any change to the prompt, the model or the tools it can use, and put both counts in the PR. Grade by rule where you can; use a model as grader only for what rules can't check, and spot-check its grades.
+- **Applies to:** Every project with code
+
+### 22. Ready to merge means it merges cleanly
+
+- **Why:** The owner merges without untangling conflicts or surprises, even from a phone.
+- **How:** Call a PR ready only when it has just been updated from the latest main, its checks are green on that update, and the host confirms it merges cleanly. Whoever opened the PR, a tool or a person, owns getting it there; a PR that won't merge is their miss, not the owner's job. When several are waiting, hand them over one at a time in a safe order and update the rest after each merge. Each update re-runs CI, so update only the PR that's next. Where the host can enforce it, a branch rule that requires the branch to be up to date and checks to pass backs this up.
+- **Applies to:** Every project with code
