@@ -83,3 +83,10 @@ Plain-language meanings of terms used in the code and these docs.
 | Benchmark | The songs the Results page tracks progress on: key passed the match check or Austin marked it good, not marked wrong, and no model trained on it ([ADR-0042](decisions/0042-match-check-and-benchmark-rule.md)) |
 | Match review verdict | Austin's call on a key in the app: good, wrong, unsure or none, with a note; stored on the Mac in `keys/match_review.jsonl` |
 | Review hub | The Mac's one page for every listening queue (`~/saxscribe-runs/review/`, port 8770); "same recording?" verdicts also go to `keys/match_review.jsonl` |
+| PDF ledger | One row per PDF chart, each with one status on the way to a confident match with its recording: matched, check, wrong audio, needs audio, unreadable, not started, unsorted or excluded (`pdf_ledger.py` on the Mac; [data/ledger/](data/ledger/README.md), [ADR-0045](decisions/0045-clean-data-before-training.md)) |
+| Dataset health | The Results page tab that shows the PDF ledger: counts by status, by source and horn, the main reasons, and progress over runs (PR #177) |
+| Library | The app page (`/library`) listing every answer key the ledger calls matched, plus finished takes. Badges: "Answer key" (a matched chart) and "Made by Saxscribe" (a take the app transcribed) (PRs #181–#184) |
+| Song page | A Library song's page: the chart, its recording and the match facts, with a play-along on the engraved answer key (PRs #182, #183) |
+| Solo clip | On a song page, playback of just the solo span of the recording, with a switch to the full track (PR #184) |
+| Re-score | Lining a chart up again with its recording on the Filosax sax stem instead of the full mix, to rescue charts that scored 0% or were set aside (log P11) |
+| Great 78 Project | The Internet Archive's collection of 78 rpm record transfers; the first place we look for older recordings ([ADR-0046](decisions/0046-audio-sourcing-order.md)) |

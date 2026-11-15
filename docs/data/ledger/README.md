@@ -8,8 +8,8 @@ Outputs: Mac `~/saxscribe-runs/catalog/ledger/`, with a copy synced here after e
 - `total_pdfs`: every PDF row. `charts`: rows that aren't excluded.
 - `healthy`: the matched count. `healthy_share`: matched / charts.
 - `counts`: {status: n} for the 8 statuses, in this order: matched, check, wrong_audio, needs_audio, unreadable, not_started, unsorted, excluded
-- `by_source`: {source kind: {status: n}}. The source kinds are transcribed, book_split, site_pdf, excerpt, youtube_etude, test_tune, loose, inbox, and "other instrument: <inst>".
-- `top_reasons`: [{status, reason, n}], the 25 most common reasons for anything not matched
+- `by_source`: {source kind: {status: n}}. The source kinds are transcribed, Anderson batch, book_split, site_pdf, excerpt, youtube_etude, test_tune, loose, inbox, and "other instrument: <inst>".
+- `top_reasons`: [{status, reason, group, n}], the 25 most common reasons for anything not matched. reason = one full example; group = the reason with its numbers and paths blanked, used to group them
 
 ## ledger_history.csv
 One row per run (generated plus the 8 counts), for a progress-over-time chart.

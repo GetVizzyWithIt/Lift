@@ -70,28 +70,40 @@ one question at a time. Prefer a working rough cut to a plan.
 - Secrets (API keys such as MVSep's) and machine files live outside the repo or
   in config.local.* (git-ignored). Never commit audio, datasets or weights.
 
-## Current state (2026-11-09; update when it changes)
-- Standard path on band records: Demucs (2 shifts) -> Basic Pitch + CREPE pitch
-  line -> per-horn range rules -> bleed hide -> held notes follow the pitch
-  line -> sax-playing check -> bar lines -> swing. That is still the CLI
-  default and the app's path for solo takes. In the app, band records default
-  to the Filosax separator plus our E77 fine-tuned note finder (E80 winner;
-  CLI: `--separator filosax --notes-tool filosax`). The old path stays as an
-  app test option. No model picker in the main UI: model choices are for
-  testing; the app should pick automatically.
-- Separators: MVSep Mega's sax stem on the full mix holds the most key notes
-  (E71, E73); the remaining gap is the note finder. A Filosax transcriber
-  fine-tuned on Mega stems (E77, checkpoint on the Mac) gains about 5 points
-  of note F1 but is not the default yet. MERT probes judge sax presence and
-  type best (E79); not wired in.
-- Latest features: vocal review marks on band records (E82, rule V: MVSep Mega's vocal
-  stem vs the Filosax stem, `maybe_vocals` + `maybe_not_sax`, never hidden; needs the Mega
-  weights in ~/.cache/saxscribe/models); `maybe_not_sax` review marks (PR #121, never hidden);
-  play-along review flags (flags.json, PR #116) and the feedback reviewer
-  (PR #138; flags kept across runs, ADR-0039).
+## Current state (2026-11-15; update when it changes)
+- Current priority: a clean dataset before any more training (Austin, 2026-11-14:
+  "bad data in, bad data out"). Every PDF chart is matched confidently to its
+  recording or excluded. The PDF ledger tracks it (Mac
+  `~/saxscribe-runs/catalog/_tools/pdf_ledger.py`; snapshot in docs/data/ledger/),
+  and the Results page's Dataset health tab shows it. E84 (held-out player swap,
+  pre-registered) is on hold until then; no training run starts before the data
+  is clean (ADR-0045).
+- Main score: note F1 ignoring note ends (ADR-0044), because page-read keys get
+  note ends wrong. The with-ends score is still reported. The band target (60)
+  applies to the no-offset score.
+- Standard path (CLI default, and the app's path for solo takes): Demucs (2
+  shifts) -> Basic Pitch + CREPE pitch line -> per-horn range rules -> bleed
+  hide -> held notes follow the pitch line -> sax-playing check -> bar lines ->
+  swing. In the app, band records run setup D: the Filosax separator, our E77
+  fine-tuned note finder (ADR-0041), and the vocal review mark from MVSep Mega's
+  vocal stem (E82, ADR-0043; needs the Mega weights in ~/.cache/saxscribe/models).
+  CLI equivalent: `--separator filosax --notes-tool filosax`. No model picker in
+  the main UI. E83 (a second fine-tune) didn't beat E77.
+- App pages: Library (`/library`: matched answer keys and finished takes, song
+  pages, play-along on the engraved answer key, solo-only playback; PRs
+  #181-#184), Results (`/results`: Progress, Songs, Lab, Log, Dataset health,
+  Needs review), and the play-along with review flags (flags.json, ADR-0039).
+  Library step 4 (Library as the home screen) waits on Austin's go.
+- Audio for answer keys comes in this order: Internet Archive (Mac
+  `catalog/_tools/archive_fetch.py`, then `archive_check.py`), then Austin's
+  library CDs, then spotDL as a last resort that Austin runs himself (ADR-0046). The page
+  reader (homr) runs in its own environment, `~/saxscribe-runs/.venv-omr`.
+- Mac jobs: don't run two torch key jobs at once (the Mac crashed on
+  2026-11-15 with two running); chain them in one caffeinate.
 - Pipeline development is step by step: no change to the transcription
   pipeline without Austin's typed go in the build thread. `main` is protected
   (PR plus green pytest).
 - Biggest open weaknesses: quiet low sax and other instruments (including
-  vocals) leaking into the sax stem on band records. Scores per test set are in
+  vocals) leaking into the sax stem on band records, and answer keys that
+  don't match their recordings. Scores per test set are in
   docs/evaluation/log.md; decisions in docs/decisions/.

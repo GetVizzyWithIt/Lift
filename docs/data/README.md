@@ -2,7 +2,7 @@
 
 Every dataset Saxscribe uses or plans to use, what its labels are worth, and
 the rules for using it. Detail per dataset is in [datasheets/](datasheets/).
-Last updated 2026-11-14.
+Last updated 2026-11-15.
 
 ## Where data lives
 
@@ -56,7 +56,7 @@ passing line-up. Paths are on Austin's Mac.
 
 | Source (added) | What | Horn | Where | Status |
 | --- | --- | --- | --- | --- |
-| *25 Great Sax Solos* (Hal Leonard), Dexter Gordon, Coltrane and Phil Woods books, Sax Teacher UK, 7 more charts (earlier, log P8) | Split into one PDF per solo | alto, tenor | `keys/transcribed/`, `links.csv` | 8 of the 25 pop solos match so far (4 pass, 4 usable with a check); the rest wait on the 0% line-up check below |
+| *25 Great Sax Solos* (Hal Leonard), Dexter Gordon, Coltrane and Phil Woods books, Sax Teacher UK, 7 more charts (earlier, log P8) | Split into one PDF per solo | alto, tenor | `keys/transcribed/`, `links.csv` | Status per chart in the PDF ledger (below) |
 | Academia.edu (2026-11-13) | 9 theses and papers with transcriptions: the Warne Marsh Copenhagen 1975 thesis (Petrucelli; 8 full solos plus All the Things You Are), the Joe Henderson thesis (Lopes; about 4 new solos), Dexter Gordon Lady Bird 1964 (all 9 choruses), Getz It Might As Well Be Spring, 5 Lee Konitz solos, Zé Bodega Catita, Paulo Moura Bicho Papão, and two excerpt-only papers (Coltrane One Down, One Up; Linda Érika) | tenor, alto | `sheet-music/academia/` | Downloaded; the excerpt-only ones can't be keys |
 | Hal Leonard *John Coltrane Solos* (Artist Transcriptions) (2026-11-13) | 27 solos, split one per file | tenor | `sheet-music/` (catalog thread) | Split; not lined up yet |
 | Michael Brecker book (2026-11-13) | 12 solos, split one per file | tenor | `sheet-music/` (catalog thread) | Split; not lined up yet |
@@ -64,6 +64,7 @@ passing line-up. Paths are on Austin's Mac.
 | jazzbarisax.com (2026-11-13) | About 105 baritone solos (Pepper Adams, Ronnie Cuber, Gerry Mulligan) | **baritone (new horn)** | to come, as a bari group per the naming standard | Listed, not downloaded |
 | Falkowski excerpts (2026-11-13) | 88 one-page solo excerpts with the solo's start time printed | various | Mac, clip script written | Start times make the line-up easier; Austin runs the clip script |
 | MuseScore, free (2026-11-13) | 5 MusicXML files: Getz Desafinado, Kamuf Alone Together, Coltrane Mr. P.C. (part 4), The Chicken, Bartley After You've Gone | tenor, alto | project files `datasets/musescore/` | Downloaded; MusicXML needs no score reader |
+| Anderson charts (2026-11-14) | 104 PDFs from the Recent Downloads batch (35 check, 67 wrong audio, 2 excluded in the snapshot); many turned out to be non-sax | various | ledger source "Anderson batch" | In the ledger; re-scored on the sax stem |
 | MuseScore, paid (2026-11-13) | 23 community scores at $2.99 each (Pro includes them) | various | list in `datasets/musescore/musescore_status.md` | Back burner |
 
 Wesley Chin's free store items (29) need a checkout with an email, so they are
@@ -74,13 +75,63 @@ melody-extraction evaluation, jazz bass transcription, swing and expressive
 sax) went to the reading list (`research/reading-list/jazz-transcription-academia.md`
 in the project files), not here.
 
-**Known issue (cause found):** many charts scored exactly 0% on the line-up check
-(8 of the 11 rejected pop solos, and most of the Anderson charts). The 0% is a
-display artifact (every section under the agreement bar; real agreement 19 to
-51%). The cause was the pitch line being read from the full mix, so the
-line-up landed in the wrong place. The key tools now also read the Filosax sax
-stem and search near the book's printed start time; on the re-run 7 of the
-11 line up (4 pass, 3 usable with a check), pending final match_check verdicts. See P11 in the [evaluation log](../evaluation/log.md).
+**Resolved: charts scoring exactly 0% on the line-up check** (log P11). The 0%
+was a display artifact (every section under the agreement bar). The cause was
+the pitch line being read from the full mix; the key tools now read the
+Filosax sax stem and search near the book's printed start time. On the re-run
+7 of 11 rejected pop solos lined up, and the same fix drives the re-score
+below.
+
+## The PDF ledger: one status per chart
+
+Austin's goal (2026-11-14): every PDF transcription is matched confidently to
+its recording, or excluded ([ADR-0045](../decisions/0045-clean-data-before-training.md)).
+The ledger (`~/saxscribe-runs/catalog/_tools/pdf_ledger.py` on the Mac) gives
+every PDF one status: matched, check, wrong audio, needs audio, unreadable,
+not started, unsorted or excluded. Meanings, columns and the snapshot are in
+[ledger/](ledger/README.md); the Results page's Dataset health tab shows it,
+and the Library lists only matched charts.
+
+- **Repo snapshot** (2026-11-14 21:33, all instruments): 750 PDFs, 618 charts;
+  matched 118, check 117, wrong audio 97, needs audio 139, unreadable 16, not
+  started 123, unsorted 8, excluded 132.
+- **Saxophone only** (Mac ledger, 2026-11-14 18:35 PT): about 500 distinct sax
+  charts; matched 119, check 93, wrong audio 63, needs audio 139, not started
+  71, unreadable 16. By horn: alto 151 (73 matched), tenor 227 (40), soprano 9
+  (0), baritone 1.
+- **Re-score under way**: all wrong-audio and set-aside charts are being lined
+  up again on the Filosax sax stem (106 Anderson charts, then 444 alternative
+  recordings), run one job at a time after the Mac crashed on 2026-11-15 with
+  two running. So far it has rescued mostly non-sax charts (clarinet, piano,
+  trumpet), which stay out of training. The ledger is re-run when it finishes.
+- **Non-sax charts** are re-scored only; nothing non-sax goes into training.
+
+## Audio for answer keys
+
+When a chart has no recording, or the wrong one, audio is found in this order
+([ADR-0046](../decisions/0046-audio-sourcing-order.md)):
+
+1. **Internet Archive** (the Great 78 Project and other 78 rpm transfers).
+   `catalog/_tools/archive_fetch.py` searches and downloads to
+   `~/Desktop/Saxscribe_Recent_Downloads/archive_org/`; clear mismatches go to
+   `_likely_wrong/`. `catalog/_tools/archive_check.py` lines each download up
+   with its chart (the page reader runs from `~/saxscribe-runs/.venv-omr`).
+   First passes: 202 charts searched, 47 files downloaded, 6 set aside as
+   clearly wrong; of 41 checked, 3 need a check, 18 were set aside (wrong take
+   or mislabelled), 20 read after the page-reader environment was installed.
+2. **Austin's library CDs.**
+3. **spotDL**, a last resort that Austin runs himself on the short list left
+   over. Threads build no tooling for it.
+
+Austin drops new audio in `~/Desktop/Saxscribe_Recent_Downloads`. The list of
+recordings still to find is in the project files
+(`datasets/recordings-search/recordings_to_find_2026-11-15.md`).
+
+**78 rpm transfers run off pitch.** Archive transfers sit 20 to 50 cents sharp
+or flat (Cool Blues −20, Settin' the Pace +39, Byas I Got Rhythm −45). Shifting
+the pitch line to correct it did not change the line-up agreement (Cool Blues
+22.7% → 22.1%), so the offset isn't what sets these records aside and no tuning step is added
+(log, 2026-11-15).
 
 ## Splits and leakage
 
@@ -113,7 +164,10 @@ synthetic sax trains models that fail on real tone.
 
 ## Pending (needs Austin)
 
-- Filosax and MedleyDB-Pitch access (requested).
+- Filosax dataset access (Zenodo request; an email is drafted if there's no
+  answer). MedleyDB-Pitch access.
+- Recordings for the charts the Archive doesn't have: his library CDs, then
+  spotDL himself.
 - Alto etude takes (first entries of the frozen test set).
 - Scans of his paper transcriptions, one PDF per tune, noting which recording and which horn.
 - Trash three duplicate dataset copies already verified as duplicates.

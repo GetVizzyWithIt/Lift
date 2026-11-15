@@ -1,21 +1,26 @@
 {
- "generated": "2026-11-14 21:30",
+ "generated": "2026-11-14 21:33",
  "schema": 1,
  "total_pdfs": 750,
- "charts": 681,
+ "charts": 618,
  "healthy": 118,
- "healthy_share": 0.173,
+ "healthy_share": 0.191,
  "counts": {
   "matched": 118,
-  "check": 82,
-  "wrong_audio": 30,
+  "check": 117,
+  "wrong_audio": 97,
   "needs_audio": 139,
   "unreadable": 16,
   "not_started": 123,
-  "unsorted": 173,
-  "excluded": 69
+  "unsorted": 8,
+  "excluded": 132
  },
  "by_source": {
+  "Anderson batch": {
+   "check": 35,
+   "wrong_audio": 67,
+   "excluded": 2
+  },
   "book_split": {
    "matched": 3,
    "check": 3,
@@ -26,7 +31,8 @@
    "not_started": 69
   },
   "inbox": {
-   "unsorted": 173
+   "unsorted": 8,
+   "excluded": 61
   },
   "loose": {
    "excluded": 59
@@ -81,19 +87,14 @@
    "n": 128
   },
   {
-   "status": "unsorted",
-   "reason": "not identified yet (one solo, # pages)",
-   "n": 90
-  },
-  {
-   "status": "unsorted",
-   "reason": "not identified yet (one-page excerpt, # pages)",
-   "n": 80
-  },
-  {
    "status": "not_started",
    "reason": "chart and recording here, no key yet",
    "n": 69
+  },
+  {
+   "status": "wrong_audio",
+   "reason": "best recording tried lines up # (set_aside)",
+   "n": 67
   },
   {
    "status": "not_started",
@@ -131,8 +132,23 @@
    "n": 12
   },
   {
+   "status": "excluded",
+   "reason": "not a sax part (guitar): page-# sample of a longer Brian Fal",
+   "n": 12
+  },
+  {
+   "status": "check",
+   "reason": "pass # in staging (charlie-parker_little-willie-leaps_#__hN#",
+   "n": 12
+  },
+  {
    "status": "check",
    "reason": "heard agreement # (below #) (expected length not on file)",
+   "n": 10
+  },
+  {
+   "status": "excluded",
+   "reason": "Saxscribe app export (our own output, not a source transcrip",
    "n": 10
   },
   {
@@ -151,6 +167,11 @@
    "n": 7
   },
   {
+   "status": "excluded",
+   "reason": "not a sax part (flute): page-# sample of a longer Brian Falk",
+   "n": 7
+  },
+  {
    "status": "check",
    "reason": "audit: # bars read in the wrong octave or step (re-read thos",
    "n": 5
@@ -163,6 +184,11 @@
   {
    "status": "unreadable",
    "reason": "chart probably misread: chart and recording don't line up",
+   "n": 5
+  },
+  {
+   "status": "unsorted",
+   "reason": "not identified yet (one solo, # pages)",
    "n": 5
   },
   {
@@ -179,26 +205,6 @@
    "status": "excluded",
    "reason": "identical copy of ~/saxscribe-runs/keys/transcribed/lester-y",
    "n": 4
-  },
-  {
-   "status": "check",
-   "reason": "heard agreement # (below #); audit: # bars read in the wrong",
-   "n": 3
-  },
-  {
-   "status": "check",
-   "reason": "octave fix pending (octave_check#py --fix): key sits +# octa",
-   "n": 3
-  },
-  {
-   "status": "excluded",
-   "reason": "another PDF of the same chart: ~/saxscribe-runs/keys/bfmj/so",
-   "n": 3
-  },
-  {
-   "status": "excluded",
-   "reason": "identical copy of ~/saxscribe-runs/keys/transcribed/earl-bos",
-   "n": 3
   }
  ]
 }

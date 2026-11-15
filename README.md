@@ -22,7 +22,7 @@ cd ~/Desktop/saxscribe && source .venv/bin/activate && python -m saxscribe app
 
 On the Mac it opens a browser tab at http://localhost:8765. On the iPad
 (same Wi-Fi), open the address it prints: "On your iPad: http://…:8765/".
-Results page: the same address with `/results`. Finished sheet music is also
+Library: the same address with `/library`. Results page: `/results`. Finished sheet music is also
 copied to `~/Desktop/Saxscribe`.
 
 **Transcribe from the Terminal** (after `source .venv/bin/activate`):
@@ -101,6 +101,18 @@ tenor, solo or with a band) and get back:
   played lights up, and tapping a note jumps there. You can play at 50 to
   100% speed with the pitch kept. For a band recording you can switch to the
   sax alone or the band alone. A− and A+ make the notes smaller or bigger.
+
+The app has two more pages:
+
+- **Library** (`/library`): every answer key matched confidently to its
+  recording (badge "Answer key"), plus the songs the app transcribed (badge
+  "Made by Saxscribe"). Each song page shows the chart, its recording and the
+  match facts. You can play along on the engraved answer key, and play just
+  the solo or the full track. The list comes from the PDF ledger, so it grows
+  as the matching work finishes.
+- **Results** (`/results`): Progress, Songs, Lab, Log, **Dataset health** (the
+  PDF ledger: how many charts are matched, need a check, have the wrong
+  recording or no recording yet), and Needs review.
 
 It runs on the Mac. To use it on an iPad on the same Wi-Fi, open the address
 it prints ("On your iPad: http://…:8765/"). Uploads and their take folders
@@ -196,4 +208,4 @@ faithful to it.
 ## How we work on it
 
 Development rules (branches, pull requests, CI, lockfile, decision log) are
-in [CLAUDE.md](CLAUDE.md) and [docs/development-standards.md](docs/development-standards.md).
+in [CLAUDE.md](CLAUDE.md), [docs/development-standards.md](docs/development-standards.md) (how this repo applies them) and [docs/dev-standards.md](docs/dev-standards.md) (Austin's shared standard, synced from Dev Buddy).

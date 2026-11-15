@@ -51,12 +51,14 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 | 6 | **Rhythm**: a simpler-grid rule | Not started |
 | 7 | **Docs, dashboard, not-sax instrument choices**: the handbook, a static dashboard page, and which other instruments the not-sax check names | In progress: handbook, its update script and the static dashboard done; not-sax instrument choices next |
 
-**Running on the Mac now:** E84 (pre-registered 2026-11-14, Austin's go 17:14Z): the held-out swap retrain (E84a) and an all-in note finder (E84b), scored once on the 33 songs against E77 under the E83 rule.
+**Running on the Mac now:** Clean data first (ADR-0045): the sax-stem re-score of every set-aside and wrong-recording chart (106 Anderson charts done, 444 alternative recordings under way, done around 1 to 2 PM PT 11-15), then match check and the PDF ledger. E84 is on hold until the data is clean.
 
 **Waiting on Austin:**
-- Filosax dataset access: if Zenodo hasn't answered by about 11-14, send the drafted email.
+- Filosax dataset access: no Zenodo reply yet, so the drafted email is ready to send.
+- Library step 4 (the Library as the home screen): Austin's go in the Library thread.
+- Recordings the Internet Archive doesn't have: Austin's library CDs, then spotDL, which Austin runs himself.
 
-_Plan last changed 2026-11-14._
+_Plan last changed 2026-11-15._
 <!-- /auto:next -->
 
 Ideas for later live in the "Later" section of the
@@ -186,7 +188,7 @@ Note F1 by group:
 
 | E | Date | What | Outcome |
 | --- | --- | --- | --- |
-| E84 | 2026-11-14 | Held-out swap retrain, then an all-in note finder | pre-registered, running |
+| E84 | 2026-11-14 | Held-out swap retrain, then an all-in note finder | pre-registered, on hold |
 | E83 | 2026-11-13 | Second note-finder fine-tune | pre-registered; not adopted |
 | E82 | 2026-11-13 | Vocal review mark on setup D, rule V | Mega's vocal stem marks vocals with 112 good marks, 0 bad on 11 songs; adopted on every band record. |
 | E81 | 2026-11-12 | Benchmark re-score: six versions of the tool on 33 trusted songs | Our sax model ahead on 31 of 33 songs (note F1 50.9 vs 39.7). |

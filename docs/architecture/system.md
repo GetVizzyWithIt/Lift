@@ -186,13 +186,25 @@ beat detection takes a file.
 
 ## Deployment
 
-| | Now | v1 |
+| | Now |
+| --- | --- |
+| Where it runs | Austin's M3 Pro MacBook: the CLI and a local web app (`python -m saxscribe app`, port 8765), used from the Mac or iPad Safari over home Wi-Fi |
+| Install | `setup_mac.sh`: Homebrew Python 3.11 + ffmpeg, private venv in `~/Library/Application Support/saxscribe/python`, symlinked as `.venv`, exact versions from `requirements.lock` |
+| Optional | MuseScore (`brew install --cask musescore`) for engraved PDF; without it the PDF button opens printable pages. `[tools] musescore = "off"` skips it (PR #26) |
+| Models on disk | `~/.cache/saxscribe/models/`: the E77 note finder, MVSep Mega weights for the vocal mark |
+| Training | On the Mac (MPS), as with E77 and E83; Colab or a rented GPU only if a run needs it, weights brought back. No training run starts before the dataset is clean ([ADR-0045](../decisions/0045-clean-data-before-training.md)) |
+| Side environments | The page reader (homr) runs in its own environment, `~/saxscribe-runs/.venv-omr`. Data jobs (key making, the PDF ledger, Internet Archive fetch) are scripts in `~/saxscribe-runs/**/_tools/`, run one torch job at a time |
+
+### App pages
+
+| Page | What it does | Code |
 | --- | --- | --- |
-| Where it runs | Austin's M3 Pro MacBook, CLI | Same Mac, as a local web server |
-| How it's used | Terminal | `python -m saxscribe app` (PR #14): iPad Safari over home Wi-Fi |
-| Install | `setup_mac.sh`: Homebrew Python 3.11 + ffmpeg, private venv in `~/Library/Application Support/saxscribe/python`, symlinked as `.venv` | Same, plus the app server |
-| Optional | MuseScore (`brew install --cask musescore`) for PDF; `[tools] musescore = "off"` skips it (PR #26) | Required for the PDF download |
-| Training | None yet | Colab or a rented GPU; weights brought back to the Mac |
+| Transcribe (`/`) | Upload a take or record, follow its progress, open the take | `server.py`, `static/index.*` |
+| Take (`/take/<id>`) | The play-along: the score scrolls with the recording, review flags (ADR-0039), sax-only and band-only playback, PDF, MusicXML and MIDI | `static/play.*`, `flags.py`, `export.py` |
+| Library (`/library`) | Every answer key the PDF ledger calls matched (its PDF checked against the ledger's fingerprint first), plus finished takes, badged "Answer key" or "Made by Saxscribe" (PR #181) | `catalog.py`, `static/library.*` |
+| Song page (`/library/<id>`) | The chart, its recording and the match facts (PR #182); play just the solo or the full track (PR #184) | `static/song.*` |
+| Key play-along (`/library/<id>/play`) | The take player on the engraved answer key, with flags (PR #183) | `key_take.py` |
+| Results (`/results`) | Tabs: Progress, Songs, Lab, Log, Dataset health (the PDF ledger, `score/ledger.py`, PR #177), Needs review (match verdicts) | `static/results*` |
 
 ## 8. Dependencies (from `requirements.txt`)
 
