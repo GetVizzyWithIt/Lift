@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saxscribe Library</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="wrap wide">
+  <div class="quiet small crumbs"><a href="/library">Library</a> <span id="crumb"></span></div>
+  <div class="songhead">
+    <div><h1 id="title">Loading…</h1><p class="quiet" id="sub"></p></div>
+    <div class="headacts"><a class="button" id="openPdf" target="_blank" rel="noopener">Open PDF</a>
+      <button type="button" class="primary" disabled title="The play-along on the answer key is the next step">Play along (next step)</button></div>
+  </div>
+  <div class="songgrid">
+    <section class="pages" id="pages" aria-label="The chart"></section>
+    <aside class="side">
+      <section class="card" id="rec">
+        <h2>Recording</h2>
+        <div class="field" id="whichField" hidden><div class="seg" id="which"><button type="button" data-v="record" class="on">Record</button><button type="button" data-v="stem">Sax only</button></div></div>
+        <audio id="audio" controls preload="metadata"></audio>
+        <div class="field">
+          <label class="small" id="keyLabel" hidden><input type="checkbox" id="keyAlong"> Play the answer key along as soft tones</label>
+          <label class="small">Speed <select id="speed" aria-label="Speed"><option value="1">100%</option><option value="0.9">90%</option><option value="0.75">75%</option><option value="0.6">60%</option><option value="0.5">50%</option></select></label>
+        </div>
+        <p class="quiet small" id="noAudio" hidden>The recording isn't where the match check says it is on this Mac.</p>
+      </section>
+      <section class="card">
+        <h2>The match</h2>
+        <div class="statrow" id="stats"></div>
+        <dl class="facts" id="facts"></dl>
+      </section>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="/static/common.js"></script>
+<script src="/static/song.js"></script>
+</body>
+</html>

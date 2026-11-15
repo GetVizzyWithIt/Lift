@@ -107,7 +107,11 @@ def audio_path(runs: str | Path | None, pair_id: str) -> Path | None:
 
 def key_notes(runs: str | Path | None, pair_id: str) -> list[dict]:
     """The key's notes as [{onset, offset, pitch}] in seconds and concert MIDI, for playing it along."""
-    p = resolve(runs, entry(runs, pair_id).get("key_json"))
+    return notes_in(resolve(runs, entry(runs, pair_id).get("key_json")))
+
+
+def notes_in(p: Path | None) -> list[dict]:
+    """An answer key file's notes as [{onset, offset, pitch}], sorted; [] when there is no key."""
     if p is None or p.suffix.lower() != ".json":
         return []
     data = json.loads(p.read_text())
