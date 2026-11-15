@@ -152,3 +152,9 @@ without guessing.
 - **Why:** The owner merges without untangling conflicts or surprises, even from a phone.
 - **How:** Call a PR ready only when it has just been updated from the latest main, its checks are green on that update, and the host confirms it merges cleanly. Whoever opened the PR, a tool or a person, owns getting it there; a PR that won't merge is their miss, not the owner's job. When several are waiting, hand them over one at a time in a safe order and update the rest after each merge. Each update re-runs CI, so update only the PR that's next. Where the host can enforce it, a branch rule that requires the branch to be up to date and checks to pass backs this up.
 - **Applies to:** Every project with code
+
+### 23. Each app has its own local port
+
+- **Why:** Two apps can run at once, and each always opens at the same address.
+- **How:** Pick a port no other app uses and that isn't a framework default such as 3000, set it in the start command, and write the address in the README. Let a PORT setting override it. Dev Buddy lists the ports already taken.
+- **Applies to:** Every project with code
