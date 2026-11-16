@@ -64,3 +64,36 @@ def test_alive_route_and_busy(tmp_path):
     assert r.status_code == 200
     assert r.json() == {"ok": True, "busy": False}
     assert app.state.last_seen >= before
+
+
+def test_quit_stops_the_server_but_not_mid_transcription(tmp_path, monkeypatch):
+    pytest.importorskip("fastapi")
+    pytest.importorskip("httpx")
+    from types import SimpleNamespace
+
+    from fastapi.testclient import TestClient
+
+    from lift.app.library import Library
+    from lift.app.server import create_app
+
+    library = Library(tmp_path / "library")
+    app = create_app(library)
+    app.state.server = SimpleNamespace(should_exit=False)
+    c = TestClient(app)
+    monkeypatch.setattr(library, "busy", lambda: True)
+    assert c.post("/api/quit").status_code == 409 and not app.state.server.should_exit
+    assert c.post("/api/quit?force=true").status_code == 200 and app.state.server.should_exit
+    monkeypatch.setattr(library, "busy", lambda: False)
+    app.state.server.should_exit = False
+    assert c.post("/api/quit").json() == {"quitting": True} and app.state.server.should_exit
+    assert c.get("/api/version").json()["code"] == app.state.code
+
+
+def test_launcher_restarts_a_server_running_old_code():
+    text = (MAC_APP / "launch.sh").read_text()
+    assert "api/version" in text and "rev-parse HEAD" in text and "api/quit" in text
+
+
+def test_the_top_bar_has_a_quit_button():
+    js = (Path(__file__).resolve().parents[1] / "lift" / "app" / "static" / "common.js").read_text()
+    assert 'id="liftQuit"' in js and "/api/quit" in js
