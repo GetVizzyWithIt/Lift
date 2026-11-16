@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Review · Saxscribe</title>
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/review.css">
+</head>
+<body>
+<div class="wrap wide">
+  <div class="head"><h1>Review</h1><div class="headacts"><a class="button" href="/library">Library</a><a class="button" href="/">Transcribe</a><a class="button" href="/results">Results</a></div></div>
+
+  <!-- the inbox -->
+  <section id="inbox">
+    <h2 class="rv-lede" id="inboxHead">Loading…</h2>
+    <p class="quiet" id="inboxSub"></p>
+    <div id="inboxList" class="rv-list"></div>
+    <div class="rv-note" id="inboxNote">
+      <strong>Machines go first.</strong>
+      <span>The aligner, the octave check, retyping misread bars, and the second detector all get a turn before a
+        question lands here. You only see what every automatic check tried and still couldn&rsquo;t settle.
+        Note-end tapping is retired (your call, Nov 14).</span>
+    </div>
+  </section>
+
+  <!-- one question -->
+  <section id="item" hidden>
+    <div class="rv-crumbs"><a href="#" id="back">&lsaquo; Review</a> <span id="pos" class="quiet small"></span>
+      <span class="rv-kind" id="kind"></span> <span class="quiet small" id="song"></span></div>
+    <div class="rv-question">
+      <p class="q" id="question"></p>
+      <p class="for" id="listenFor"></p>
+    </div>
+    <div class="rv-grid">
+      <div class="rv-main">
+        <section class="card" id="barsCard" hidden>
+          <div class="rv-cardhead"><h2>The chart, bars <span id="barRange"></span></h2>
+            <span class="quiet small" id="barsNote"></span></div>
+          <div id="bars" class="rv-bars" aria-label="The bars in question, drawn from the answer key"></div>
+          <p class="quiet small" id="barsHelp"></p>
+        </section>
+        <section class="card" id="pageCard" hidden>
+          <div class="rv-cardhead"><h2 id="pageHead">The page</h2>
+            <span><button type="button" id="pageAll">Whole page</button> <a class="button" id="openPdf" target="_blank" rel="noopener">Open PDF</a></span></div>
+          <div class="rv-page" id="pageBox"><img id="pageImg" alt="The chart page"></div>
+          <div class="rv-pager" id="pager" hidden><button type="button" id="pagePrev" aria-label="Previous page">&lsaquo;</button>
+            <span class="quiet small" id="pageNo"></span><button type="button" id="pageNext" aria-label="Next page">&rsaquo;</button></div>
+        </section>
+      </div>
+      <aside class="rv-side">
+        <section class="card" id="audioCard">
+          <div id="wave" class="rv-wave" aria-hidden="true"></div>
+          <div class="rv-marks" id="marks"></div>
+          <audio id="audio" controls preload="metadata"></audio>
+          <p class="quiet small" id="noAudio" hidden>The recording for this question isn&rsquo;t on this Mac.</p>
+          <div class="rv-row">
+            <button type="button" class="primary" id="playLoop">Play the spot</button>
+            <label class="small"><input type="checkbox" id="loopOn" checked> Loop</label>
+            <label class="small">Speed <select id="speed" aria-label="Speed"><option value="1">100%</option><option value="0.75">75%</option><option value="0.5">50%</option></select></label>
+          </div>
+          <div class="rv-row">
+            <div class="seg" id="which" hidden><button type="button" data-v="record" class="on">Record</button><button type="button" data-v="stem">Sax only</button></div>
+            <label class="small" id="tonesLabel" hidden><input type="checkbox" id="tones" checked> Chart tones</label>
+          </div>
+          <p class="quiet small" id="loopNote"></p>
+        </section>
+        <section class="card rv-tried" id="triedCard" hidden>
+          <h2>Already tried automatically</h2>
+          <p class="quiet small" id="why"></p>
+          <ul id="tried"></ul>
+        </section>
+      </aside>
+    </div>
+
+    <!-- start_point: guesses and a tap -->
+    <div class="rv-start" id="startTools" hidden>
+      <div class="rv-row" id="guessPlay"></div>
+      <div class="rv-row">
+        <button type="button" id="tap">Tap “starts here” while it plays</button>
+        <button type="button" id="nudgeBack" aria-label="Half a second earlier">&minus;&frac12; s</button>
+        <button type="button" id="nudgeOn" aria-label="Half a second later">+&frac12; s</button>
+        <span class="small" id="tapAt"></span>
+      </div>
+    </div>
+
+    <div class="rv-answers" id="answers"></div>
+    <div class="rv-row rv-barwrong" id="barWrong" hidden>
+      <label class="small">Which bar is wrong? <input type="number" id="wrongBar" inputmode="numeric" min="1"></label>
+      <span class="quiet small">Or tap a bar in the chart above.</span>
+      <button type="button" class="primary" id="saveBarWrong">Save</button>
+    </div>
+    <div class="rv-row">
+      <label class="small rv-notefield">Note <input type="text" id="note" placeholder="optional, e.g. “chart starts at the second chorus”"></label>
+      <span class="quiet small" id="answeredNote"></span>
+      <button type="button" id="undo" hidden>Take my answer back</button>
+    </div>
+    <p class="quiet small rv-keys">Keys: Space plays the spot · 1, 2, 3, 4 answer · Esc goes back to the list.</p>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+<script src="/static/common.js"></script>
+<script src="/static/review.js"></script>
+</body>
+</html>
