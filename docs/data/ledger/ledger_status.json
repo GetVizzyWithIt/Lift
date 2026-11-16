@@ -1,29 +1,29 @@
 {
- "generated": "2026-11-14 21:33",
+ "generated": "2026-11-16 09:34",
  "schema": 1,
- "total_pdfs": 750,
- "charts": 618,
- "healthy": 118,
- "healthy_share": 0.191,
+ "total_pdfs": 751,
+ "charts": 620,
+ "healthy": 154,
+ "healthy_share": 0.248,
  "counts": {
-  "matched": 118,
-  "check": 117,
-  "wrong_audio": 97,
-  "needs_audio": 139,
-  "unreadable": 16,
-  "not_started": 123,
-  "unsorted": 8,
-  "excluded": 132
+  "matched": 154,
+  "check": 114,
+  "wrong_audio": 64,
+  "needs_audio": 129,
+  "unreadable": 14,
+  "not_started": 135,
+  "unsorted": 10,
+  "excluded": 131
  },
  "by_source": {
   "Anderson batch": {
-   "check": 35,
-   "wrong_audio": 67,
+   "check": 36,
+   "wrong_audio": 42,
    "excluded": 2
   },
   "book_split": {
-   "matched": 3,
-   "check": 3,
+   "matched": 4,
+   "check": 2,
    "needs_audio": 33
   },
   "excerpt": {
@@ -31,8 +31,8 @@
    "not_started": 69
   },
   "inbox": {
-   "unsorted": 8,
-   "excluded": 61
+   "unsorted": 10,
+   "excluded": 60
   },
   "loose": {
    "excluded": 59
@@ -41,25 +41,27 @@
    "not_started": 6
   },
   "other instrument: clarinet": {
-   "not_started": 8
+   "not_started": 14
   },
   "other instrument: guitar": {
    "not_started": 9
   },
   "other instrument: piano": {
-   "not_started": 10
+   "not_started": 13
   },
   "other instrument: trombone": {
    "not_started": 2
   },
   "other instrument: trumpet": {
-   "not_started": 14
+   "not_started": 17
   },
   "other instrument: vibes": {
    "not_started": 2
   },
   "site_pdf": {
-   "needs_audio": 105,
+   "matched": 3,
+   "check": 7,
+   "needs_audio": 95,
    "excluded": 4
   },
   "test_tune": {
@@ -68,10 +70,10 @@
    "excluded": 5
   },
   "transcribed": {
-   "matched": 59,
-   "check": 77,
-   "wrong_audio": 30,
-   "unreadable": 16,
+   "matched": 91,
+   "check": 67,
+   "wrong_audio": 22,
+   "unreadable": 14,
    "not_started": 3,
    "excluded": 1
   },
@@ -84,127 +86,152 @@
   {
    "status": "needs_audio",
    "reason": "pdf only, needs a recording",
-   "n": 128
+   "group": "pdf only, needs a recording",
+   "n": 118
   },
   {
    "status": "not_started",
    "reason": "chart and recording here, no key yet",
+   "group": "chart and recording here, no key yet",
    "n": 69
-  },
-  {
-   "status": "wrong_audio",
-   "reason": "best recording tried lines up # (set_aside)",
-   "n": 67
   },
   {
    "status": "not_started",
    "reason": "no answer key yet",
-   "n": 54
+   "group": "no answer key yet",
+   "n": 66
+  },
+  {
+   "status": "wrong_audio",
+   "reason": "best recording tried lines up 58% (set_aside)",
+   "group": "best recording tried lines up # (set_aside)",
+   "n": 42
+  },
+  {
+   "status": "excluded",
+   "reason": "identical copy of ~/saxscribe-runs/keys/transcribed/ben-webster_the-touch-of-your-lips_1959/ben-webster_the-touch-of-your-lips_1959_transcription.pdf",
+   "group": "identical copy of <path>",
+   "n": 21
   },
   {
    "status": "check",
-   "reason": "heard agreement # (below #); tempo jumps in # of # bars (exp",
-   "n": 22
+   "reason": "heard agreement 75.4% (below 80); tempo jumps in 11 of 37 bars (expected length not on file); audit: a block of bars off together",
+   "group": "heard agreement # (below #); tempo jumps in # of # bars (expected length not on ",
+   "n": 19
   },
   {
    "status": "excluded",
    "reason": "method book or etude collection with no single recording",
+   "group": "method book or etude collection with no single recording",
    "n": 15
   },
   {
-   "status": "wrong_audio",
-   "reason": "chart and recording don't line up (heard agreement #); exact",
+   "status": "excluded",
+   "reason": "another PDF of the same chart: ~/saxscribe-runs/keys/transcribed/john-coltrane_locomotion_1957/john-coltrane_locomotion_1957_transcription.pdf",
+   "group": "another PDF of the same chart: <path>",
    "n": 14
+  },
+  {
+   "status": "check",
+   "reason": "heard agreement 75.3% (below 80) (expected length not on file)",
+   "group": "heard agreement # (below #) (expected length not on file)",
+   "n": 13
+  },
+  {
+   "status": "excluded",
+   "reason": "not a sax part (guitar): page-1 sample of a longer Brian Falkowski transcription (ima",
+   "group": "not a sax part (guitar): page-# sample of a longer Brian Falkowski transcription",
+   "n": 12
   },
   {
    "status": "wrong_audio",
    "reason": "chart and recording don't line up; exact recording listed",
-   "n": 14
-  },
-  {
-   "status": "excluded",
-   "reason": "another PDF of the same chart: ~/saxscribe-runs/sheet-music/",
-   "n": 13
+   "group": "chart and recording don't line up; exact recording listed",
+   "n": 11
   },
   {
    "status": "check",
-   "reason": "heard agreement # (below #) (expected length not on file); a",
-   "n": 12
-  },
-  {
-   "status": "excluded",
-   "reason": "not a sax part (guitar): page-# sample of a longer Brian Fal",
-   "n": 12
+   "reason": "pass 92% in staging (charlie-parker_little-willie-leaps_1947__hN4g3E6yE_c); ready to file",
+   "group": "pass # in staging (charlie-parker_little-willie-leaps_1947__hN4g3E6yE_c); ready ",
+   "n": 11
   },
   {
    "status": "check",
-   "reason": "pass # in staging (charlie-parker_little-willie-leaps_#__hN#",
-   "n": 12
-  },
-  {
-   "status": "check",
-   "reason": "heard agreement # (below #) (expected length not on file)",
-   "n": 10
-  },
-  {
-   "status": "excluded",
-   "reason": "Saxscribe app export (our own output, not a source transcrip",
+   "reason": "tempo jumps in 3 of 28 bars (expected length not on file)",
+   "group": "tempo jumps in # of # bars (expected length not on file)",
    "n": 10
   },
   {
    "status": "excluded",
    "reason": "paper or thesis (solos inside not split out yet)",
+   "group": "paper or thesis (solos inside not split out yet)",
    "n": 9
+  },
+  {
+   "status": "excluded",
+   "reason": "Saxscribe app export (our own output, not a source transcription)",
+   "group": "Saxscribe app export (our own output, not a source transcription)",
+   "n": 9
+  },
+  {
+   "status": "wrong_audio",
+   "reason": "chart and recording don't line up (heard agreement 60.8%); exact recording listed",
+   "group": "chart and recording don't line up (heard agreement #); exact recording listed",
+   "n": 8
   },
   {
    "status": "check",
    "reason": "audit: high-priority misread bars",
+   "group": "audit: high-priority misread bars",
    "n": 7
   },
   {
    "status": "unreadable",
    "reason": "page reader produced no notes",
+   "group": "page reader produced no notes",
+   "n": 7
+  },
+  {
+   "status": "check",
+   "reason": "octave fix pending (octave_check.py --fix): key sits +1 octave(s) off the record (99% of 542 notes); run octave_check.py --fix",
+   "group": "octave fix pending (octave_check.py --fix): key sits +# octave(s) off the record",
    "n": 7
   },
   {
    "status": "excluded",
-   "reason": "not a sax part (flute): page-# sample of a longer Brian Falk",
+   "reason": "not a sax part (flute): page-1 sample of a longer Brian Falkowski transcription (ima",
+   "group": "not a sax part (flute): page-# sample of a longer Brian Falkowski transcription ",
    "n": 7
   },
   {
+   "status": "unsorted",
+   "reason": "not identified yet (one solo, 2 pages)",
+   "group": "not identified yet (one solo, # pages)",
+   "n": 6
+  },
+  {
    "status": "check",
-   "reason": "audit: # bars read in the wrong octave or step (re-read thos",
+   "reason": "heard agreement 75.7% (below 80) (expected length not on file); audit: high-priority misread bars",
+   "group": "heard agreement # (below #) (expected length not on file); audit: high-priority ",
    "n": 5
   },
   {
    "status": "check",
-   "reason": "tempo jumps in # of # bars (expected length not on file)",
-   "n": 5
+   "reason": "heard agreement 78.4% (below 80)",
+   "group": "heard agreement # (below #)",
+   "n": 4
   },
   {
    "status": "unreadable",
    "reason": "chart probably misread: chart and recording don't line up",
-   "n": 5
-  },
-  {
-   "status": "unsorted",
-   "reason": "not identified yet (one solo, # pages)",
-   "n": 5
+   "group": "chart probably misread: chart and recording don't line up",
+   "n": 4
   },
   {
    "status": "check",
-   "reason": "tempo jumps in # of # bars (expected length not on file); au",
-   "n": 4
-  },
-  {
-   "status": "unreadable",
-   "reason": "chart probably misread: chart and recording don't line up (h",
-   "n": 4
-  },
-  {
-   "status": "excluded",
-   "reason": "identical copy of ~/saxscribe-runs/keys/transcribed/lester-y",
-   "n": 4
+   "reason": "heard agreement 73.4% (below 80) (expected length not on file); audit: a block of bars off together",
+   "group": "heard agreement # (below #) (expected length not on file); audit: a block of bar",
+   "n": 3
   }
  ]
 }
