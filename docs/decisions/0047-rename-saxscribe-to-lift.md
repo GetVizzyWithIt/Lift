@@ -31,12 +31,11 @@ folder name.
 | ~/saxscribe-runs, ~/saxscribe-library | ~/lift-runs, ~/lift-library |
 | ~/.cache/saxscribe | ~/.cache/lift |
 | ~/Library/Application Support/saxscribe/python | ~/Library/Application Support/Lift/python |
-| catalog/saxscribe_catalog.db | catalog/lift_catalog.db |
 | GitHub GetVizzyWithIt/Saxscribe | GetVizzyWithIt/lift (GitHub forwards the old address) |
 
 The code reads the new folder when it exists and the old one otherwise, so it
 works before and after the move. `scripts/rename_to_lift.sh` does the Mac move.
-By default it does a dry run. With --apply, it waits for running jobs to finish.
+By default it does a dry run. With --apply, it waits for running jobs to finish. The checks start the app with --hold-jobs, so no waiting upload starts transcribing.
 It then asks the running app for every page, song, and take, and counts how
 many catalog paths resolve. Next it renames each folder and leaves the link. It
 asks the same questions again and needs the same answers. Last, it runs the full
@@ -51,6 +50,8 @@ Left as it was, on purpose:
 - Stored paths inside data files and the catalog. They resolve through the links.
 - Historical records: past entries in docs/evaluation/log.md, ADRs 0001 to 0046,
   results.jsonl, experiments.jsonl, the E84 pre-registration, and the ledger snapshot.
+- The catalog's file name, `saxscribe_catalog.db`. A SQLite database reached under two file names keeps a separate journal for each, so a crash could lose changes; only its folder moves.
+- `~/Desktop/Lift Sheets` has no fallback to `~/Desktop/Saxscribe`, because on the Mac's case-insensitive disk that old name is the code folder itself.
 - The E77 weights file name `saxscribe_finder_e77.pt`, which is fixed by its fingerprint.
 - The catalog's internal source id "saxscribe" for app-made takes, and the
   browser's saved-setting keys, so saved settings survive.

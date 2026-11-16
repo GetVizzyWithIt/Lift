@@ -217,7 +217,7 @@ Full record: [evaluation log](docs/evaluation/log.md). Charts: the [model dashbo
 - **Naming:** IDs are `player_tune_year`. Each song has a folder
   `~/lift-runs/keys/<group>/<ID>/` holding `<ID>.mp3`, `<ID>_key.json`,
   `<ID>_transcription.pdf` and a `links.csv` with file fingerprints.
-- **Catalog:** `~/lift-runs/catalog/lift_catalog.db`. Rebuild it with
+- **Catalog:** `~/lift-runs/catalog/saxscribe_catalog.db` (the file keeps its old name; see ADR-0047). Rebuild it with
   `python3 ~/lift-runs/catalog/build_catalog.py`.
 - **Datasets** on the Mac live in `~/mir_datasets/`. Every dataset, with its
   licence, is in [docs/data](docs/data/README.md).
