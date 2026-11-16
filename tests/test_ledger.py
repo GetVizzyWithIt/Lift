@@ -1,7 +1,7 @@
 """The PDF ledger the Dataset health tab reads (score/ledger.py)."""
 import json
 
-from saxscribe.score import history, ledger
+from lift.score import history, ledger
 
 
 def test_repo_snapshot_loads_and_adds_up(tmp_path):

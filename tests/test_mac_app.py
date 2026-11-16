@@ -41,7 +41,7 @@ def test_scripts_parse(name):
 
 def test_should_quit():
     pytest.importorskip("fastapi")
-    from saxscribe.app.server import should_quit
+    from lift.app.server import should_quit
 
     assert not should_quit(0, 60 * 29, 30, busy=False)      # a page checked in recently
     assert should_quit(0, 60 * 30, 30, busy=False)          # nobody for 30 minutes
@@ -54,8 +54,8 @@ def test_alive_route_and_busy(tmp_path):
     pytest.importorskip("httpx")
     from fastapi.testclient import TestClient
 
-    from saxscribe.app.library import Library
-    from saxscribe.app.server import create_app
+    from lift.app.library import Library
+    from lift.app.server import create_app
 
     library = Library(tmp_path / "library")
     app = create_app(library)

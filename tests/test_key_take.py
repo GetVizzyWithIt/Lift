@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from saxscribe.app import key_take
+from lift.app import key_take
 
 from .test_library_page import make_runs
 
@@ -69,7 +69,7 @@ def test_key_only_when_there_is_no_page_reading(tmp_path):
 
 
 def test_sync_runs_forward_and_rebuild_is_cached(tmp_path):
-    from saxscribe.app import score_view
+    from lift.app import score_view
     take = build(tmp_path, key_notes())
     pairs = score_view.sync(take)
     assert len(pairs) >= 2
@@ -83,7 +83,7 @@ def test_sync_runs_forward_and_rebuild_is_cached(tmp_path):
 
 
 def test_bar_q_follows_bar_starts():
-    from saxscribe.app.score_view import bar_q
+    from lift.app.score_view import bar_q
     at = bar_q({"bar_starts": ["0", "4", "7"], "bar_numbers": [1, 2, 3], "bar_end": "11"})
     assert [at(b) for b in (1, 2, 3, 4, 5)] == [0, 4, 7, 11, 15]
     assert bar_q({})(3) == 8
@@ -99,8 +99,8 @@ def test_library_play_routes(tmp_path, monkeypatch):
     pytest.importorskip("verovio")
     from fastapi.testclient import TestClient
 
-    from saxscribe.app.library import Library
-    from saxscribe.app.server import create_app
+    from lift.app.library import Library
+    from lift.app.server import create_app
 
     runs = make_runs(tmp_path)
     song = runs / "keys" / "transcribed" / SONG
@@ -129,7 +129,7 @@ def test_library_play_routes(tmp_path, monkeypatch):
 
 
 def test_solo_clip_pads_the_key_notes(tmp_path):
-    from saxscribe.app import catalog
+    from lift.app import catalog
     k = tmp_path / "k.json"
     k.write_text(json.dumps([{"onset": 95.0, "offset": 95.5, "pitch": 60}, {"onset": 140.2, "offset": 141.0, "pitch": 62}]))
     assert catalog.solo_clip(k) == {"start": 92.0, "end": 144.0, "first_note": 95.0, "last_note": 141.0}
@@ -143,8 +143,8 @@ def test_song_and_play_along_carry_the_solo_clip(tmp_path):
     pytest.importorskip("fastapi")
     from fastapi.testclient import TestClient
 
-    from saxscribe.app.library import Library
-    from saxscribe.app.server import create_app
+    from lift.app.library import Library
+    from lift.app.server import create_app
 
     runs = make_runs(tmp_path)
     song = runs / "keys" / "transcribed" / SONG

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 
-from saxscribe.score import experiments, history
+from lift.score import experiments, history
 
 
 def n(on, off, pitch, bar=None, tags=None, **kw):

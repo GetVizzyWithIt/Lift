@@ -5,12 +5,12 @@ import tempfile
 
 import pytest
 
-from saxscribe.pipeline import transcribe
+from lift.pipeline import transcribe
 
 from . import fixture
 
 # Tests never write to the real Desktop: the app's copy goes to a temp folder.
-DESKTOP = os.environ.setdefault("SAXSCRIBE_DESKTOP", tempfile.mkdtemp(prefix="saxscribe-desktop-"))
+DESKTOP = os.environ.setdefault("LIFT_DESKTOP", tempfile.mkdtemp(prefix="lift-desktop-"))
 
 
 @pytest.fixture(scope="session")

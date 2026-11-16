@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 import soundfile as sf
 
-from saxscribe.score import card, metrics, refs, stress
+from lift.score import card, metrics, refs, stress
 
 from . import fixture
 

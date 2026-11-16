@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from saxscribe.score import review
+from lift.score import review
 
 
 def write_report(runs, tmp_path):
@@ -64,8 +64,8 @@ def test_review_routes(tmp_path):
     pytest.importorskip("httpx")
     from fastapi.testclient import TestClient
 
-    from saxscribe.app.library import Library
-    from saxscribe.app.server import create_app
+    from lift.app.library import Library
+    from lift.app.server import create_app
 
     runs = tmp_path / "runs"
     client = TestClient(create_app(Library(tmp_path / "library", inline=True), runs=runs))

@@ -4,7 +4,7 @@ from __future__ import annotations
 import sqlite3
 from fractions import Fraction
 
-from saxscribe.score import rhythm
+from lift.score import rhythm
 
 
 def make_db(path, solos):
@@ -69,7 +69,7 @@ def test_rhythm_split_is_by_performer(tmp_path):
 
 
 def test_rhythm_command_writes_a_card(tmp_path, capsys):
-    from saxscribe.__main__ import main
+    from lift.__main__ import main
     db = tmp_path / "wjazzd.db"
     make_db(db, [(1, "A", "ts", 0.5, straight_eighths)])
     assert main(["rhythm", "--data", str(db), "--runs", str(tmp_path / "runs")]) == 0

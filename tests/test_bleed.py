@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from saxscribe.layers import bleed
+from lift.layers import bleed
 
 
 def line(segments, total=20.0):
