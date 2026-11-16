@@ -49,3 +49,28 @@ def test_no_page_says_saxscribe_to_the_user(client):
                  "print.html", "library.js", "song.js", "play.js", "review.js", "results.js"):
         text = client.get(f"/static/{name}").text
         assert "Saxscribe" not in text, name
+
+
+def test_light_dark_switch_is_remembered_and_applied_before_drawing(client):
+    js = client.get("/static/common.js").text
+    assert 'id="liftTheme"' in js and "lift-theme" in js and "applyTheme" in js
+    for path in PAGES:
+        html = client.get(path).text
+        head = html[:html.index("</head>")]
+        assert 'localStorage.getItem("lift-theme")' in head            # set before the page draws: no flash
+        assert head.index("lift-theme") < head.index("/static/app.css")
+
+
+def test_every_dark_colour_block_also_answers_the_switch(client):
+    """Each @media dark block has a twin under [data-theme=dark], and the media one steps aside for Light."""
+    for name in ("app.css", "results.css"):
+        css = client.get(f"/static/{name}").text
+        n = css.count("@media (prefers-color-scheme: dark)")
+        assert n and css.count(':root:not([data-theme="light"])') == n and css.count(':root[data-theme="dark"]') == n
+
+
+def test_mockup_pieces_are_in(client):
+    js = client.get("/static/common.js").text
+    assert "function recordIcon" in js and "function icon" in js
+    assert "recordIcon(" in client.get("/static/index.js").text          # running takes show the record with its arc
+    assert 'class="search"' in client.get("/library").text              # search pill with its icon

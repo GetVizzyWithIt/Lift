@@ -4,9 +4,11 @@
   --grid: #e9e6e0; --axis: #c3c2b7; --muted: #898781; --ink2: #52514e; --good-ink: #006300;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --s-note: #3987e5; --s-onset: #d95926; --s-pitch: #199e70;
+  :root:not([data-theme="light"]) { --s-note: #3987e5; --s-onset: #d95926; --s-pitch: #199e70;
           --grid: #2f2d29; --axis: #45423c; --muted: #898781; --ink2: #c3c2b7; --good-ink: #0ca30c; }
 }
+:root[data-theme="dark"] { --s-note: #3987e5; --s-onset: #d95926; --s-pitch: #199e70;
+          --grid: #2f2d29; --axis: #45423c; --muted: #898781; --ink2: #c3c2b7; --good-ink: #0ca30c; }
 .wrap.wide { max-width: 1240px; }
 .filters { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
 .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -56,9 +58,11 @@ code { font-size: 0.85em; }
   --div-pos: #2a78d6; --div-neg: #e34948; --track: #f0efec; --lost-ink: #b3261e;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --k-right: #3987e5; --k-timing: #199e70; --k-pitch: #d95926; --k-bound: #9085e9; --k-miss: #e66767; --k-rest: #008300;
+  :root:not([data-theme="light"]) { --k-right: #3987e5; --k-timing: #199e70; --k-pitch: #d95926; --k-bound: #9085e9; --k-miss: #e66767; --k-rest: #008300;
           --div-pos: #3987e5; --div-neg: #e66767; --track: #383835; --lost-ink: #ffb4ab; }
 }
+:root[data-theme="dark"] { --k-right: #3987e5; --k-timing: #199e70; --k-pitch: #d95926; --k-bound: #9085e9; --k-miss: #e66767; --k-rest: #008300;
+          --div-pos: #3987e5; --div-neg: #e66767; --track: #383835; --lost-ink: #ffb4ab; }
 h2.section { margin: 36px 4px 4px; }
 #stands svg, #where-bars svg, #along svg { display: block; max-width: none; }
 #stands svg { width: 100%; min-width: 640px; height: auto; }
@@ -199,9 +203,11 @@ details.area tr.pick:hover td { background: var(--track); }
 :root { --st-matched: #008300; --st-check: #2a78d6; --st-wrong: #eb6834; --st-needs: #1baf7a; --st-unread: #eda100;
         --st-notstarted: #e87ba4; --st-unsorted: #6250d6; --st-excluded: #a19d94; }
 @media (prefers-color-scheme: dark) {
-  :root { --st-matched: #0ca30c; --st-check: #3987e5; --st-wrong: #d95926; --st-needs: #199e70; --st-unread: #c98500;
+  :root:not([data-theme="light"]) { --st-matched: #0ca30c; --st-check: #3987e5; --st-wrong: #d95926; --st-needs: #199e70; --st-unread: #c98500;
           --st-notstarted: #d55181; --st-unsorted: #9085e9; --st-excluded: #78756f; }
 }
+:root[data-theme="dark"] { --st-matched: #0ca30c; --st-check: #3987e5; --st-wrong: #d95926; --st-needs: #199e70; --st-unread: #c98500;
+          --st-notstarted: #d55181; --st-unsorted: #9085e9; --st-excluded: #78756f; }
 #health-bar svg, #health-sources svg, #health-history svg { display: block; max-width: none; }
 #health-bar { margin-top: 12px; }
 #health-legend { margin: 16px 4px 16px; }

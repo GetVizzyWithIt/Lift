@@ -6,6 +6,7 @@
 <title>Lift</title>
 <link rel="icon" href="/static/brand/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/static/brand/apple-touch-icon.png">
+<script>try{var t=localStorage.getItem("lift-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body data-page="transcribe">
@@ -16,6 +17,7 @@
   <section class="card" id="upload">
     <h2>Transcribe a recording</h2>
     <label class="drop" id="drop">
+      <svg class="record" viewBox="0 0 48 48" aria-hidden="true"><circle class="disc" cx="24" cy="24" r="19"/><circle class="groove" cx="24" cy="24" r="8"/><circle class="groove" cx="24" cy="24" r="11.5"/><circle class="groove" cx="24" cy="24" r="15"/><circle class="label" cx="24" cy="24" r="4.4"/></svg>
       <strong id="dropText">Choose an audio file</strong>
       <span class="quiet small">or drop one here: WAV, MP3, M4A, AIFF, FLAC</span>
       <input type="file" id="file" accept="audio/*,.wav,.mp3,.m4a,.aif,.aiff,.flac,.ogg,.opus" hidden>
