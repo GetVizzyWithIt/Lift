@@ -6,7 +6,7 @@ rule). So this module never makes questions; it reads the ones the scripts wrote
 each with the chart, the recording at the right moment, and the answer key as soft tones,
 and saves the answer.
 
-Where things live (all under the runs folder, ~/saxscribe-runs):
+Where things live (all under the runs folder, ~/lift-runs):
 
   review/queues/<queue>/items.json   one file per queue, written by the Mac scripts:
       {"queue": "match_check", "plugin": "match_check", "title": "...", "why": "...",
@@ -46,6 +46,7 @@ import math
 import time
 from pathlib import Path
 
+from .. import paths
 from ..score import review
 
 PLUGINS = {"match_check": "match_check", "ab_match": "match_check",
@@ -66,7 +67,7 @@ PAD = 1.0  # seconds of recording kept either side of the bars in question
 
 
 def runs_dir(runs: str | Path | None) -> Path:
-    return Path(runs).expanduser() if runs else Path.home() / "saxscribe-runs"
+    return Path(runs).expanduser() if runs else paths.runs()
 
 
 def review_dir(runs: str | Path | None) -> Path:

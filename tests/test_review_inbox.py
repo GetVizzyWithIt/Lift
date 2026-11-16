@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from saxscribe.app import review_inbox as rq
+from lift.app import review_inbox as rq
 from tests.test_library_page import make_runs
 
 CHECK = "x_check_1950"  # in the ledger at status "check", same two-page PDF as the Webster chart
@@ -67,7 +67,7 @@ def test_inbox_lists_questions_and_never_note_ends(tmp_path):
 
 
 def test_detail_finds_the_bars_on_the_recording_and_the_page(tmp_path, monkeypatch):
-    from saxscribe.app import pdf_pages
+    from lift.app import pdf_pages
     monkeypatch.setattr(pdf_pages, "CACHE", tmp_path / "pages")
     d = rq.detail(make(tmp_path), "match_check", "m1")
     assert d["plugin"] == "match_check" and d["bars"] == [3, 5] and d["focus_bar"] == 4
@@ -96,7 +96,7 @@ def test_answers_save_undo_and_reach_the_match_review(tmp_path):
     rq.save(runs, "match_check", "m2", "bar_wrong", "the turnaround", {"bar": 12, "ignored": 1})
     got = rq.answers(runs)[("match_check", "m2")]
     assert got["answer"] == "bar_wrong" and got["bar"] == 12 and "ignored" not in got and got["chart_id"] == WEBSTER
-    from saxscribe.score import review
+    from lift.score import review
     mine = {e["id"]: e for e in review.load(runs)["entries"]}[WEBSTER]
     assert mine["austin_verdict"] == "good" and mine["austin_note"] == "bar 12 wrong on the chart: the turnaround"
     assert rq.inbox(runs)["left"] == 3
@@ -127,9 +127,9 @@ def test_review_routes(tmp_path, monkeypatch):
     pytest.importorskip("pypdfium2")
     from fastapi.testclient import TestClient
 
-    from saxscribe.app import pdf_pages
-    from saxscribe.app.library import Library
-    from saxscribe.app.server import create_app
+    from lift.app import pdf_pages
+    from lift.app.library import Library
+    from lift.app.server import create_app
 
     monkeypatch.setattr(pdf_pages, "CACHE", tmp_path / "pages")
     c = TestClient(create_app(Library(tmp_path / "lib", inline=True), runs=make(tmp_path)))

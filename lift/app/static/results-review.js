@@ -29,7 +29,7 @@ function renderReview() {
     badge.hidden = true;
     sum.textContent = '';
     list.append(el('p', {class: 'quiet'}, 'No match report yet. The match check writes ' +
-      `${R ? R.report : '~/saxscribe-runs/keys/match_report.jsonl'} on the Mac; pairs show here once it has run.`));
+      `${R ? R.report : '~/lift-runs/keys/match_report.jsonl'} on the Mac; pairs show here once it has run.`));
     return;
   }
   const E = R.entries;
