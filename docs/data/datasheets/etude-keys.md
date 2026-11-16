@@ -34,4 +34,4 @@ written classical studies played on real alto, where the score is the answer.
 - Scores: public domain. Recordings: rights *to verify*. Audio stays on the
   Mac and off the repo.
 - Location: `/mnt/project-files/datasets/etude-keys/` (keys, aligned keys,
-  scorecard, tools); Mac copy `~/saxscribe-runs/keys/etudes/`.
+  scorecard, tools); Mac copy `~/lift-runs/keys/etudes/`.

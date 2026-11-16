@@ -29,6 +29,6 @@ Dryad doi:10.5061/dryad.ng3r749, CC0, 12.1 GB. Folder `URMP/`.
 ## Maintenance
 Checksums in the manifest.
 
-## Saxscribe results
+## Lift results
 2026-11-02: solo pitch 94.4%, note F1 64.4%; mix note F1 17.1%. 16_Surprise
 scores 81% pitch under every tool; needs a listen. See the [log](../../evaluation/log.md).

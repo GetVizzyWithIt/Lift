@@ -10,15 +10,15 @@
   - Transcriber: Kong et al.'s high-resolution CRNN (onset, offset, frame and velocity heads; 88 pitch classes; 16 kHz; 100 frames per second), fine-tuned on Filosax.
 - **Source and licence**:
   - Weights are on Hugging Face (`xavriley/demucs_v3_saxophone_separation`, `xavriley/midi-transcription-models`), MIT.
-  - The transcriber code is vendored from xavriley's fork of Kong's `piano_transcription_inference` (@7568dc7, MIT) into `saxscribe/vendor/kong.py`.
-- **How Saxscribe calls it**: `saxscribe/filosax.py`.
+  - The transcriber code is vendored from xavriley's fork of Kong's `piano_transcription_inference` (@7568dc7, MIT) into `lift/vendor/kong.py`.
+- **How Lift calls it**: `lift/filosax.py`.
   - `separate()` runs with shifts 1, overlap 0.25, on the CPU.
   - `transcribe()` uses the package's default thresholds: onset 0.3, offset 0.3, frame 0.1.
   - Both checkpoints load with torch's safe loader, and their sha256 is checked before every use.
 - **Citation**: Riley & Dixon, "Reconstructing the Charlie Parker Omnibook using an audio-to-score automatic transcription pipeline", SMC 2024, arXiv 2405.16687.
 
 ## Intended use
-- **In Saxscribe**: an opt-in alternative for layer 1 (`--separator filosax`) and for layer 3 notes (`--notes-tool filosax`). In the app it is the "Filosax (test)" note finder. Use case U2 (other players' records).
+- **In Lift**: an opt-in alternative for layer 1 (`--separator filosax`) and for layer 3 notes (`--notes-tool filosax`). In the app it is the "Filosax (test)" note finder. Use case U2 (other players' records).
 - **Out of scope**: it is not yet the default. It has not been checked on Austin's own playing.
 
 ## Factors

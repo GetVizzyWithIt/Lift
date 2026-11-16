@@ -18,7 +18,7 @@ What the upstream authors document (training data, limits, licences, versions, a
 
 Before/after numbers for every model and pipeline change, in one table: [evaluation log, change by change](../evaluation/log.md#change-by-change-what-each-model-or-pipeline-change-did).
 
-No model has been trained or fine-tuned for Saxscribe yet. The first trained
+No model has been trained or fine-tuned for Lift yet. The first trained
 model gets a card from [_template.md](_template.md) before its PR merges.
 
 ## Candidates under consideration (no card until adopted)

@@ -1,6 +1,6 @@
 # Model card: note rules (one-line, split-note join, segmenter, contour cutter)
 
-Rule-based components written for Saxscribe. No training; every threshold is a
+Rule-based components written for Lift. No training; every threshold is a
 constant in the code. They are carded because they change the output as much
 as a model does.
 

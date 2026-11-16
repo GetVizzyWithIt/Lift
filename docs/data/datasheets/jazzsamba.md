@@ -15,7 +15,7 @@ A jazz multitrack dataset with isolated stems and mixes, released on Zenodo
 See the dataset's own documentation.
 
 ## Preprocessing and labelling
-No Saxscribe loader yet.
+No Lift loader yet.
 
 ## Uses
 - **Role**: separation training and testing (stem vs. mix pairs, alto and tenor); tenor transfer checks; drafts to hand-correct into answer keys.
@@ -28,5 +28,5 @@ the copyright notice; derived files are estimates), 21.8 GB. Folder `JazzSAMBA/`
 ## Maintenance
 Checksums in the manifest.
 
-## Saxscribe results
+## Lift results
 None yet.

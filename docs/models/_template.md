@@ -5,11 +5,11 @@
 - **Developed by / version / date**:
 - **Type** (architecture, size):
 - **Source and licence** (code and weights separately):
-- **How Saxscribe calls it** (file, function, settings):
+- **How Lift calls it** (file, function, settings):
 - **Citation**:
 
 ## Intended use
-- **In Saxscribe**: which layer, which use case (U1 own takes / U2 records / U3 practice)
+- **In Lift**: which layer, which use case (U1 own takes / U2 records / U3 practice)
 - **Out of scope**: where it must not be relied on
 
 ## Factors
@@ -24,7 +24,7 @@ Which scorecard metrics judge it, and why those
 What it learned from, and how much of that is saxophone.
 
 ## Evaluation data
-Saxscribe answer-key sets it has been scored on.
+Lift answer-key sets it has been scored on.
 
 ## Quantitative results
 Link rows in [evaluation/log.md](../evaluation/log.md); copy only the headline.

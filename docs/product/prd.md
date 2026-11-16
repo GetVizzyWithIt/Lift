@@ -1,4 +1,4 @@
-# Product requirements: Saxscribe
+# Product requirements: Lift
 
 | | |
 | --- | --- |
@@ -12,7 +12,7 @@
 A sax player who wants to know exactly what was played (on their own take or on
 a record) has two options today: transcribe by ear with a pencil, or use a
 general-purpose transcription tool that is built for piano and guitar and gets
-sax wrong. Saxscribe should be good enough that Austin reaches for it before
+sax wrong. Lift should be good enough that Austin reaches for it before
 his ear, and should get better from his corrections.
 
 ## 2. Users and use cases
@@ -73,12 +73,12 @@ Status key: **Done** = merged and tested; **Partial** = works but incomplete;
 | F4 | **Notation**: quantized to beat grid, swing setting, key-driven spelling, rests | Done (4/4 only; no chord-aware spelling; no phrase marks). Fixed in PR #15: never drops notes without a beat grid. Readability pass merged (PR #21): swung eighths, triplets, multi-bar rests, one spelling per part; checked on synthetic solos so far | `layers/notation.py` |
 | F4a | Export MusicXML and MIDI, audio kept aligned | Done | `score.musicxml`, `score.mid` |
 | F4b | Export PDF sheet music (v1 UI) | Done when MuseScore is installed; can be turned off (PR #26); printable-page fallback in the app (PR #27) | `layers/engrave.py` |
-| F4c | PDF carries artist, title and a "Transcribed with Saxscribe" line | Done (PR #30) | |
+| F4c | PDF carries artist, title and a "Transcribed with Lift" line | Done (PR #30) | |
 | F5 | Transposition: store concert pitch, display Eb or Bb | Done (alto, tenor, baritone) | `horns.py` |
 | F6 | Batch mode (folder in, transcriptions out) | Done | `transcribe <folder>` |
 | F7 | Editor: fix pitch, split/merge, nudge onsets, change articulation, re-quantize; every edit saved as a diff | Planned (UI thread) | design doc |
-| F8 | Loop practice: select bars, slow down with pitch kept, scrolling notation | Partial: v1 play-along with highlighting, tap-to-seek, 50% slow-down with pitch kept, stem toggle (PR #14); bar loops not yet | `python -m saxscribe app` |
-| F13 | v1 web app: upload (alto/tenor, solo/band), download PDF/MusicXML/MIDI at alto, tenor or concert | Done (PR #14; progress, Stop/Run again and required solo-or-band choice in PR #19) | `python -m saxscribe app` |
+| F8 | Loop practice: select bars, slow down with pitch kept, scrolling notation | Partial: v1 play-along with highlighting, tap-to-seek, 50% slow-down with pitch kept, stem toggle (PR #14); bar loops not yet | `python -m lift app` |
+| F13 | v1 web app: upload (alto/tenor, solo/band), download PDF/MusicXML/MIDI at alto, tenor or concert | Done (PR #14; progress, Stop/Run again and required solo-or-band choice in PR #19) | `python -m lift app` |
 | F9 | Performance report: per-note timing and intonation, per-take summary | Planned (Phase D in UI plan) | |
 | F10 | Scorecard: score any layer on answer-key sets with mir_eval | Done | `score/` |
 | F11 | Answer keys from a written score and a take (DTW alignment) | Done | `score/align.py` |
@@ -107,7 +107,7 @@ Filosax access is still pending, so gate 1 currently cannot be measured; see
 ## 6. Constraints
 
 - **Fidelity over playability.** The tool must never learn to drop notes to
-  make a part easier. This is the line between Saxscribe and Songs in the Key
+  make a part easier. This is the line between Lift and Songs in the Key
   of Life's chart model ([ADR-0001](../decisions/0001-separate-repo-copied-front-end.md)).
 - **Mac-first inference** on MPS or Core ML; GPU training happens in Colab or a
   rented GPU, with weights brought back.
