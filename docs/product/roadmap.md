@@ -41,7 +41,7 @@ built. No dates. Phase lists below were last fully reviewed 2026-11-02; the
 - **Library** (app): steps 1 to 3 merged 2026-11-14 (PR #181 Library page,
   #182 song pages, #183 play-along on the answer key) plus #184 (play just the
   solo). Step 4, the Library as the home screen, waits on Austin's go.
-- **Logo**: concepts in progress (project files, `design/logo/`).
+- **Name and logo**: Austin picked "Lift" as the likely new name and the record-and-tone-arm logo (project files, `design/logo/final/`). The double-click Mac launcher is called Lift (PR #188); renaming the app itself is undecided.
 - **Paused:** the video-to-chart pilot.
 
 ## Phase 0: wiring and baseline — done
