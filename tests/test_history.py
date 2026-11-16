@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from saxscribe.score import history
+from lift.score import history
 
 CARD = {"set": "urmp", "split": "all", "settings": "default", "items": 11,
         "mean": {"note_f1": 0.644, "onset_f1": 0.816, "pitch_accuracy": 0.944}}
@@ -56,8 +56,8 @@ def test_results_page_and_api(tmp_path):
     pytest.importorskip("httpx")
     from fastapi.testclient import TestClient
 
-    from saxscribe.app.library import Library
-    from saxscribe.app.server import create_app
+    from lift.app.library import Library
+    from lift.app.server import create_app
 
     history.append(history.record(CARD, note="from this machine"), tmp_path / "runs")
     client = TestClient(create_app(Library(tmp_path / "library", inline=True), runs=tmp_path / "runs"))

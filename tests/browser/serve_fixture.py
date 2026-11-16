@@ -17,12 +17,12 @@ from pathlib import Path
 
 def main() -> None:
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8799
-    tmp = Path(tempfile.mkdtemp(prefix="saxscribe-browser-"))
-    os.environ.setdefault("SAXSCRIBE_DESKTOP", str(tmp / "Desktop"))
+    tmp = Path(tempfile.mkdtemp(prefix="lift-browser-"))
+    os.environ.setdefault("LIFT_DESKTOP", str(tmp / "Desktop"))
     import uvicorn
 
-    from saxscribe.app.library import Library
-    from saxscribe.app.server import create_app
+    from lift.app.library import Library
+    from lift.app.server import create_app
     from tests import fixture
 
     wav = tmp / "phrase.wav"

@@ -12,15 +12,15 @@ import numpy as np
 import pytest
 import soundfile as sf
 
-from saxscribe import filosax, frontend
-from saxscribe.pipeline import transcribe
+from lift import filosax, frontend
+from lift.pipeline import transcribe
 
 from . import fixture
 
 torch = pytest.importorskip("torch")
 pytest.importorskip("torchlibrosa")
 
-from saxscribe.vendor import kong  # noqa: E402
+from lift.vendor import kong  # noqa: E402
 
 
 def peaks(frames: int, at: dict[int, list[int]]) -> np.ndarray:
@@ -78,7 +78,7 @@ def test_transcriber_weights_load_with_the_safe_loader(tmp_path):
 
 
 def test_a_checkpoint_that_is_not_the_tested_one_is_refused(tmp_path, monkeypatch):
-    monkeypatch.setenv("SAXSCRIBE_MODELS", str(tmp_path))
+    monkeypatch.setenv("LIFT_MODELS", str(tmp_path))
     (tmp_path / filosax.WEIGHTS["transcriber"]["file"]).write_bytes(b"not the weights")
     with pytest.raises(SystemExit, match="sha256"):
         filosax.weights("transcriber")
@@ -148,7 +148,7 @@ def test_switching_separator_remakes_every_layer(tmp_path, monkeypatch, fixture_
 
 def test_app_passes_the_filosax_choice_to_the_command(tmp_path, fixture_wav):
     pytest.importorskip("fastapi")
-    from saxscribe.app.library import Library
+    from lift.app.library import Library
     lib = Library(tmp_path / "lib")
     lib._enqueue = lambda take_id: None  # don't run it
     band = lib.add("phrase.wav", fixture_wav.read_bytes(), mix=True, engine="filosax")
@@ -183,9 +183,9 @@ def test_separator_loads_a_demucs_package_safely_and_writes_two_stems(tmp_path, 
 
 def test_our_fine_tuned_finder_is_used_when_installed(tmp_path, monkeypatch):
     """E77's weights can't be downloaded: without the file the original is used; with it, ours,
-    after its fingerprint is checked. SAXSCRIBE_FINDER=original keeps the original."""
-    monkeypatch.setenv("SAXSCRIBE_MODELS", str(tmp_path))
-    monkeypatch.delenv("SAXSCRIBE_FINDER", raising=False)
+    after its fingerprint is checked. LIFT_FINDER=original keeps the original."""
+    monkeypatch.setenv("LIFT_MODELS", str(tmp_path))
+    monkeypatch.delenv("LIFT_FINDER", raising=False)
     assert filosax.finder() == "transcriber"
     with pytest.raises(FileNotFoundError):
         filosax.weights("transcriber_ft")
@@ -193,5 +193,5 @@ def test_our_fine_tuned_finder_is_used_when_installed(tmp_path, monkeypatch):
     assert filosax.finder() == "transcriber_ft"
     with pytest.raises(SystemExit):  # a file that isn't the tested one is refused
         filosax.weights("transcriber_ft")
-    monkeypatch.setenv("SAXSCRIBE_FINDER", "original")
+    monkeypatch.setenv("LIFT_FINDER", "original")
     assert filosax.finder() == "transcriber"

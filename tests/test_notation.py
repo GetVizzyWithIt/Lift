@@ -7,8 +7,8 @@ from fractions import Fraction as F
 import numpy as np
 from music21 import converter
 
-from saxscribe.horns import HORNS
-from saxscribe.layers import notation
+from lift.horns import HORNS
+from lift.layers import notation
 
 from . import fixture
 
@@ -101,7 +101,7 @@ def test_fixture_notation(take):
     # checks the notation step itself. How well a beat tracker follows a solo
     # horn with no band is a separate question (Beat This! and librosa place
     # this phrase's last bars differently), measured by beat F1 in the scorecard.
-    from saxscribe.layers import notes as notes_layer
+    from lift.layers import notes as notes_layer
     est = notes_layer.read(take)["notes"]
     grid = [i * fixture.BEAT for i in range(40)]
     placed = notation.quantize(est, grid, grid[::4], fixture.BPM, "auto")["notes"]
@@ -120,16 +120,16 @@ def test_pdf_is_engraved_when_musescore_is_there(take, tmp_path, monkeypatch):
     fake = tmp_path / "mscore"
     fake.write_text('#!/bin/sh\nprintf "%%PDF-1.4 fake" > "$2"\n')
     fake.chmod(0o755)
-    monkeypatch.setenv("SAXSCRIBE_MUSESCORE", str(fake))
-    from saxscribe.layers import engrave
+    monkeypatch.setenv("LIFT_MUSESCORE", str(fake))
+    from lift.layers import engrave
     out = tmp_path / "score.pdf"
     assert engrave.to_pdf(take.musicxml, out)
     assert out.read_bytes().startswith(b"%PDF")
 
 
 def test_no_musescore_means_no_pdf_and_no_error(take, tmp_path, monkeypatch):
-    monkeypatch.setenv("SAXSCRIBE_MUSESCORE", str(tmp_path / "missing"))
-    from saxscribe.layers import engrave
+    monkeypatch.setenv("LIFT_MUSESCORE", str(tmp_path / "missing"))
+    from lift.layers import engrave
     assert not engrave.to_pdf(take.musicxml, tmp_path / "score.pdf")
 
 
@@ -291,8 +291,8 @@ def test_pdfs_can_be_turned_off(take, tmp_path, monkeypatch):
     fake = tmp_path / "mscore"
     fake.write_text('#!/bin/sh\ntouch "$2"\nexit 1\n')
     fake.chmod(0o755)
-    from saxscribe.layers import engrave
-    monkeypatch.setenv("SAXSCRIBE_MUSESCORE", "off")
+    from lift.layers import engrave
+    monkeypatch.setenv("LIFT_MUSESCORE", "off")
     assert engrave.turned_off() and engrave.find_musescore() is None
     assert not engrave.to_pdf(take.musicxml, tmp_path / "score.pdf")
     assert not (tmp_path / "score.pdf").exists()

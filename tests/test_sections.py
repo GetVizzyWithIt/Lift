@@ -5,8 +5,8 @@ import json
 
 import pytest
 
-from saxscribe import sections
-from saxscribe.app.library import Library
+from lift import sections
+from lift.app.library import Library
 
 
 def test_parse_reads_minutes_and_seconds_and_merges_overlaps():
@@ -47,7 +47,7 @@ def test_the_app_passes_sections_to_the_transcriber(tmp_path):
 
 
 def test_a_take_with_sections_hides_only_the_notes_outside_them(tmp_path, fixture_wav):
-    from saxscribe.pipeline import transcribe
+    from lift.pipeline import transcribe
     take = transcribe(fixture_wav, tmp_path / "take", horn="alto")
     before = json.loads(take.notes.read_text())["notes"]
     shown = [n for n in before if "not_sax" not in n["tags"]]

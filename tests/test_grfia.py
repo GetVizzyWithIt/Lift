@@ -6,7 +6,7 @@ from fractions import Fraction as F
 import numpy as np
 import soundfile as sf
 
-from saxscribe.score import kern, refs
+from lift.score import kern, refs
 
 KERN = """**kern
 *clefG2
@@ -74,7 +74,7 @@ def test_load_grfia_pairs_takes_with_scores_and_caches_the_aligned_key(tmp_path,
         return [{"onset": n["start"] * 0.625, "offset": n["end"] * 0.625, "pitch": n["pitch"],
                  "beat": n["start"]} for n in notes]
 
-    monkeypatch.setattr("saxscribe.score.align.align_notes", fake_align)
+    monkeypatch.setattr("lift.score.align.align_notes", fake_align)
     monkeypatch.setattr(refs, "grfia_key_cache", lambda horn: tmp_path / "keys" / f"grfia-{horn}")
     got = refs.load_grfia(tmp_path, "alto")
     assert [r.id for r in got] == ["Ex1"]
@@ -88,7 +88,7 @@ def test_load_grfia_pairs_takes_with_scores_and_caches_the_aligned_key(tmp_path,
 
 
 def test_tidy_gives_every_key_note_a_length_and_keeps_them_all():
-    from saxscribe.score.align import MIN_NOTE, tidy
+    from lift.score.align import MIN_NOTE, tidy
     # A thirty-second warped onto the same instant as its neighbour (seen on GRFIA alto 000100047).
     notes = [{"onset": 1.0, "offset": 1.1146, "pitch": 71},
              {"onset": 1.1146, "offset": 1.1146, "pitch": 69},
@@ -120,7 +120,7 @@ def test_cached_grfia_keys_are_tidied_on_load(tmp_path, monkeypatch):
 def test_alignment_holds_on_a_repeated_figure_after_a_long_count_in(tmp_path):
     """GRFIA exercises: one short figure repeated, with seconds of silence before
     the first note. The aligned key must not slip a note or a figure."""
-    from saxscribe.score import align
+    from lift.score import align
     from . import fixture
     rate, beat = 22050, 0.5                      # 120 BPM, eighth notes
     figure = [60, 62, 64, 62]
@@ -145,7 +145,7 @@ def test_alignment_holds_on_a_repeated_figure_after_a_long_count_in(tmp_path):
 def test_steady_alignment_lines_up_a_one_pitch_drill_played_to_a_metronome(tmp_path):
     """GRFIA articulation drills: one pitch, repeated. Chroma DTW has nothing to
     lock onto there; the metronome fit must put every key note on its attack."""
-    from saxscribe.score import align
+    from lift.score import align
     from . import fixture
     rate, tempo, played = 22050, 100.0, 1.02     # marked 100 BPM, played 2% slow
     beats = [0, 1, 2, 2.5, 3, 4, 5, 6, 6.5, 7, 8, 9, 10, 11]
@@ -188,8 +188,8 @@ def test_grfia_keys_from_the_old_aligner_are_made_again(tmp_path, monkeypatch):
         return [{"onset": 0.5 + n["start"] * 0.625, "offset": 0.5 + n["end"] * 0.625,
                  "pitch": n["pitch"], "beat": n["start"]} for n in notes], 0.9
 
-    monkeypatch.setattr("saxscribe.score.align.align_steady", fake_steady)
-    monkeypatch.setattr("saxscribe.score.align.align_notes", lambda audio, notes: [])
+    monkeypatch.setattr("lift.score.align.align_steady", fake_steady)
+    monkeypatch.setattr("lift.score.align.align_notes", lambda audio, notes: [])
     monkeypatch.setattr(refs, "grfia_key_cache", lambda horn: cache)
     got = {r.id: r for r in refs.load_grfia(tmp_path, "alto")}
     assert made == ["Old.wav"]
@@ -218,7 +218,7 @@ def _scale_take(path, lead, tempo, pitches, per_beat=2, rate=22050):
 def test_steady_alignment_does_not_slide_a_scale_onto_the_neighbouring_steps(tmp_path):
     """GRFIA scales: the attack-only fit locked whole steps late (pitch 3% on
     AbMajScale). Pitch must pick the right lock."""
-    from saxscribe.score import align
+    from lift.score import align
     up = [60, 62, 64, 65, 67, 69, 71, 72]
     pitches = up + up[::-1][1:] + up[1:] + up[::-1][1:]
     truth = _scale_take(tmp_path / "scale.wav", 0.4, 100.0, pitches)
@@ -234,7 +234,7 @@ def test_steady_alignment_does_not_slide_a_scale_onto_the_neighbouring_steps(tmp
 
 def test_steady_keys_never_start_before_the_recording(tmp_path):
     """Ex14 tenor: a fit that put the first note before 0 s stopped the scoring."""
-    from saxscribe.score import align
+    from lift.score import align
     pitches = [60, 62, 64, 65, 67, 65, 64, 62] * 2
     _scale_take(tmp_path / "early.wav", 0.02, 120.0, pitches)
     notes = [{"start": i / 2, "end": i / 2 + 0.5, "pitch": p} for i, p in enumerate(pitches)]

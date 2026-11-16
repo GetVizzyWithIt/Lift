@@ -8,8 +8,8 @@ from __future__ import annotations
 import numpy as np
 import soundfile as sf
 
-from saxscribe.layers import isolate
-from saxscribe.take import Take
+from lift.layers import isolate
+from lift.take import Take
 
 from . import fixture
 

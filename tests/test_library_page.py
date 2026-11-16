@@ -7,8 +7,8 @@ import json
 
 import pytest
 
-from saxscribe.app import catalog
-from saxscribe.score import ledger
+from lift.app import catalog
+from lift.score import ledger
 
 COLS = ["pdf", "source", "kind", "chart_id", "performer", "tune", "horn", "recording", "sha256", "status",
         "reason", "heard_agree", "coverage", "audit"]
@@ -113,8 +113,8 @@ def test_library_route_lists_keys_and_finished_takes(tmp_path):
     pytest.importorskip("fastapi")
     from fastapi.testclient import TestClient
 
-    from saxscribe.app.library import Library
-    from saxscribe.app.server import create_app
+    from lift.app.library import Library
+    from lift.app.server import create_app
 
     lib = Library(tmp_path / "lib", inline=True)
     c = TestClient(create_app(lib, runs=make_runs(tmp_path)))
@@ -154,9 +154,9 @@ def test_song_routes(tmp_path, monkeypatch):
     pytest.importorskip("pypdfium2")
     from fastapi.testclient import TestClient
 
-    from saxscribe.app import pdf_pages
-    from saxscribe.app.library import Library
-    from saxscribe.app.server import create_app
+    from lift.app import pdf_pages
+    from lift.app.library import Library
+    from lift.app.server import create_app
 
     monkeypatch.setattr(pdf_pages, "CACHE", tmp_path / "pages")
     c = TestClient(create_app(Library(tmp_path / "lib", inline=True), runs=make_runs(tmp_path)))
