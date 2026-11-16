@@ -5,10 +5,10 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) { --s-note: #3987e5; --s-onset: #d95926; --s-pitch: #199e70;
-          --grid: #2f2d29; --axis: #45423c; --muted: #898781; --ink2: #c3c2b7; --good-ink: #0ca30c; }
+          --grid: #2f2d29; --axis: #45423c; --muted: #898781; --ink2: #c3c2b7; --good-ink: #4caf78; }
 }
 :root[data-theme="dark"] { --s-note: #3987e5; --s-onset: #d95926; --s-pitch: #199e70;
-          --grid: #2f2d29; --axis: #45423c; --muted: #898781; --ink2: #c3c2b7; --good-ink: #0ca30c; }
+          --grid: #2f2d29; --axis: #45423c; --muted: #898781; --ink2: #c3c2b7; --good-ink: #4caf78; }
 .wrap.wide { max-width: 1240px; }
 .filters { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
 .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }

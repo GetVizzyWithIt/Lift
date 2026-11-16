@@ -223,7 +223,9 @@ button.danger { color: var(--bad); margin-left: auto; }
 .libtools label { display: inline-flex; align-items: center; gap: 6px; }
 .libtools .seg button { min-width: 0; padding: 0 12px; }
 .grp { margin-top: 14px; }
-.grp summary { display: flex; align-items: baseline; gap: 10px; cursor: pointer; padding: 6px 0; list-style: none; }
+.grp summary { display: flex; align-items: baseline; gap: 10px; cursor: pointer; padding: 6px 0; list-style: none;
+  font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--quiet); }
+.grp summary h2, .grp summary h3, .grp summary strong, .grp summary b { font-size: inherit; color: inherit; margin: 0; }
 .grp summary::-webkit-details-marker { display: none; }
 .grp summary::before { content: "▸"; color: var(--quiet); width: 1em; }
 .grp[open] summary::before { content: "▾"; }
@@ -239,7 +241,7 @@ button.danger { color: var(--bad); margin-left: auto; }
   color: var(--quiet); white-space: nowrap; }
 .chip { border-color: transparent; background: var(--pill-track); font-weight: 600; }
 .chip.key { color: var(--good); background: color-mix(in srgb, var(--good) 16%, var(--card)); }
-.chip.made { color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, var(--card)); }
+.chip.made { color: var(--quiet); }
 .scroll { overflow-x: auto; }
 .songlist { width: 100%; border-collapse: collapse; font-size: 0.92rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
 .songlist td { padding: 8px 12px; border-top: 1px solid var(--line); vertical-align: top; }
@@ -310,3 +312,13 @@ dl.facts dd { margin: 0; overflow-wrap: anywhere; }
 .liftbar .theme { min-height: 36px; padding: 0 12px; background: transparent; color: var(--record-quiet);
   border: 1px solid color-mix(in srgb, var(--record-quiet) 40%, transparent); font-size: 0.9rem; }
 .liftbar .theme:hover { color: var(--record-ink); border-color: var(--record-ink); }
+
+/* Pass 2 review fixes: the Transcribe button on the right, a clearer disabled look, the drop zone's
+   dashes, and select menus with their own arrow inside the pill. */
+.field.go { justify-content: flex-end; }
+.field.go #go { min-height: 48px; padding: 0 26px; }
+button.primary:disabled { background: var(--pill-track); border-color: var(--pill-track); color: var(--quiet); opacity: 1; }
+.drop { border-color: color-mix(in srgb, var(--quiet) 45%, var(--line)); }
+select { -webkit-appearance: none; appearance: none; padding-right: 38px; background-repeat: no-repeat;
+  background-position: right 14px center; background-size: 12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%238a847b' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }

@@ -89,14 +89,13 @@ function status(t) {
   if (t.state === 'stopped') return `<div class="small quiet">${esc(t.error || 'Stopped.')} Press Run again to start over.</div>`;
   if (t.state === 'queued') return '<div class="small quiet">Waiting its turn</div>';
   const slow = t.mix && t.layers_done === 0 ? ' Separating a band takes a few minutes; Terminal shows its progress.' : '';
-  return `<div class="small quiet">Step ${Math.min(4, t.layers_done + 1)} of 4: ${esc(t.stage || 'Starting')}… (${since(t.started)})${slow}</div>
-    <div class="bar"><div style="width:${Math.max(4, 25 * t.layers_done)}%"></div></div>
+  return `<div class="small quiet">${esc(t.stage || 'Starting')}… ${25 * t.layers_done}% · step ${Math.min(4, t.layers_done + 1)} of 4 (${since(t.started)})${slow}</div>
     ${log ? `<div class="log">${log}</div>` : ''}`;
 }
 
 function actions(t) {
   const remove = `<button data-act="remove" data-id="${t.id}" data-title="${esc(t.title)}">Remove</button>`;
-  if (t.state === 'done') return `<a class="button primary" href="/take/${t.id}">${icon('play')} Play along</a>
+  if (t.state === 'done') return `<a class="button" href="/take/${t.id}">${icon('play')} Play along</a>
         <a class="button ghost" href="/take/${t.id}/pdf">PDF</a>
         <button data-dl="/api/takes/${t.id}/file/musicxml">MusicXML</button>${remove}`;
   if (t.state === 'running' || t.state === 'queued') return `<button data-act="stop" data-id="${t.id}">Stop</button>`;
