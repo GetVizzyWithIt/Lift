@@ -29,14 +29,14 @@ Real players recording real horns. Room, microphones and number of players:
 ## Preprocessing and labelling
 - Creators: scores are Humdrum **kern (`krn/<horn>/*.krn` or `.skm`), audio in `real/<horn>/*.wav`, plus an index with tempo, performer and tags.
 - Pitch: the kern files sit an octave above concert pitch for both horns (checked on real takes); the loader subtracts 12.
-- Saxscribe (`score/kern.py`, `score/refs.py: load_grfia`, PR #33): reads the kern (ties joined, chords to top note, grace notes skipped), lines each score up with its take using the etude aligner (`score/align.py`: chroma DTW, then onsets snapped to heard attacks), and caches the key as JSON under `~/saxscribe-runs/keys/grfia-<horn>/`.
+- Lift (`score/kern.py`, `score/refs.py: load_grfia`, PR #33): reads the kern (ties joined, chords to top note, grace notes skipped), lines each score up with its take using the etude aligner (`score/align.py`: chroma DTW, then onsets snapped to heard attacks), and caches the key as JSON under `~/lift-runs/keys/grfia-<horn>/`.
 - Takes whose length is outside 0.8–1.6× the score's length at its tempo (count-ins, repeats) are skipped and logged. Since PR #40, zero-length notes are dropped from keys and a take that can't be scored no longer stops the run.
 - The aligned keys are machine-made and not yet spot-checked: tier B. Known issue: on short, repetitive exercises (scales, patterns) the alignment can slip by a repeat; these are the worst-scoring takes (E20). Metronome takes are aligned on the beat since PR #46; PR #47 picks per take between the beat and the older alignment by pitch agreement.
 - Labelling convention: a trill is written as one note in the score, so a transcription that writes every alternation scores low on trill takes. Score trill takes separately or by tag.
 
 ## Uses
 - **Scorecard sets**: `grfia-alto`, `grfia-tenor` (PR #33).
-- **Role in Saxscribe**:
+- **Role in Lift**:
   - **Notation answer key** (Phase 3): the written score is exactly the
     target for "notes to readable sheet music", including rhythm. This is the
     first set that can measure rhythm accuracy, not only note timing.
@@ -59,7 +59,7 @@ Real players recording real horns. Room, microphones and number of players:
 ## Maintenance
 Version, md5 and folder recorded in `datasets/manifest.json` once downloaded.
 
-## Saxscribe results
+## Lift results
 - **Current (2026-11-03, final keys after PR #47, [log E22](../../evaluation/log.md))**: alto note F1 66.5% (78.5% without offsets), onset F1 79.1%, pitch 90.0%; tenor note F1 57.8% (73.8%), onset F1 75.1%, pitch 87.2%; trill takes about 27%. 27 of 28 slid scale takes fixed; one tenor exercise looks paired with the wrong score (*to check*).
 - History (answer-key changes, not transcription changes):
   - E20, first full run (about 950 takes): alto pitch 84.3%, onset F1 71.1%, note F1 58.1% (70.6% without offsets); tenor pitch 85.3%, onset F1 67.5%, note F1 53.8% (66.7% without offsets); octave errors 0.1%. Trill takes 24% (score writes one trilled note; we write each alternation). Bends and falls: alto pitch 71–78%. Vibrato: no effect.

@@ -21,7 +21,7 @@ they were transcribed from.
 Commercial Parker recordings; stems separated by the dataset authors.
 
 ## Preprocessing and labelling
-Saxscribe's loader (`score/refs.py: load_omnibook`, PR #5) pairs
+Lift's loader (`score/refs.py: load_omnibook`, PR #5) pairs
 `audio_stems/<id>.wav` with `midi_performance_aligned/<id>-fine-aligned.mid`
 by ID. An earlier version wrongly paired records with `midi_original` (the
 score timing), which is why the loader matches by ID now. `omnibook-mix` uses
@@ -55,7 +55,7 @@ pitch about 95% of the time. PR #23 (merged) makes the scorecard flag octave
 disagreements with the key, so they can be separated from real errors.
 Treat this dataset as tier B: good timing, pitch to be checked per solo.
 
-## Saxscribe results
+## Lift results
 2026-11-02 default tools: pitch 73.3%, onset F1 60.4%, note F1 45.0%; Basic
 Pitch writes 1.5–3.2× too many notes (both understated, see Known issue). Re-graded (E6): pitch 74%, onset F1 86%, note F1 64%. Note tools compared (E9): Basic Pitch 64.2%, segment 59.8%, contour 58.3%. Solos FRfYc, BRfYc and 7RfYc are the weakest under every tool (two at 50–57% pitch accuracy): the cause is answer-key octave errors (see above). Band records (10, E11): note F1 56.4% with automatic stem choice.
 See the [log](../../evaluation/log.md).

@@ -1,4 +1,4 @@
-# Saxscribe: Project Handbook
+# Lift: Project Handbook
 
 Where things stand, what happens next, and how to run the tool, all in one place.
 Read sections 1 and 2 to catch up. Sections 3 to 9 are reference.
@@ -112,7 +112,7 @@ D became the default), and the [model cards](docs/models/README.md).
 the app is running, press Ctrl-C, then:
 
 ```bash
-cd ~/Desktop/saxscribe && git checkout main && git pull && source .venv/bin/activate && pip install -r requirements.lock && (bash scripts/mac_app/build_app.sh || true) && python -m saxscribe app
+cd ~/dev/lift && git checkout main && git pull && source .venv/bin/activate && pip install -r requirements.lock && (bash scripts/mac_app/build_app.sh || true) && python -m lift app
 ```
 
 The update also rebuilds **Lift**, the double-click launcher.
@@ -120,19 +120,19 @@ The update also rebuilds **Lift**, the double-click launcher.
 **Start the app without updating:** double-click **Lift** on the Desktop. It starts the app with no Terminal window and opens the page; started this way, the app quits by itself after 30 minutes with no page open (never mid-transcription). Or, from the Terminal:
 
 ```bash
-cd ~/Desktop/saxscribe && source .venv/bin/activate && python -m saxscribe app
+cd ~/dev/lift && source .venv/bin/activate && python -m lift app
 ```
 
 The app is at http://localhost:8765 (Library: `/library`; key review: `/results`, Needs review; scores and charts are on the model dashboard linked at the top). On the iPad on the
 same Wi-Fi, open the address it prints. Sheet music is also copied to
-`~/Desktop/Saxscribe`.
+`~/Desktop/Lift Sheets`.
 
 **Transcribe from the Terminal** (after `source .venv/bin/activate`):
 
 ```bash
-python -m saxscribe transcribe ~/Music/take.wav --horn alto
-python -m saxscribe transcribe ~/Music/record.mp3 --mix --horn tenor
-python -m saxscribe transcribe ~/Music/record.mp3 --mix --separator filosax --notes-tool filosax --horn tenor
+python -m lift transcribe ~/Music/take.wav --horn alto
+python -m lift transcribe ~/Music/record.mp3 --mix --horn tenor
+python -m lift transcribe ~/Music/record.mp3 --mix --separator filosax --notes-tool filosax --horn tenor
 ```
 
 The third line is the app's band-record default (our sax model) on the CLI.
@@ -141,13 +141,13 @@ The third line is the app's band-record default (our sax model) on the CLI.
 yet). It opens in your browser and stays on the Mac:
 
 ```bash
-cd ~/Desktop/saxscribe && source .venv/bin/activate && python3 scripts/dashboard_page/build.py --runs ~/saxscribe-runs --open
+cd ~/dev/lift && source .venv/bin/activate && python3 scripts/dashboard_page/build.py --runs ~/lift-runs --open
 ```
 
 The online dashboard linked at the top is rebuilt from the repo each time a
 result is logged. Its top line says which experiment its data runs to.
 
-**Check the tools are installed:** `python -m saxscribe check`
+**Check the tools are installed:** `python -m lift check`
 
 **Long jobs on the Mac:** the Mac sleeps after a minute idle. Wrap the
 *whole* job in one `caffeinate`, and keep it plugged in:
@@ -213,12 +213,12 @@ Full record: [evaluation log](docs/evaluation/log.md). Charts: the [model dashbo
   good, Austin hasn't marked it wrong, and no model trained on it.
 - **Match check:** every chart/recording pair is checked before any training
   or scoring. Austin's verdicts from the app's Needs review tab go to
-  `~/saxscribe-runs/keys/match_review.jsonl`.
+  `~/lift-runs/keys/match_review.jsonl`.
 - **Naming:** IDs are `player_tune_year`. Each song has a folder
-  `~/saxscribe-runs/keys/<group>/<ID>/` holding `<ID>.mp3`, `<ID>_key.json`,
+  `~/lift-runs/keys/<group>/<ID>/` holding `<ID>.mp3`, `<ID>_key.json`,
   `<ID>_transcription.pdf` and a `links.csv` with file fingerprints.
-- **Catalog:** `~/saxscribe-runs/catalog/saxscribe_catalog.db`. Rebuild it with
-  `python3 ~/saxscribe-runs/catalog/build_catalog.py`.
+- **Catalog:** `~/lift-runs/catalog/saxscribe_catalog.db` (the file keeps its old name; see ADR-0047). Rebuild it with
+  `python3 ~/lift-runs/catalog/build_catalog.py`.
 - **Datasets** on the Mac live in `~/mir_datasets/`. Every dataset, with its
   licence, is in [docs/data](docs/data/README.md).
 - **Never in the repo:** audio, datasets, model weights, secrets. Austin's own
@@ -261,9 +261,9 @@ All decisions: [docs/decisions](docs/decisions/README.md).
 | --- | --- |
 | Repository | **GetVizzyWithIt/Saxscribe** (private): <https://github.com/GetVizzyWithIt/Saxscribe> |
 | Pull requests | <https://github.com/GetVizzyWithIt/Saxscribe/pulls> |
-| Mac copy | `~/Desktop/saxscribe` |
-| Runs and keys | `~/saxscribe-runs/` |
-| App library | `~/saxscribe-library/` |
+| Mac copy | `~/dev/lift` |
+| Runs and keys | `~/lift-runs/` |
+| App library | `~/lift-library/` |
 
 - Claude works on a branch named `claude/<type>-<what>` and opens a pull
   request. CI runs the tests (about 5 minutes). `main` only takes a pull
@@ -282,8 +282,8 @@ All decisions: [docs/decisions](docs/decisions/README.md).
 - **The app shows an old screen after a merge:** stop it with Ctrl-C and run
   the update command in section 4. The Mac only runs `main`.
 - **"No module named ..." or "command not found: python":** run
-  `source .venv/bin/activate` in `~/Desktop/saxscribe` first.
-- **A tool is missing:** `python -m saxscribe check` lists every tool as ok or
+  `source .venv/bin/activate` in `~/dev/lift` first.
+- **A tool is missing:** `python -m lift check` lists every tool as ok or
   missing. Then run `bash setup_mac.sh` again.
 - **A long run stopped partway:** the Mac probably slept. Re-run the same
   command inside one `caffeinate` (section 4). Most scripts pick up where they

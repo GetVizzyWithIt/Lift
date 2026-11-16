@@ -11,18 +11,18 @@ on the fixed sets, in the PR description and in the log (CLAUDE.md).
 ## How to run
 
 ```bash
-python -m saxscribe score <set> [--split test] [--notes-tool X] [--contour-tool Y] [--limit N] [--runs DIR] [--note "..."] [--range-rules out|overtones|flag|off] [--tag altissimo]
+python -m lift score <set> [--split test] [--notes-tool X] [--contour-tool Y] [--limit N] [--runs DIR] [--note "..."] [--range-rules out|overtones|flag|off] [--tag altissimo]
 ```
 
-Each run keeps its take folders under `~/saxscribe-runs/<set>/<settings>/`
+Each run keeps its take folders under `~/lift-runs/<set>/<settings>/`
 (re-running a setting reuses lower layers) and writes `scorecard.md` and
 `scorecard.json` with per-recording rows and means against the targets.
 From PR #38 every run also appends one line (time, set, settings, means,
 git commit, optional `--note` label such as a training session) to
-`<runs>/results.jsonl`, by default `~/saxscribe-runs/results.jsonl`.
+`<runs>/results.jsonl`, by default `~/lift-runs/results.jsonl`.
 `--tag altissimo` (PR #69) scores only GRFIA takes carrying that technique tag; a run after a change to the pitch search range needs `--redo contour`.
 
-## Metrics (`saxscribe/score/metrics.py`, all mir_eval)
+## Metrics (`lift/score/metrics.py`, all mir_eval)
 
 | Metric | What it measures | Tolerance | mir_eval function |
 | --- | --- | --- | --- |
@@ -106,9 +106,9 @@ sentence with the outcome. `scripts/handbook.py` shows it in HANDBOOK.md's
 | File | What it holds | Who writes it |
 | --- | --- | --- |
 | [log.md](log.md) | The readable record: one entry (E1, E2, ...) per run or finding, and the "Change by change" table | Docs thread |
-| `results.jsonl` (in `docs/evaluation/`) | One JSON line per scorecard run, with an `id` and the log `entry` it belongs to. E2–E17 were backfilled by hand with approximate times (`"source": "log"`) | Copied from the Mac's `~/saxscribe-runs/results.jsonl` when a run is logged, same `id`, plus `"entry": "E18"` etc. |
+| `results.jsonl` (in `docs/evaluation/`) | One JSON line per scorecard run, with an `id` and the log `entry` it belongs to. E2–E17 were backfilled by hand with approximate times (`"source": "log"`) | Copied from the Mac's `~/lift-runs/results.jsonl` when a run is logged, same `id`, plus `"entry": "E18"` etc. |
 | `changes.json` (in `docs/evaluation/`) | One object per model or pipeline change: `pr`, `merged` (UTC or null), `title`, `layer`, `sets` it was measured on, `measure`, `before`, `after`, `kept`, `entry`. A non-empty `sets` makes it a score-moving marker | Docs thread, mirroring the "Change by change" table row for row |
-| `experiments.jsonl` (in `docs/evaluation/`) | One JSON line per (record, setup) for head-to-head tests: `setup` {separator, spans_from, note_finder}, `default`, `scope`, `key` {version, heard_ok}, `metrics`, guard counts and rates in a separate `guards` field (so `metrics` stays shares, PR #109), rhythm counts (`ref_bars`, `tempo_ratio`) in a separate `grid` field, and from `experiments.classify()` the error counts `key_notes` / `our_notes` and per-bar `bars`. E51–E59 backfilled from this log (`"source": "log"`); E64 and E66 rows from the Mac (2026-11-06). Set-level rows for E70–E74, E77 and E79 are in this file since PR #143, using the new setup names (`austin-6`, `parker-test`, `heldout-players`, `judge-test` and others); E80 rows come with PR #146. The earlier side files [e77-e79-rows.jsonl](e77-e79-rows.jsonl) and [e71-e74-summary.txt](e71-e74-summary.txt) are superseded and kept only as the raw originals. Rhythm metrics, all shares: `bars_right` (bars starting on the reference downbeat), `barline_precision` and `barline_f` (bar lines matched to the reference), `notes_in_place` (= the Weimar `position_read`) and `notes_exact` (= `position_exact`). Notation-only rows (`scope: "notation-only"`, e.g. the 444-solo `wjd` set) carry the standard `setup` keys, which don't apply to them. Set `tenor-tunes` in these rows is the same as `new-tunes` | Copied from the Mac's `~/saxscribe-runs/experiments.jsonl` (written with `saxscribe.score.experiments.row()` and `append()`) when a test is logged |
+| `experiments.jsonl` (in `docs/evaluation/`) | One JSON line per (record, setup) for head-to-head tests: `setup` {separator, spans_from, note_finder}, `default`, `scope`, `key` {version, heard_ok}, `metrics`, guard counts and rates in a separate `guards` field (so `metrics` stays shares, PR #109), rhythm counts (`ref_bars`, `tempo_ratio`) in a separate `grid` field, and from `experiments.classify()` the error counts `key_notes` / `our_notes` and per-bar `bars`. E51–E59 backfilled from this log (`"source": "log"`); E64 and E66 rows from the Mac (2026-11-06). Set-level rows for E70–E74, E77 and E79 are in this file since PR #143, using the new setup names (`austin-6`, `parker-test`, `heldout-players`, `judge-test` and others); E80 rows come with PR #146. The earlier side files [e77-e79-rows.jsonl](e77-e79-rows.jsonl) and [e71-e74-summary.txt](e71-e74-summary.txt) are superseded and kept only as the raw originals. Rhythm metrics, all shares: `bars_right` (bars starting on the reference downbeat), `barline_precision` and `barline_f` (bar lines matched to the reference), `notes_in_place` (= the Weimar `position_read`) and `notes_exact` (= `position_exact`). Notation-only rows (`scope: "notation-only"`, e.g. the 444-solo `wjd` set) carry the standard `setup` keys, which don't apply to them. Set `tenor-tunes` in these rows is the same as `new-tunes` | Copied from the Mac's `~/lift-runs/experiments.jsonl` (written with `lift.score.experiments.row()` and `append()`) when a test is logged |
 
 Two more files feed the dashboard (2026-11-13):
 
@@ -127,7 +127,7 @@ The Results page's comparison views (setups compared, where the notes go, along 
 
 ## Stress scorecard
 
-`python -m saxscribe stress <set> [--conditions ...]` (PR #106) scores the same set again under conditions that break transcription on real records, moving the answer key with the audio where needed:
+`python -m lift stress <set> [--conditions ...]` (PR #106) scores the same set again under conditions that break transcription on real records, moving the answer key with the audio where needed:
 
 | Condition | What it does |
 | --- | --- |
@@ -140,7 +140,7 @@ The reverb and hiss use their own seeds, so a model later trained with reverb or
 
 ## Rhythm scorecard (Weimar, no audio)
 
-`python -m saxscribe rhythm` (PR #53) scores Layer 4 alone. It feeds the
+`python -m lift rhythm` (PR #53) scores Layer 4 alone. It feeds the
 Weimar Jazz Database's exact note timings and beats through the notation step
 and compares the written rhythm with the Weimar transcription, so no audio
 and no transcription errors are involved.

@@ -1,7 +1,7 @@
 # Datasheet: <dataset>
 
 Format: Gebru et al., "Datasheets for Datasets" (CACM 2021), sections trimmed
-to what Saxscribe needs, plus a "Role in Saxscribe" section.
+to what Lift needs, plus a "Role in Lift" section.
 
 ## Motivation
 Who made it, why, who funded it.
@@ -15,11 +15,11 @@ with other datasets.
 Recording setup, players, instruments, studio or live.
 
 ## Preprocessing and labelling
-What the creators did; what Saxscribe's loader does on top (file pairing, unit
+What the creators did; what Lift's loader does on top (file pairing, unit
 conversions, pitch reference).
 
 ## Uses
-- **Role in Saxscribe**: scorecard set name, train/test, tier ([data/README.md](../README.md)).
+- **Role in Lift**: scorecard set name, train/test, tier ([data/README.md](../README.md)).
 - **Do not use for**: ...
 
 ## Distribution
@@ -28,5 +28,5 @@ Source URL, licence, access (open / on request), size, folder under `~/mir_datas
 ## Maintenance
 Version used, checksums in `datasets/manifest.json`, who to contact.
 
-## Saxscribe results
+## Lift results
 Link rows in the [evaluation log](../../evaluation/log.md).

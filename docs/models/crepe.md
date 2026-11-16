@@ -5,13 +5,13 @@
 - **Developed by**: CREPE by Kim, Salamon, Li and Bello (NYU, 2018); torchcrepe is Max Morrison's PyTorch port.
 - **Type**: convolutional network on 1024-sample windows of 16 kHz audio; outputs a probability over 360 pitch bins 20 cents apart (about C1 to B7). "Full" capacity model.
 - **Licence**: MIT (CREPE and torchcrepe).
-- **How Saxscribe calls it**: `layers/contour.py` → `torchcrepe.predict(audio, 16000, hop=160, fmin, fmax, "full", return_periodicity=True)`, range from the horn profile, capped at 1600 Hz (`CREPE_MAX_HZ`, PR #74). PR #69 briefly raised it to 2000 Hz; CREPE then put stretches of real playing at 1966–1998 Hz with confidence 0 on three Omnibook solos, dropping Omnibook pitch accuracy 74.2% → 72.4% ([log E37](../evaluation/log.md)). Tenor's ceiling rose from 1100 Hz to 1568 Hz (written A7); alto notes above concert 1600 Hz come from Basic Pitch only; confidence median-filtered over 3 frames; voiced when confidence > 0.5 and loudness > 1% of peak. MPS, retried on CPU on failure.
+- **How Lift calls it**: `layers/contour.py` → `torchcrepe.predict(audio, 16000, hop=160, fmin, fmax, "full", return_periodicity=True)`, range from the horn profile, capped at 1600 Hz (`CREPE_MAX_HZ`, PR #74). PR #69 briefly raised it to 2000 Hz; CREPE then put stretches of real playing at 1966–1998 Hz with confidence 0 on three Omnibook solos, dropping Omnibook pitch accuracy 74.2% → 72.4% ([log E37](../evaluation/log.md)). Tenor's ceiling rose from 1100 Hz to 1568 Hz (written A7); alto notes above concert 1600 Hz come from Basic Pitch only; confidence median-filtered over 3 frames; voiced when confidence > 0.5 and loudness > 1% of peak. MPS, retried on CPU on failure.
 - **Decoding**: torchcrepe decodes with Viterbi by default; its transitions forbid jumps of more than about 2.2 semitones per frame, so an octave leap is drawn as a slide over about 50 ms. The note layer comes from Basic Pitch, so this affects the pitch line, not note pitch.
 - **Fallback**: pYIN (Mauch & Dixon, 2014; librosa), frame 1024, same hop; used when torchcrepe is missing or `--contour-tool pyin`.
 - **Citation**: Kim et al., "CREPE: A Convolutional Representation for Pitch Estimation", ICASSP 2018.
 
 ## Intended use
-- **In Saxscribe**: Layer 2 for every use case. The contour is the record of bends, scoops and vibrato, and feeds the `segment` and `contour` note tools and each note's cents deviation.
+- **In Lift**: Layer 2 for every use case. The contour is the record of bends, scoops and vibrato, and feeds the `segment` and `contour` note tools and each note's cents deviation.
 - **Out of scope**: more than one sounding line (a mix that wasn't separated, or bleed in the stem).
 
 ## Factors

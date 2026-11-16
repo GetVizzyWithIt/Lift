@@ -1,7 +1,7 @@
 # Upstream model review: what the makers of our models say
 
 - **Date**: 2026-11-03
-- **Scope**: every third-party model Saxscribe runs (Demucs, CREPE via
+- **Scope**: every third-party model Lift runs (Demucs, CREPE via
   torchcrepe, Basic Pitch, Beat This!) and the other libraries in
   `requirements.txt`, read against their own READMEs, licences, source code and
   papers. Our own [model cards](README.md) say how each model does on our test
@@ -44,7 +44,7 @@
    author now writes that `htdemucs_6s` "was trained only on Meta internal
    dataset, which likely means CC-NC-BY license is applicable". Our card says
    "MIT (code and weights)" and "MUSDB18-HQ plus an internal set". Fine for
-   Austin's personal use; a blocker if Saxscribe were ever sold. Demucs is
+   Austin's personal use; a blocker if Lift were ever sold. Demucs is
    also no longer actively developed (the author says only "important bug
    fixes" will be made).
 5. **Versions drift.** Three dependencies have moved a major or minor version

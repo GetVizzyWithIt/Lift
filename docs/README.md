@@ -1,6 +1,6 @@
-# Saxscribe documentation
+# Lift documentation
 
-The living record of what Saxscribe is for, how it works, what models and data
+The living record of what Lift is for, how it works, what models and data
 it uses, how well it does, and why it was built this way. The requirements doc
 ("Sax Transcription Tool — Requirements and Project Instructions", 2 Nov 2026)
 stays the source of truth for intent; these pages turn it into something that

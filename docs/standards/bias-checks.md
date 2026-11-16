@@ -1,6 +1,6 @@
 # Bias checks
 
-Adopted for Saxscribe by Austin on 2026-11-10 ([ADR-0040](../decisions/0040-adopt-bias-checks.md)). Applies alongside the [development standards](../development-standards.md).
+Adopted for Lift by Austin on 2026-11-10 ([ADR-0040](../decisions/0040-adopt-bias-checks.md)). Applies alongside the [development standards](../development-standards.md).
 
 In this project: decision records follow check 7 (the [template](../decisions/_template.md) has "Options considered" and "Case against"). Check 9 uses the default of three experiments in a row; the experiment log is [evaluation/log.md](../evaluation/log.md).
 

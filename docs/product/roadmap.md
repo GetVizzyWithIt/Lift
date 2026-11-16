@@ -10,7 +10,7 @@ built. No dates. Phase lists below were last fully reviewed 2026-11-02; the
   Austin's goal (2026-11-14): every PDF transcription is matched confidently to
   its recording, or excluded. A chart we can't read well enough to line up is
   excluded; a chart that doesn't match its recording gets the right recording
-  found. Tracked in the PDF ledger (`~/saxscribe-runs/catalog/ledger/`,
+  found. Tracked in the PDF ledger (`~/lift-runs/catalog/ledger/`,
   snapshot in [docs/data/ledger/](../data/ledger/)) and the Results page's
   **Dataset health** tab (PR #177). Latest sax counts (Mac, 2026-11-14 18:35
   PT): about 500 sax charts; 119 matched, 93 check, 63 wrong recording, 139 no
@@ -46,7 +46,7 @@ built. No dates. Phase lists below were last fully reviewed 2026-11-02; the
 
 ## Phase 0: wiring and baseline — done
 
-Goal: `python -m saxscribe transcribe file.wav` runs end to end, and a
+Goal: `python -m lift transcribe file.wav` runs end to end, and a
 baseline scorecard exists for every later phase to beat.
 
 - [x] Four-layer pipeline, CLI, synthetic fixture tests (PR #1)
@@ -121,11 +121,11 @@ Goal: a score Austin would put on the stand, with few edits.
 - [x] Choose rhythm per phrase instead of per beat: PR #66 on fast beats, up tempo 75% → 77%, all 66% → 67%, triplet over-count gone (log E33)
 - [x] `position_read` measure so correct swing notation isn't counted wrong (PR #55): 63.1% on all solos, 57.6% on saxes (log E28)
 - [ ] Rhythm accuracy against the Omnibook's printed rhythm, and against GRFIA audio-to-score's written scores once aligned
-- [x] PDF header: artist, title and a "Transcribed with Saxscribe" line (Austin, 2026-11-03; PR #30)
+- [x] PDF header: artist, title and a "Transcribed with Lift" line (Austin, 2026-11-03; PR #30)
 - [x] Syncopations as one note instead of tied eighths (PR #32; ties 46 → 41, log E14)
 - [x] Key for blues tunes (PR #34; Weimar 49% → 60%, blues 47% → 70%, log E15)
 - [x] Band records: write only where the sax plays (PR #35; 0 answer-key notes lost, 7XTyc 56% → 62%, log E16). One wrong 8 s cut on an older take is being fixed
-- [x] Copy finished sheet music to `~/Desktop/Saxscribe` with title and artist (PR #42)
+- [x] Copy finished sheet music to `~/Desktop/Lift Sheets` with title and artist (PR #42)
 - [ ] Bar lines on the right beat: PR #109 (merged) puts bars on the beat tracker's downbeats and mends slips, bars right 44 → 75% tuning, 34 → 58% held out (log E64). Half-time grids (Calypso, Item 1, Impressions) stay open: an automatic doubling rule was rejected because it also doubles straight-eighth lines (log E65); next route is a "double the tempo here" control in the editor. Swing no longer bends straight sixteenth runs: PR #112 (merged), Weimar position read 67.26 → 67.85%, Pennies bars 85–92 28 → 41 of 52 notes right (log E66). Development now goes one step at a time, each on Austin's go
 - [ ] Bar numbers in the app run one higher than the answer keys' (off-by-one after #109, found in E69)
 - [ ] Remove short ghost notes without losing real ones (55 extra notes on Blues for Mary Jane, log E19)
@@ -143,12 +143,12 @@ Goal: a score Austin would put on the stand, with few edits.
 
 Runs alongside the phases. Design doc: https://claude.ai/artifact/WDFJbXxU1WtLeQmSPDkKrB
 
-1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m saxscribe app`); PR #19 added live progress and step timers, Stop / Run again / Remove per take, and a required solo-or-band choice. PR #27: the PDF button falls back to printable pages when no PDF was made. First real test: Austin's band recording "Blues for Mary Jane".
+1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m lift app`); PR #19 added live progress and step timers, Stop / Run again / Remove per take, and a required solo-or-band choice. PR #27: the PDF button falls back to printable pages when no PDF was made. First real test: Austin's band recording "Blues for Mary Jane".
 2. Results page (PR #38): scorecard history per set over time, a marker per model change, the change-by-change table. Sax found / Sax purity and setups side by side (PR #90, merged). Rhythm scores (PR #114, merged; Austin wants to see what the model can and can't do on each dimension): a "What each score measures" card (hearing notes, not adding notes, short notes, timing and pitch, bar placement, rhythm writing, each with its current weak spots), and Short notes found / Bars right / Notes in the right spot buttons on the grid, which shows only the rows that measured the chosen score.
 3. Viewer and looper (stacked lanes: audio, pitch line, notes, notation at the bottom). Review flags in the play-along (PR #116, merged): flag a bar or notes by error type, saved to `flags.json` without changing the transcription.
 4. Developer compare view against an answer key.
 5. Editor; edits saved as diffs (training data).
-6. Library (PRs #181–#184: matched answer keys and finished takes, song pages, play-along on the answer key, solo-only playback; step 4, Library as home screen, waits on Austin's go) and the review hub on the Mac (`~/saxscribe-runs/review/`).
+6. Library (PRs #181–#184: matched answer keys and finished takes, song pages, play-along on the answer key, solo-only playback; step 4, Library as home screen, waits on Austin's go) and the review hub on the Mac (`~/lift-runs/review/`).
 7. Timing and intonation report for Austin's own takes.
 
 Not now (Austin, 2026-11-04): an Auto horn-detect button. The horn stays a user choice (alto default); the range rules (PR #69) only suggest another `--horn` in the log when many notes fall out of range.

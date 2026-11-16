@@ -1,13 +1,13 @@
 # Development standards
 
-Austin's standards for every repo, and where Saxscribe stands on each.
+Austin's standards for every repo, and where Lift stands on each.
 Checked 2026-11-06. Update this table when a row changes.
 
 | Standard | Status | Where / what's left |
 | --- | --- | --- |
 | README opens with copy-paste commands | Met | [README.md](../README.md) starts with the update, start, transcribe, scorecard and test commands |
-| One-step setup script that ends with a health check | Met | `bash setup_mac.sh` installs everything and ends with `python -m saxscribe check`; fails loudly if a required piece is missing |
-| Runtime version pinned | Met | `.python-version` (3.11); setup, CI and `saxscribe check` read it |
+| One-step setup script that ends with a health check | Met | `bash setup_mac.sh` installs everything and ends with `python -m lift check`; fails loudly if a required piece is missing |
+| Runtime version pinned | Met | `.python-version` (3.11); setup, CI and `lift check` read it |
 | Lockfile committed | Met | `requirements.lock` (exact versions, Apple Silicon); regenerate with `bash scripts/lock.sh`; scorecard model versions held in `scripts/scorecard-versions.txt`. The Filosax experiment venv (demucs 3.0.6) lives on the Mac only and is not locked here |
 | CLAUDE.md with working rules and current state | Met | [CLAUDE.md](../CLAUDE.md): working rules, branch/PR/CI rules, current state |
 | Tests on core logic | Met | `tests/`: every layer on the 10-second synthetic fixture, plus app, scoring and rule tests (199 tests) |

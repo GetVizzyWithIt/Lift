@@ -30,6 +30,6 @@ Zenodo 20849469, open, CC BY 4.0, 1.16 GB. Folder `ChoraleBricks/`.
 ## Maintenance
 Checksums in the manifest.
 
-## Saxscribe results
+## Lift results
 2026-11-02: pitch 98.9%, onset F1 86.7%, note F1 77.8% (segmenter 60.3%).
 Upper alto parts 86–96% note F1; inner alto parts 53–74%. See the [log](../../evaluation/log.md).

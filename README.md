@@ -1,4 +1,6 @@
-# saxscribe
+# Lift (formerly Saxscribe)
+
+Saxscribe was renamed Lift on 2026-11-16 ([ADR-0047](docs/decisions/0047-rename-saxscribe-to-lift.md)). The code lives in `~/dev/lift`; old commands (`python -m saxscribe`, `cd ~/Desktop/saxscribe`, `~/saxscribe-runs/...`) still work through links.
 
 Turns a saxophone performance into notes you can read and fix. Commands
 first; what it is and how it works are [further down](#what-it-is).
@@ -11,7 +13,7 @@ first; what it is and how it works are [further down](#what-it-is).
 the app is running, press Ctrl-C to stop it, then:
 
 ```bash
-cd ~/Desktop/saxscribe && git checkout main && git pull && source .venv/bin/activate && pip install -r requirements.lock && (bash scripts/mac_app/build_app.sh || true) && python -m saxscribe app
+cd ~/dev/lift && git checkout main && git pull && source .venv/bin/activate && pip install -r requirements.lock && (bash scripts/mac_app/build_app.sh || true) && python -m lift app
 ```
 
 The update also rebuilds **Lift**, the double-click launcher (see below).
@@ -20,13 +22,13 @@ The update also rebuilds **Lift**, the double-click launcher (see below).
 your Applications folder in your home folder). Or, from the Terminal:
 
 ```bash
-cd ~/Desktop/saxscribe && source .venv/bin/activate && python -m saxscribe app
+cd ~/dev/lift && source .venv/bin/activate && python -m lift app
 ```
 
 On the Mac it opens a browser tab at http://localhost:8765. On the iPad
 (same Wi-Fi), open the address it prints: "On your iPad: http://…:8765/".
 Library: the same address with `/library`. Results page: `/results`. Finished sheet music is also
-copied to `~/Desktop/Saxscribe`.
+copied to `~/Desktop/Lift Sheets`.
 
 **Lift, the launcher.** `bash scripts/mac_app/build_app.sh` (run by setup and
 by the update command) builds `~/Applications/Lift.app` and puts a Lift shortcut
@@ -35,21 +37,21 @@ Terminal window, and opens it in the browser; if the app is already running, it
 just opens the page. Started this way, the app quits by itself after 30 minutes
 with no page open (never while a take is transcribing). Its log is
 `~/Library/Logs/Lift/lift.log`. The first time, macOS may ask whether Lift can
-use the Desktop folder (the repo lives there): allow it. If it was refused,
+use the Desktop folder (it saves sheet-music copies to Lift Sheets there): allow it. If it was refused,
 turn it on in System Settings, Privacy & Security, Files and Folders.
 
 **Transcribe from the Terminal** (after `source .venv/bin/activate`):
 
 ```bash
-python -m saxscribe transcribe ~/Music/take.wav                      # solo alto take
-python -m saxscribe transcribe ~/Music/take.wav --horn tenor         # solo tenor (soprano, alto, tenor or baritone)
-python -m saxscribe transcribe ~/Music/record.mp3 --mix --horn tenor # sax inside a full band
+python -m lift transcribe ~/Music/take.wav                      # solo alto take
+python -m lift transcribe ~/Music/take.wav --horn tenor         # solo tenor (soprano, alto, tenor or baritone)
+python -m lift transcribe ~/Music/record.mp3 --mix --horn tenor # sax inside a full band
 ```
 
 **Run a scorecard** (results also appear on the Results page):
 
 ```bash
-python -m saxscribe score grfia-alto --note "what changed"
+python -m lift score grfia-alto --note "what changed"
 ```
 
 Sets: `omnibook`, `omnibook-mix`, `urmp`, `urmp-mix`, `bach10`, `bach10-mix`,
@@ -61,7 +63,7 @@ Sets: `omnibook`, `omnibook-mix`, `urmp`, `urmp-mix`, `bach10`, `bach10-mix`,
 ## Setup (Mac)
 
 ```bash
-cd ~/Desktop/saxscribe && bash setup_mac.sh
+cd ~/dev/lift && bash setup_mac.sh
 ```
 
 It installs Python (the version in `.python-version`) and ffmpeg, makes the
@@ -74,31 +76,31 @@ Without it everything else works and you get MusicXML only.
 ## Use
 
 ```bash
-python -m saxscribe transcribe ~/Music/take.wav               # a solo take
-python -m saxscribe transcribe ~/Music/record.mp3 --mix       # sax inside a full band
-python -m saxscribe transcribe ~/Music/Takes/                 # a whole folder
-python -m saxscribe transcribe ~/Music/take.wav --redo notes  # remake notes and notation
+python -m lift transcribe ~/Music/take.wav               # a solo take
+python -m lift transcribe ~/Music/record.mp3 --mix       # sax inside a full band
+python -m lift transcribe ~/Music/Takes/                 # a whole folder
+python -m lift transcribe ~/Music/take.wav --redo notes  # remake notes and notation
 ```
 
-Results go in a folder next to the file (`take.saxscribe/`), or wherever `-o` says.
+Results go in a folder next to the file (`take.lift/`), or wherever `-o` says.
 
 | Option | What it does |
 | --- | --- |
 | `--mix` | Separate stems with Demucs first. All six stems stay in `stems/` to listen to |
 | `--stem other` | Force a stem (or a sum such as `other+guitar`); the default, `auto`, picks the stem holding the sax |
 | `--horn tenor` | Soprano, tenor or baritone instead of alto (default): pitch range and written key |
-| `--range-rules flag` | How notes outside the horn's range are handled: `out` (default) moves notes no sax can play by octaves into range and tags altissimo; `overtones` also checks every note for a likely overtone and moves it down (tested 2026-11-04: wrong far more often than right, so off by default); `flag` only tags, overtones included; `off` skips it. Nothing is ever deleted; a moved note keeps its `detected_pitch`. See `saxscribe/layers/ranges.py` |
+| `--range-rules flag` | How notes outside the horn's range are handled: `out` (default) moves notes no sax can play by octaves into range and tags altissimo; `overtones` also checks every note for a likely overtone and moves it down (tested 2026-11-04: wrong far more often than right, so off by default); `flag` only tags, overtones included; `off` skips it. Nothing is ever deleted; a moved note keeps its `detected_pitch`. See `lift/layers/ranges.py` |
 | `--redo LAYER` | Remake a layer and the ones above it; the ones below are left alone |
 | `--contour-tool pyin` | Use pYIN instead of CREPE for the pitch line |
 | `--notes-tool contour` | Cut notes from the pitch line instead of Basic Pitch |
 | `--separator filosax` | With `--mix`: Riley and Dixon's sax separator instead of Demucs (a sax stem and a backing stem, in `stems-filosax/`). Opt-in; see [the model card](docs/models/filosax.md) |
-| `--notes-tool filosax` | Riley and Dixon's sax transcriber instead of Basic Pitch; skips the sax-rest and bleed checks. Weights (about 175 MB for both) download once to `~/.cache/saxscribe/models` |
+| `--notes-tool filosax` | Riley and Dixon's sax transcriber instead of Basic Pitch; skips the sax-rest and bleed checks. Weights (about 175 MB for both) download once to `~/.cache/lift/models` |
 | `--swing 2` | Swing ratio for the notation (`auto` detects it, `straight` turns it off) |
 
 ## The app
 
 ```bash
-python -m saxscribe app
+python -m lift app
 ```
 
 This opens a page in the browser where you upload a recording (alto or
@@ -108,7 +110,7 @@ tenor, solo or with a band) and get back:
   The PDF comes from MuseScore when it's installed. Without it, the PDF
   button opens the score as letter pages to print or save as PDF from the browser.
   Every PDF carries the song's title, "As played by" the artist, and
-  "Transcribed with Saxscribe". Title and artist come from the file's tags
+  "Transcribed with Lift". Title and artist come from the file's tags
   unless you type them at upload.
 - **A play-along**: the score scrolls with the recording, the note being
   played lights up, and tapping a note jumps there. You can play at 50 to
@@ -119,7 +121,7 @@ The app has two more pages:
 
 - **Library** (`/library`): every answer key matched confidently to its
   recording (badge "Answer key"), plus the songs the app transcribed (badge
-  "Made by Saxscribe"). Each song page shows the chart, its recording and the
+  "Made by Lift"). Each song page shows the chart, its recording and the
   match facts. You can play along on the engraved answer key, and play just
   the solo or the full track. The list comes from the PDF ledger, so it grows
   as the matching work finishes.
@@ -129,7 +131,7 @@ The app has two more pages:
 
 It runs on the Mac. To use it on an iPad on the same Wi-Fi, open the address
 it prints ("On your iPad: http://…:8765/"). Uploads and their take folders
-live in `~/saxscribe-library/` (change it with `--library`). While a take runs, the page shows its progress lines; Stop ends it, Run again restarts it and Remove deletes it. Each take folder
+live in `~/lift-library/` (change it with `--library`). While a take runs, the page shows its progress lines; Stop ends it, Run again restarts it and Remove deletes it. Each take folder
 is the same as one made by `transcribe`. Use `--host 127.0.0.1` to keep the
 app to this Mac only.
 
@@ -149,7 +151,7 @@ what sits above it. Pitch is stored at concert pitch.
 
 Open the `.musicxml` files in MuseScore. How the notation is made (beat grid,
 swing, sixteenths or triplets, key and spelling) is described at the top of
-`saxscribe/layers/notation.py`.
+`lift/layers/notation.py`.
 
 ## Scorecard
 
@@ -158,15 +160,15 @@ mir_eval (the standard music-transcription scores), so numbers compare with
 published ones.
 
 ```bash
-python -m saxscribe score omnibook                 # Charlie Parker Aligned Omnibook
-python -m saxscribe score filosax --split test     # Filosax (needs access, and pip install mirdata)
-python -m saxscribe score pairs --data ~/Music/saxscribe-etudes   # your own takes
-python -m saxscribe score omnibook --notes-tool contour           # compare another setting
-python -m saxscribe score grfia-alto --tag altissimo              # only takes with a technique tag
+python -m lift score omnibook                 # Charlie Parker Aligned Omnibook
+python -m lift score filosax --split test     # Filosax (needs access, and pip install mirdata)
+python -m lift score pairs --data ~/Music/lift-etudes   # your own takes
+python -m lift score omnibook --notes-tool contour           # compare another setting
+python -m lift score grfia-alto --tag altissimo              # only takes with a technique tag
 ```
 
 Each run keeps its take folders and writes `scorecard.md` and `scorecard.json`
-under `~/saxscribe-runs/<set>/<settings>/`, with the v1 targets from the
+under `~/lift-runs/<set>/<settings>/`, with the v1 targets from the
 requirements alongside. Dataset folders come from `--data`, else
 `config.local.toml` (see `config.local.example.toml`), else `~/mir_datasets/`.
 Train and test splits go by tune, never by take.
@@ -184,7 +186,7 @@ Record yourself playing something written down, then line the score up with
 the take:
 
 ```bash
-python -m saxscribe answer-key take.wav etude.musicxml   # writes take.mid next to it
+python -m lift answer-key take.wav etude.musicxml   # writes take.mid next to it
 ```
 
 It assumes the score is written for alto in E-flat; add `--score-pitch concert`
