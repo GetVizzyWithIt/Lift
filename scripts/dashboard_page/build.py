@@ -51,7 +51,7 @@ window.__LIFT_STATIC__ = true;
 HANDBOOK_URL = "https://claude.ai/artifact/LHvpK1sBSP8ADqziMc2c8X"
 
 NOTE = ('<p class="quiet small" style="margin:0;padding:8px 16px"><b>Data as of {latest}.</b> Built {date} from {source}. '
-        'Reviewing keys (Needs review) stays in the app\'s Results page.</p>')
+        'Review questions stay in the app\'s Review page.</p>')
 
 
 def data(runs: str | Path | None = None) -> dict:
@@ -85,6 +85,9 @@ def model_only(html: str) -> str:
     html = re.sub(r'<a role="tab" href="#review".*?</a>', "", html, flags=re.S)
     html = re.sub(r'\n\s*<div class="tab" id="tab-review".*?\n  </div>', "", html, flags=re.S)
     html = html.replace('<script src="/static/results-review.js"></script>', "")
+    # The Lift top bar and icons live in the app (/static/brand, /library, /review); a static copy has none of them.
+    html = re.sub(r'<body data-page="[^"]*"', "<body", html)
+    html = re.sub(r'\n<link rel="(?:icon|apple-touch-icon)" href="/static/[^"]*"[^>]*>', "", html)
     return html.replace('<a class="button" href="/">Library</a>', f'<a class="button" href="{HANDBOOK_URL}" target="_blank" rel="noopener">Handbook</a>')
 
 
