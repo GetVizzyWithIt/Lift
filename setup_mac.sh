@@ -34,7 +34,10 @@ if ! python -m saxscribe check; then
   exit 1
 fi
 echo
-echo "Done. In each new Terminal window, run this first:"
+bash scripts/mac_app/build_app.sh || echo "(Lift, the double-click launcher, wasn't built; the app still runs from the Terminal.)"
+echo
+echo "Done. To start the app, double-click Lift on the Desktop."
+echo "To use the Terminal instead, run this first in each new window:"
 echo "  source .venv/bin/activate"
 echo "Then transcribe a take with:"
 echo "  python -m saxscribe transcribe ~/Music/take.wav"

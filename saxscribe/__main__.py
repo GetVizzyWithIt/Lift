@@ -116,7 +116,7 @@ def run_app(args) -> int:
     try:
         import uvicorn
         from .app.library import Library
-        from .app.server import create_app, lan_addresses
+        from .app.server import create_app, idle_watch, lan_addresses
     except ImportError as exc:
         print(f"The app needs packages that aren't installed ({exc.name}). Run: pip install -r requirements.txt")
         return 1
@@ -132,7 +132,13 @@ def run_app(args) -> int:
         import threading
         import webbrowser
         threading.Timer(1.0, lambda: webbrowser.open(local)).start()
-    uvicorn.run(create_app(library, args.port, args.runs), host=args.host, port=args.port, log_level="warning")
+    app = create_app(library, args.port, args.runs)
+    server = uvicorn.Server(uvicorn.Config(app, host=args.host, port=args.port, log_level="warning"))
+    if args.quit_when_idle > 0:
+        import threading
+        threading.Thread(target=idle_watch, args=(app, library, server, args.quit_when_idle),
+                         name="saxscribe-idle", daemon=True).start()
+    server.run()
     return 0
 
 
@@ -171,6 +177,9 @@ def main(argv: list[str] | None = None) -> int:
     ap_app.add_argument("--host", default="0.0.0.0",
                         help="0.0.0.0 lets an iPad on the same Wi-Fi open it; 127.0.0.1 keeps it to this Mac")
     ap_app.add_argument("--no-browser", action="store_true", help="don't open a browser tab")
+    ap_app.add_argument("--quit-when-idle", type=float, default=0, metavar="MINUTES",
+                        help="quit after this many minutes with no page open and nothing transcribing "
+                             "(the Lift launcher uses 30; default 0 = run until Ctrl+C)")
 
     sc = sub.add_parser("score", help="run a set of recordings with known answers and score each layer")
     sets = ("omnibook", "omnibook-mix", "filosax", "urmp", "urmp-mix", "choralebricks", "bach10", "bach10-mix", "pairs",

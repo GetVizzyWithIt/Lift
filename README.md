@@ -11,10 +11,13 @@ first; what it is and how it works are [further down](#what-it-is).
 the app is running, press Ctrl-C to stop it, then:
 
 ```bash
-cd ~/Desktop/saxscribe && git checkout main && git pull && source .venv/bin/activate && pip install -r requirements.lock && python -m saxscribe app
+cd ~/Desktop/saxscribe && git checkout main && git pull && source .venv/bin/activate && pip install -r requirements.lock && (bash scripts/mac_app/build_app.sh || true) && python -m saxscribe app
 ```
 
-**Start the app with no update:**
+The update also rebuilds **Lift**, the double-click launcher (see below).
+
+**Start the app with no update:** double-click **Lift** on the Desktop (or in
+your Applications folder in your home folder). Or, from the Terminal:
 
 ```bash
 cd ~/Desktop/saxscribe && source .venv/bin/activate && python -m saxscribe app
@@ -24,6 +27,16 @@ On the Mac it opens a browser tab at http://localhost:8765. On the iPad
 (same Wi-Fi), open the address it prints: "On your iPad: http://…:8765/".
 Library: the same address with `/library`. Results page: `/results`. Finished sheet music is also
 copied to `~/Desktop/Saxscribe`.
+
+**Lift, the launcher.** `bash scripts/mac_app/build_app.sh` (run by setup and
+by the update command) builds `~/Applications/Lift.app` and puts a Lift shortcut
+on the Desktop. Double-clicking it starts the app in the background, with no
+Terminal window, and opens it in the browser; if the app is already running, it
+just opens the page. Started this way, the app quits by itself after 30 minutes
+with no page open (never while a take is transcribing). Its log is
+`~/Library/Logs/Lift/lift.log`. The first time, macOS may ask whether Lift can
+use the Desktop folder (the repo lives there): allow it. If it was refused,
+turn it on in System Settings, Privacy & Security, Files and Folders.
 
 **Transcribe from the Terminal** (after `source .venv/bin/activate`):
 
