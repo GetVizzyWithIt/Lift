@@ -1,13 +1,17 @@
 :root {
   --bg: #f6f3ee; --card: #ffffff; --ink: #1f1d1a; --quiet: #6b665e; --line: #e2ddd4;
   --accent: #b5532a; --accent-ink: #ffffff; --good: #2f7d4f; --bad: #b3261e; --paper: #ffffff;
+  /* Lift theme: the record's black (top bar), its groove grey, and the track behind pill toggles. */
+  --record: #1f1d1a; --record-ink: #f1ede6; --record-quiet: #bdb7ad; --record-line: #1f1d1a;
+  --groove: #959390; --pill-track: #ece7df; --arm: #e07a4c;
   --radius: 12px; --tap: 44px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   color: var(--ink); background: var(--bg);
 }
 @media (prefers-color-scheme: dark) {
   :root { --bg: #171614; --card: #22211e; --ink: #f1ede6; --quiet: #a39d93; --line: #35322d;
-          --accent: #e07a4c; --accent-ink: #1a1a1a; --paper: #fbfaf7; }
+          --accent: #e07a4c; --accent-ink: #1a1a1a; --paper: #fbfaf7;
+          --record: #0f0e0d; --record-line: #35322d; --groove: #797772; --pill-track: #2a2825; }
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -20,15 +24,14 @@ h2 { font-size: 1.1rem; margin: 0 0 12px; }
 .quiet { color: var(--quiet); }
 .small { font-size: 0.85rem; }
 button, .button, select {
-  min-height: var(--tap); padding: 0 16px; border-radius: 10px; border: 1px solid var(--line);
+  min-height: var(--tap); padding: 0 18px; border-radius: 999px; border: 1px solid var(--line);
   background: var(--card); color: var(--ink); font: inherit; font-size: 1rem; cursor: pointer;
   text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
 }
 button.primary, .button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
 button:disabled { opacity: 0.5; cursor: default; }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.seg button { border: 0; border-radius: 0; min-width: 72px; }
-.seg button + button { border-left: 1px solid var(--line); }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: var(--pill-track); border-radius: 999px; }
+.seg button { border: 0; border-radius: 999px; min-width: 72px; min-height: 40px; background: transparent; }
 .seg button.on { background: var(--ink); color: var(--bg); }
 .field { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; }
 .field > label { min-width: 150px; color: var(--quiet); }
@@ -258,3 +261,18 @@ button.danger { color: var(--bad); margin-left: auto; }
 dl.facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 14px 0 0; font-size: 0.9rem; }
 dl.facts dt { color: var(--quiet); }
 dl.facts dd { margin: 0; overflow-wrap: anywhere; }
+
+/* Lift top bar: one shared bar on every page (built by liftBar() in common.js). */
+.liftbar { background: var(--record); color: var(--record-ink); border-bottom: 1px solid var(--record-line); }
+.liftbar .in { max-width: 1240px; margin: 0 auto; padding: 0 16px; min-height: 60px; display: flex; flex-wrap: wrap;
+  align-items: center; gap: 4px 24px; }
+.liftbar .brand { display: flex; align-items: center; min-height: var(--tap); }
+.liftbar .brand img { height: 32px; width: auto; display: block; }
+.liftbar nav { display: flex; flex-wrap: wrap; gap: 2px; }
+.liftbar nav a { display: inline-flex; align-items: center; gap: 8px; min-height: var(--tap); padding: 0 12px;
+  color: var(--record-quiet); text-decoration: none; font-size: 0.95rem; }
+.liftbar nav a:hover { color: var(--record-ink); }
+.liftbar nav a[aria-current="page"] { color: var(--record-ink); font-weight: 600; box-shadow: inset 0 -3px 0 var(--arm); }
+.liftbar .count { background: var(--arm); color: #1f1d1a; border-radius: 999px; font-size: 0.75rem; font-weight: 700;
+  padding: 1px 7px; }
+@media (max-width: 600px) { .liftbar .in { gap: 0 12px; } .liftbar nav a { padding: 0 9px; } }

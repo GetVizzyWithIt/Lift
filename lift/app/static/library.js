@@ -8,13 +8,13 @@ function save() { try { localStorage.setItem(PREF, JSON.stringify({...st, q: ''}
 let LIB = null;
 
 const USE = {training: 'In training', benchmark: 'Benchmark'};
-const SOURCE = {key: 'Answer key', saxscribe: 'Made by Saxscribe'};
+const SOURCE = {key: 'Answer key', saxscribe: 'My take'};
 const GROUPS = {
   player: s => s.player || 'Unknown player',
   horn: s => HORN_NAMES[s.horn] || 'Horn not set',
   decade: s => s.decade || 'Year unknown',
   source: s => SOURCE[s.source],
-  use: s => s.source !== 'key' ? 'Made by Saxscribe' : USE[s.use] || 'Neither (not used by the model yet)',
+  use: s => s.source !== 'key' ? 'My take' : USE[s.use] || 'Neither (not used by the model yet)',
   kind: s => s.kind_name || 'Other',
 };
 const LAST = /^(Unknown|Horn not set|Year unknown|Neither)/;   // these groups go at the end
