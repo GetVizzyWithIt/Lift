@@ -76,11 +76,24 @@ function liftBar() {
     `<img src="/static/brand/logo-dark.svg" alt="Lift" width="99" height="32"></a><nav aria-label="Pages">` +
     LIFT_PAGES.map(([id, href, name]) => `<a href="${href}"${id === page ? ' aria-current="page"' : ''}>${name}` +
       (id === 'review' ? ' <span class="count" id="liftReviewCount" hidden></span>' : '') + '</a>').join('') +
-    '</nav></div>';
+    '</nav><button type="button" class="quit" id="liftQuit">Quit</button></div>';
   document.body.prepend(bar);
+  bar.querySelector('#liftQuit').addEventListener('click', quitLift);
   fetch('/api/review/inbox').then(r => r.ok ? r.json() : null).then(d => {
     const n = d && d.left, el = document.getElementById('liftReviewCount');
     if (el && n > 0) { el.textContent = n; el.hidden = false; }
   }).catch(() => {});
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', liftBar); else liftBar();
+
+// Quit: stop the app on this Mac, so the next double-click on Lift starts it fresh.
+async function quitLift() {
+  let r = await fetch('/api/quit', {method: 'POST'}).catch(() => null);
+  if (r && r.status === 409) {
+    if (!confirm('A transcription is still running. Quit anyway and stop it?')) return;
+    r = await fetch('/api/quit?force=true', {method: 'POST'}).catch(() => null);
+  }
+  if (r && !r.ok) { toast('Lift could not quit.'); return; }
+  document.body.innerHTML = '<div class="wrap"><h1>Lift has quit</h1>' +
+    '<p class="quiet">Double-click Lift on your Desktop to open it again.</p></div>';
+}

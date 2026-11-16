@@ -24,7 +24,17 @@ say_problem() {  # a small dialog, since there is no Terminal to read
 }
 alive() { /usr/bin/curl -s -o /dev/null --max-time 2 "$URL"; }
 
-# Already running (from Lift or from Terminal): just open the page.
+# Already running (from Lift or from Terminal): open the page, unless the code was updated
+# since it started. Then stop the old app (if it isn't mid-transcription) and start the new code.
+if alive; then
+  RUNNING="$(/usr/bin/curl -s --max-time 2 "${URL}api/version" | /usr/bin/sed -n 's/.*"code":"\([0-9a-f]*\)".*/\1/p')"
+  CURRENT="$(/usr/bin/git -C "$REPO" rev-parse HEAD 2>/dev/null)"
+  if [ -n "$CURRENT" ] && [ "$RUNNING" != "$CURRENT" ] && \
+     [ "$(/usr/bin/curl -s -o /dev/null -w '%{http_code}' --max-time 5 -X POST "${URL}api/quit")" = "200" ]; then
+    echo "Running old code (${RUNNING:-unknown}); restarting at $CURRENT"
+    for _ in $(seq 1 20); do alive || break; sleep 0.5; done
+  fi
+fi
 if alive; then
   echo "Already running; opening $URL"
   /usr/bin/open "$URL"
