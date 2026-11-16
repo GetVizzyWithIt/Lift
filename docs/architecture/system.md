@@ -189,6 +189,7 @@ beat detection takes a file.
 | | Now |
 | --- | --- |
 | Where it runs | Austin's M3 Pro MacBook: the CLI and a local web app (`python -m saxscribe app`, port 8765), used from the Mac or iPad Safari over home Wi-Fi |
+| Launcher | **Lift** (`scripts/mac_app/build_app.sh`, PR #188): `~/Applications/Lift.app` plus a Desktop shortcut; starts the app with no Terminal window and `--quit-when-idle 30`. Log: `~/Library/Logs/Lift/lift.log` |
 | Install | `setup_mac.sh`: Homebrew Python 3.11 + ffmpeg, private venv in `~/Library/Application Support/saxscribe/python`, symlinked as `.venv`, exact versions from `requirements.lock` |
 | Optional | MuseScore (`brew install --cask musescore`) for engraved PDF; without it the PDF button opens printable pages. `[tools] musescore = "off"` skips it (PR #26) |
 | Models on disk | `~/.cache/saxscribe/models/`: the E77 note finder, MVSep Mega weights for the vocal mark |

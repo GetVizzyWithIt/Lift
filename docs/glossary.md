@@ -90,3 +90,4 @@ Plain-language meanings of terms used in the code and these docs.
 | Solo clip | On a song page, playback of just the solo span of the recording, with a switch to the full track (PR #184) |
 | Re-score | Lining a chart up again with its recording on the Filosax sax stem instead of the full mix, to rescue charts that scored 0% or were set aside (log P11) |
 | Great 78 Project | The Internet Archive's collection of 78 rpm record transfers; the first place we look for older recordings ([ADR-0046](decisions/0046-audio-sourcing-order.md)) |
+| Lift | The double-click Mac launcher for the app (`scripts/mac_app/`, builds `~/Applications/Lift.app` and a Desktop shortcut). It starts the app in the background with `--quit-when-idle 30`, so the app quits after 30 idle minutes, never during a take (PR #188). Austin's likely new name for the tool, with the record-and-tone-arm logo; renaming the app itself is undecided |

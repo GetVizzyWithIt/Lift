@@ -112,16 +112,18 @@ D became the default), and the [model cards](docs/models/README.md).
 the app is running, press Ctrl-C, then:
 
 ```bash
-cd ~/Desktop/saxscribe && git checkout main && git pull && source .venv/bin/activate && pip install -r requirements.lock && python -m saxscribe app
+cd ~/Desktop/saxscribe && git checkout main && git pull && source .venv/bin/activate && pip install -r requirements.lock && (bash scripts/mac_app/build_app.sh || true) && python -m saxscribe app
 ```
 
-**Start the app without updating:**
+The update also rebuilds **Lift**, the double-click launcher.
+
+**Start the app without updating:** double-click **Lift** on the Desktop. It starts the app with no Terminal window and opens the page; started this way, the app quits by itself after 30 minutes with no page open (never mid-transcription). Or, from the Terminal:
 
 ```bash
 cd ~/Desktop/saxscribe && source .venv/bin/activate && python -m saxscribe app
 ```
 
-The app is at http://localhost:8765 (key review: `/results`, Needs review; scores and charts are on the model dashboard linked at the top). On the iPad on the
+The app is at http://localhost:8765 (Library: `/library`; key review: `/results`, Needs review; scores and charts are on the model dashboard linked at the top). On the iPad on the
 same Wi-Fi, open the address it prints. Sheet music is also copied to
 `~/Desktop/Saxscribe`.
 
