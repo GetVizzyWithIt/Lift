@@ -38,11 +38,11 @@ if [ -f "$STARTING" ] && kill -0 "$(cat "$STARTING")" 2>/dev/null; then
   exit 0
 fi
 
-# macOS privacy: an app needs permission to read the Desktop, where the saxscribe folder lives.
+# macOS privacy: an app needs permission to read some folders (the Desktop, Documents).
 if ! /bin/ls "$REPO" >/dev/null 2>&1; then
   echo "Cannot read $REPO (macOS privacy setting)."
   /usr/bin/osascript >/dev/null <<'EOF'
-set msg to "Lift needs permission to open the saxscribe folder on your Desktop." & return & return & "In System Settings, go to Privacy & Security, then Files and Folders, and turn on Desktop Folder under Lift. If Lift isn't listed there, add it under Full Disk Access instead. Then open Lift again."
+set msg to "Lift needs permission to open its folder." & return & return & "In System Settings, go to Privacy & Security, then Files and Folders, and turn on Desktop Folder under Lift. If Lift isn't listed there, add it under Full Disk Access instead. Then open Lift again."
 set answer to display dialog msg buttons {"OK", "Open Settings"} default button "Open Settings" with title "Lift" with icon caution
 if button returned of answer is "Open Settings" then do shell script "open 'x-apple.systempreferences:com.apple.preference.security?Privacy_FilesAndFolders'"
 EOF
@@ -50,13 +50,13 @@ EOF
 fi
 if [ ! -x "$PYTHON" ]; then
   echo "No Python environment at $PYTHON"
-  say_problem "Lift can't find its Python environment. In Terminal, run: cd ~/Desktop/saxscribe && bash setup_mac.sh"
+  say_problem "Lift can't find its Python environment. In Terminal, run: cd ~/dev/lift && bash setup_mac.sh"
   exit 1
 fi
 
 cd "$REPO" || exit 1
 echo "Starting the app from $REPO"
-/usr/bin/nohup "$PYTHON" -m saxscribe app --no-browser --quit-when-idle "$IDLE_MINUTES" &
+/usr/bin/nohup "$PYTHON" -m lift app --no-browser --quit-when-idle "$IDLE_MINUTES" &
 PID=$!
 echo "$PID" > "$STARTING"
 for _ in $(seq 1 120); do   # the first start can take a while (PyTorch loads)

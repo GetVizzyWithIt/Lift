@@ -48,7 +48,7 @@ jobs:
           pip install --no-deps -r /tmp/ci.lock
 
       - name: Health check
-        run: python -m saxscribe check
+        run: python -m lift check
 
       - name: Tests
         run: python -m pytest -q

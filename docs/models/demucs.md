@@ -6,11 +6,11 @@
 - **Type**: hybrid network that works on both the waveform and the spectrogram, with a transformer between them. `htdemucs_6s` is the experimental six-stem variant of the four-stem `htdemucs`.
 - **Licence**: code MIT. The `htdemucs_6s` weights were trained only on Meta's internal dataset, which the author says "likely means CC-NC-BY": non-commercial. Fine for a single-user tool; would matter for any public release ([upstream review](upstream-review.md)).
 - **Maintenance**: the author's fork (adefossez/demucs) gets bug fixes only. Version 4.1.0 (2026-07-11) drops torchaudio for inference, which would let us lift the `torchaudio<2.9` cap.
-- **How Saxscribe calls it**: `frontend.separate_stems()` runs `python -m demucs -n htdemucs_6s -d <mps|cpu>`; only with `transcribe --mix` or the `*-mix` scorecard sets. Stem choice: `--stem`; otherwise "other" until PR #24, which picks the stem with the clearest single melody line and sums stems when the sax is split.
+- **How Lift calls it**: `frontend.separate_stems()` runs `python -m demucs -n htdemucs_6s -d <mps|cpu>`; only with `transcribe --mix` or the `*-mix` scorecard sets. Stem choice: `--stem`; otherwise "other" until PR #24, which picks the stem with the clearest single melody line and sums stems when the sax is split.
 - **Citation**: Rouard, Massa, Défossez, "Hybrid Transformers for Music Source Separation", ICASSP 2023.
 
 ## Intended use
-- **In Saxscribe**: Layer 1 for U2 (records with a band). Not used on solo takes.
+- **In Lift**: Layer 1 for U2 (records with a band). Not used on solo takes.
 - **Out of scope**: separating sax from other horns, strings or woodwinds. It has no sax stem; the sax lands in "other" together with every instrument that isn't drums, bass, vocals, guitar or piano.
 
 ## Factors

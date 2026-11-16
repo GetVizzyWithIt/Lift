@@ -7,10 +7,10 @@ import numpy as np
 import pytest
 import soundfile as sf
 
-from saxscribe import mega
-from saxscribe.layers import notes as notes_layer
-from saxscribe.layers import vocals
-from saxscribe.take import Take
+from lift import mega
+from lift.layers import notes as notes_layer
+from lift.layers import vocals
+from lift.take import Take
 
 RATE = vocals.CQT_RATE
 
@@ -102,7 +102,7 @@ def test_vocal_check_runs_only_on_the_filosax_stem(tmp_path):
 
 
 def test_vocal_check_is_skipped_without_mega(tmp_path, monkeypatch):
-    monkeypatch.setenv("SAXSCRIBE_MODELS", str(tmp_path / "no-models"))
+    monkeypatch.setenv("LIFT_MODELS", str(tmp_path / "no-models"))
     out = notes_layer.vocal_marks(band_take(tmp_path, "filosax"), [])
     assert out == {"marked": 0, "why": "Mega not installed"}
 

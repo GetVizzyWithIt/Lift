@@ -7,7 +7,7 @@ import mido
 import numpy as np
 import soundfile as sf
 
-from saxscribe.score import align, card, metrics, refs
+from lift.score import align, card, metrics, refs
 
 from . import fixture
 
@@ -73,10 +73,10 @@ def test_sax_found_and_purity_count_lost_and_extra_notes():
 
 
 def test_scorecard_on_a_pairs_folder(fixture_wav, tmp_path, monkeypatch):
-    from saxscribe.layers import engrave
+    from lift.layers import engrave
     asked = []
     monkeypatch.setattr(engrave, "find_musescore", lambda: None if engrave.turned_off() else asked.append(1))
-    monkeypatch.delenv("SAXSCRIBE_MUSESCORE", raising=False)
+    monkeypatch.delenv("LIFT_MUSESCORE", raising=False)
     data = tmp_path / "data"
     data.mkdir()
     sf.write(str(data / "phrase.wav"), sf.read(str(fixture_wav))[0], fixture.RATE)
@@ -94,7 +94,7 @@ def test_scorecard_on_a_pairs_folder(fixture_wav, tmp_path, monkeypatch):
     assert line["set"] == "pairs" and line["settings"] == "contour-pyin-notes-contour" and not line["default"]
     assert line["metrics"]["onset_f1"] == result["mean"]["onset_f1"]
     assert asked == []                     # no PDFs (no MuseScore) during a scorecard
-    assert "SAXSCRIBE_MUSESCORE" not in __import__("os").environ   # and the setting is put back
+    assert "LIFT_MUSESCORE" not in __import__("os").environ   # and the setting is put back
 
 
 def written_score(path):
@@ -234,7 +234,7 @@ def test_a_key_an_octave_off_shows_as_octave_errors_and_is_flagged():
     assert 0.45 < s["pitch_accuracy"] < 0.55
     assert s["chroma_accuracy"] > 0.95
     assert 0.4 < s["octave_errors"] < 0.55
-    from saxscribe.score import card
+    from lift.score import card
     md = card.markdown({"set": "omnibook", "split": "all", "settings": "default", "items": 1, "made": "now",
                         "partial": True, "mean": {"pitch_accuracy": s["pitch_accuracy"]},
                         "rows": [{"id": "BRfYc", **s, "est_notes": 20, "ref_notes": 20}]}, True)
@@ -242,7 +242,7 @@ def test_a_key_an_octave_off_shows_as_octave_errors_and_is_flagged():
 
 
 def test_scorecard_counts_answer_key_notes_hidden_by_a_sax_span_cut():
-    from saxscribe.score import card
+    from lift.score import card
     md = card.markdown({"set": "omnibook-mix", "split": "all", "settings": "default", "items": 2, "made": "now",
                         "mean": {}, "rows": [{"id": "7XTyc", "est_notes": 400, "ref_notes": 407, "key_notes_cut": 3},
                                              {"id": "BRfYc", "est_notes": 300, "ref_notes": 310, "key_notes_cut": 0}]},

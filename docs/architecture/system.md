@@ -56,15 +56,15 @@ flowchart LR
 
 | Step | What happens |
 | --- | --- |
-| Separator | The Filosax sax separator (Riley and Dixon): a Demucs-style network trained only on saxophone, so it has a real sax stem. `saxscribe/filosax.py`; E59, E80 |
-| Note finder | Our fine-tune of Riley and Dixon's Filosax note model on MVSep Mega sax stems (E77, `best.pt` step 2488, `~/.cache/saxscribe/models/saxscribe_finder_e77.pt`). It beat the standard path on 31 of 33 benchmark songs (E81) |
+| Separator | The Filosax sax separator (Riley and Dixon): a Demucs-style network trained only on saxophone, so it has a real sax stem. `lift/filosax.py`; E59, E80 |
+| Note finder | Our fine-tune of Riley and Dixon's Filosax note model on MVSep Mega sax stems (E77, `best.pt` step 2488, `~/.cache/lift/models/saxscribe_finder_e77.pt`). It beat the standard path on 31 of 33 benchmark songs (E81) |
 | Guards | No sax-rest cut and no bleed hide on this path. Sax sections (PR #144) and `maybe_not_sax` review marks (PR #121) keep other instruments in view without deleting notes |
-| Vocal mark | MVSep Mega 53-stem, run locally for its vocal stem only (`saxscribe/mega.py`, about 1.3 times the audio's length on the M3 Pro GPU). Rule V (`saxscribe/layers/vocals.py`) tags a note `maybe_vocals` and `maybe_not_sax` when Mega's vocal stem is at least as loud as the sax stem at the note's pitch and holds that pitch. Notes are never hidden. It needs the Mega weights in `~/.cache/saxscribe/models` and is skipped, with a log line, without them. `SAXSCRIBE_VOCAL_CHECK=off` turns it off. PR #167; E82 round 3: 0 real sax notes marked out of 3,206 |
+| Vocal mark | MVSep Mega 53-stem, run locally for its vocal stem only (`lift/mega.py`, about 1.3 times the audio's length on the M3 Pro GPU). Rule V (`lift/layers/vocals.py`) tags a note `maybe_vocals` and `maybe_not_sax` when Mega's vocal stem is at least as loud as the sax stem at the note's pitch and holds that pitch. Notes are never hidden. It needs the Mega weights in `~/.cache/lift/models` and is skipped, with a log line, without them. `LIFT_VOCAL_CHECK=off` turns it off. PR #167; E82 round 3: 0 real sax notes marked out of 3,206 |
 | Notation | Same as the standard path (section 2, layer 4) |
 
 ## 2. Layers
 
-### Layer 1: isolate (`saxscribe/layers/isolate.py`)
+### Layer 1: isolate (`lift/layers/isolate.py`)
 
 | | |
 | --- | --- |
@@ -75,7 +75,7 @@ flowchart LR
 | Stem choice | PR #24: the stem with the clearest single melody line, or a sum of stems when the sax is split (e.g. "guitar" + "other"); `--stem` overrides ([ADR-0020](../decisions/0020-pick-sax-stem-automatically.md)) |
 | Known gap | No separator has a sax stem; "other" also carries other horns, strings and keys ([model card](../models/demucs.md)) |
 
-### Layer 2: pitch contour (`saxscribe/layers/contour.py`)
+### Layer 2: pitch contour (`lift/layers/contour.py`)
 
 | | |
 | --- | --- |
@@ -85,7 +85,7 @@ flowchart LR
 | Fallback | pYIN (librosa) when torchcrepe isn't installed or `--contour-tool pyin` |
 | Output | `contour.csv`: `time, f0_hz, midi, confidence, voiced`, one row per 10 ms |
 
-### Layer 3: note events (`saxscribe/layers/notes.py`, `segment.py`)
+### Layer 3: note events (`lift/layers/notes.py`, `segment.py`)
 
 | | |
 | --- | --- |
@@ -97,7 +97,7 @@ flowchart LR
 | Beats | Beat This! `final0` checkpoint on the full `source.wav` (so the band's groove counts), librosa beat tracker as fallback ([model card](../models/beat-this.md)) |
 | Output | `notes.json`: `notes[{onset, offset, pitch, cents, amp, tags}]`, `beats`, `downbeats`, `tempo_bpm`, `key` (null), `tools` |
 
-### Layer 4: notation (`saxscribe/layers/notation.py`, `engrave.py`)
+### Layer 4: notation (`lift/layers/notation.py`, `engrave.py`)
 
 | Step | Rule |
 | --- | --- |
@@ -121,7 +121,7 @@ and `score.pdf` / `score-<horn>.pdf` when MuseScore is found.
 ## 3. A take's folder
 
 ```
-take.saxscribe/
+take.lift/
   take.json               which tool made each layer, with settings and time
   source.wav              decoded original; the time reference for every layer
   stem.wav                the sax on its own (copy for solo takes)
@@ -142,11 +142,11 @@ display ([ADR-0003](../decisions/0003-concert-pitch-storage.md)). Planned: an
 `edits/` folder holding the editor's operations as a diff against the model's
 `notes.json`, which stays untouched.
 
-Review flags (PR #116): in the play-along, the Flag button marks a bar, or picked notes in it, with one or more categories: Missing note, Extra note, Wrong pitch, Wrong octave, Held note split in two, Notes merged into one, Timing off, Rhythm written wrong, Bar line off / half time, Swing or feel wrong, Not sax, Other. An optional note can be added. Each flag saves the bar's start and end time in the recording, the notes written there and the tool version to `flags.json` beside the take's files, so a review can line it up with an answer key by time. A copy goes in `Desktop/Saxscribe/<song>/` with a text summary, which "Copy for Claude" in the Flags menu puts on the clipboard. Flags never change the transcription. Space types in the flag note box and plays or pauses everywhere else (PR #117). Planned uses: bar-line flags for a "double the tempo here" fix (log E65), and Not sax flags for the sax-out list.
+Review flags (PR #116): in the play-along, the Flag button marks a bar, or picked notes in it, with one or more categories: Missing note, Extra note, Wrong pitch, Wrong octave, Held note split in two, Notes merged into one, Timing off, Rhythm written wrong, Bar line off / half time, Swing or feel wrong, Not sax, Other. An optional note can be added. Each flag saves the bar's start and end time in the recording, the notes written there and the tool version to `flags.json` beside the take's files, so a review can line it up with an answer key by time. A copy goes in `Desktop/Lift Sheets/<song>/` with a text summary, which "Copy for Claude" in the Flags menu puts on the clipboard. Flags never change the transcription. Space types in the flag note box and plays or pauses everywhere else (PR #117). Planned uses: bar-line flags for a "double the tempo here" fix (log E65), and Not sax flags for the sax-out list.
 
 Feedback reviewer (PR #138): a **quick flag** marks the bar while the music plays and is sorted later ("to sort"). Each flag now stores `to` (a bar range), `run` and `run_name`. The run id is the time the notes layer was made, from `take.json`. A `looks_right` map, keyed by run id, records bars played through without a flag. When only the broad reason is picked, the categories `wrong_notes` and `rhythm_feel` are used. Flags from earlier runs are kept and shown as **Changed now** or **Still the same** against the current notes, never deleted or marked fixed ([ADR-0039](../decisions/0039-flags-kept-across-runs.md)). Older `flags.json` files still load. A browser check lives in `tests/browser/` (Playwright, run by hand, not in CI).
 
-## 4. Instrument profiles (`saxscribe/horns.py`)
+## 4. Instrument profiles (`lift/horns.py`)
 
 | Profile | Key | Written = concert + | Pitch range searched |
 | --- | --- | --- | --- |
@@ -157,27 +157,31 @@ Feedback reviewer (PR #138): a **quick flag** marks the bar while the music play
 New instruments are added as new profiles, answer-key sets and (later) models,
 not as rewrites ([ADR-0005](../decisions/0005-instrument-profiles-alto-first.md)).
 
-## 5. Evaluation path (`saxscribe/score/`)
+## 5. Evaluation path (`lift/score/`)
 
-`python -m saxscribe score <set>` runs the same pipeline over a set of
+`python -m lift score <set>` runs the same pipeline over a set of
 recordings with known notes, keeps every take folder under
-`~/saxscribe-runs/<set>/<settings>/`, and writes `scorecard.md` and
-`scorecard.json`, and appends one line per run to `~/saxscribe-runs/results.jsonl` (PR #38; `--note` labels a run). The app's Results page (`/results`) plots that history together with `docs/evaluation/results.jsonl` and `changes.json` ([ADR-0025](../decisions/0025-scorecard-history-files.md)). Loaders live in `score/refs.py`; metrics in
+`~/lift-runs/<set>/<settings>/`, and writes `scorecard.md` and
+`scorecard.json`, and appends one line per run to `~/lift-runs/results.jsonl` (PR #38; `--note` labels a run). The app's Results page (`/results`) plots that history together with `docs/evaluation/results.jsonl` and `changes.json` ([ADR-0025](../decisions/0025-scorecard-history-files.md)). Loaders live in `score/refs.py`; metrics in
 `score/metrics.py`; the etude aligner in `score/align.py`. Details in
 [evaluation/protocol.md](../evaluation/protocol.md).
 
-## 6. Data management (`saxscribe/datasets.py`)
+## 6. Data management (`lift/datasets.py`)
 
 `datasets/manifest.json` lists 20 datasets (217 files) with page, licence,
-access type and md5 per archive. `python -m saxscribe fetch` downloads,
+access type and md5 per archive. `python -m lift fetch` downloads,
 checks and unpacks them into `~/mir_datasets/<folder>/` (archives in
 `_zips/`). A download that fails its checksum is never kept; archives that
 would write outside their folder are refused. Datasets that need a login are
 listed with their page instead ([ADR-0011](../decisions/0011-dataset-manifest-and-fetch.md)).
 
-## 7. Code boundary with Songs in the Key of Life
+## 7. Names and folders (`lift/paths.py`)
 
-`saxscribe/frontend.py` is a private copy of the game analyzer's front end
+The tool was called Saxscribe until 2026-11-16 ([ADR-0047](../decisions/0047-rename-saxscribe-to-lift.md)). `lift/paths.py` holds every default folder: `~/lift-runs`, `~/lift-library`, `~/.cache/lift`, and `~/Desktop/Lift Sheets`. Each one falls back to the old Saxscribe folder on a Mac where only that exists. Settings are read as `LIFT_<NAME>`, then `SAXSCRIBE_<NAME>`. The `saxscribe/` package is only an alias: `import saxscribe.x` returns the same module as `import lift.x`, and `python -m saxscribe` runs `python -m lift`. On the Mac, `scripts/rename_to_lift.sh` moved the folders and left a link at each old name.
+
+## 8. Code boundary with Songs in the Key of Life
+
+`lift/frontend.py` is a private copy of the game analyzer's front end
 (decode, Demucs, Beat This!, Basic Pitch) taken at game commit `18a6548`.
 Nothing is imported from the game and nothing from its chart model came over.
 Changes from the game's copy: no lanes or difficulty profiles; Basic Pitch
@@ -188,13 +192,13 @@ beat detection takes a file.
 
 | | Now |
 | --- | --- |
-| Where it runs | Austin's M3 Pro MacBook: the CLI and a local web app (`python -m saxscribe app`, port 8765), used from the Mac or iPad Safari over home Wi-Fi |
+| Where it runs | Austin's M3 Pro MacBook: the CLI and a local web app (`python -m lift app`, port 8765), used from the Mac or iPad Safari over home Wi-Fi |
 | Launcher | **Lift** (`scripts/mac_app/build_app.sh`, PR #188): `~/Applications/Lift.app` plus a Desktop shortcut; starts the app with no Terminal window and `--quit-when-idle 30`. Log: `~/Library/Logs/Lift/lift.log` |
-| Install | `setup_mac.sh`: Homebrew Python 3.11 + ffmpeg, private venv in `~/Library/Application Support/saxscribe/python`, symlinked as `.venv`, exact versions from `requirements.lock` |
+| Install | `setup_mac.sh`: Homebrew Python 3.11 + ffmpeg, private venv in `~/Library/Application Support/Lift/python`, symlinked as `.venv`, exact versions from `requirements.lock` |
 | Optional | MuseScore (`brew install --cask musescore`) for engraved PDF; without it the PDF button opens printable pages. `[tools] musescore = "off"` skips it (PR #26) |
-| Models on disk | `~/.cache/saxscribe/models/`: the E77 note finder, MVSep Mega weights for the vocal mark |
+| Models on disk | `~/.cache/lift/models/`: the E77 note finder, MVSep Mega weights for the vocal mark |
 | Training | On the Mac (MPS), as with E77 and E83; Colab or a rented GPU only if a run needs it, weights brought back. No training run starts before the dataset is clean ([ADR-0045](../decisions/0045-clean-data-before-training.md)) |
-| Side environments | The page reader (homr) runs in its own environment, `~/saxscribe-runs/.venv-omr`. Data jobs (key making, the PDF ledger, Internet Archive fetch) are scripts in `~/saxscribe-runs/**/_tools/`, run one torch job at a time |
+| Side environments | The page reader (homr) runs in its own environment, `~/lift-runs/.venv-omr`. Data jobs (key making, the PDF ledger, Internet Archive fetch) are scripts in `~/lift-runs/**/_tools/`, run one torch job at a time |
 
 ### App pages
 
@@ -202,13 +206,13 @@ beat detection takes a file.
 | --- | --- | --- |
 | Transcribe (`/`) | Upload a take or record, follow its progress, open the take | `server.py`, `static/index.*` |
 | Take (`/take/<id>`) | The play-along: the score scrolls with the recording, review flags (ADR-0039), sax-only and band-only playback, PDF, MusicXML and MIDI | `static/play.*`, `flags.py`, `export.py` |
-| Library (`/library`) | Every answer key the PDF ledger calls matched (its PDF checked against the ledger's fingerprint first), plus finished takes, badged "Answer key" or "Made by Saxscribe" (PR #181) | `catalog.py`, `static/library.*` |
+| Library (`/library`) | Every answer key the PDF ledger calls matched (its PDF checked against the ledger's fingerprint first), plus finished takes, badged "Answer key" or "Made by Lift" (PR #181) | `catalog.py`, `static/library.*` |
 | Song page (`/library/<id>`) | The chart, its recording and the match facts (PR #182); play just the solo or the full track (PR #184) | `static/song.*` |
 | Key play-along (`/library/<id>/play`) | The take player on the engraved answer key, with flags (PR #183) | `key_take.py` |
 | Results (`/results`) | Tabs: Progress, Songs, Lab, Log, Dataset health (the PDF ledger, `score/ledger.py`, PR #177), Match pairs (past match verdicts) | `static/results*` |
-| Review (`/review`) | One question at a time from the Mac's review queues: match check, start point, or a quick listen (PR #191, [ADR-0047](../decisions/0047-review-questions-from-queue-files.md)) | `review_inbox.py` |
+| Review (`/review`) | One question at a time from the Mac's review queues: match check, start point, or a quick listen (PR #191, [ADR-0048](../decisions/0048-review-questions-from-queue-files.md)) | `review_inbox.py` |
 
-## 8. Dependencies (from `requirements.txt`)
+## 9. Dependencies (from `requirements.txt`)
 
 | Package | Role |
 | --- | --- |

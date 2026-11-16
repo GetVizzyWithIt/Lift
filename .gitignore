@@ -8,6 +8,7 @@
 *.ogg
 *.opus
 *.saxscribe/
+*.lift/
 config.local.*
 
 .venv

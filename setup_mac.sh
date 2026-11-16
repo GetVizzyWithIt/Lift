@@ -14,7 +14,11 @@ PY=$(cat .python-version)   # the one Python version this project runs on
 echo "Installing Python $PY and ffmpeg (skips anything already installed)..."
 brew install "python@$PY" ffmpeg
 
-ENV_DIR="$HOME/Library/Application Support/saxscribe/python"
+# The app's private Python environment. It was under .../saxscribe/python before the
+# rename to Lift (ADR-0047); a Mac that hasn't run scripts/rename_to_lift.sh yet keeps that one.
+ENV_DIR="$HOME/Library/Application Support/Lift/python"
+OLD_ENV_DIR="$HOME/Library/Application Support/saxscribe/python"
+if [ ! -e "$ENV_DIR" ] && [ -x "$OLD_ENV_DIR/bin/python" ]; then ENV_DIR="$OLD_ENV_DIR"; fi
 if [ ! -x "$ENV_DIR/bin/python" ]; then
   echo "Creating a private Python environment in $ENV_DIR ..."
   mkdir -p "$(dirname "$ENV_DIR")"
@@ -29,7 +33,7 @@ pip install -r requirements.lock   # exact versions, so every install matches
 
 echo
 echo "Health check:"
-if ! python -m saxscribe check; then
+if ! python -m lift check; then
   echo "Setup finished, but the health check failed (see the -- lines above)."
   exit 1
 fi
@@ -40,4 +44,4 @@ echo "Done. To start the app, double-click Lift on the Desktop."
 echo "To use the Terminal instead, run this first in each new window:"
 echo "  source .venv/bin/activate"
 echo "Then transcribe a take with:"
-echo "  python -m saxscribe transcribe ~/Music/take.wav"
+echo "  python -m lift transcribe ~/Music/take.wav"

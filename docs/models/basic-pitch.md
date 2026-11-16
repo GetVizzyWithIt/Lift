@@ -5,11 +5,11 @@
 - **Developed by**: Spotify Audio Intelligence Lab (Bittner et al., 2022).
 - **Type**: small convolutional network (under 20k parameters) on a harmonic constant-Q spectrogram; predicts onsets, active notes and fine pitch, then a rule-based step turns those into notes.
 - **Licence**: Apache 2.0.
-- **How Saxscribe calls it**: `frontend.basic_pitch_notes()` → `predict(onset_threshold=0.5, frame_threshold=0.3, minimum_note_length=50 ms, min/max frequency from the horn, melodia_trick=True)`; `infer_onsets` is on (library default). The library's default minimum note is 127.7 ms; we use 50 ms because fast runs are the point. Core ML backend on the Mac, ONNX elsewhere; one automatic retry because the first Core ML call sometimes fails while loading. Output then goes through the [note rules](note-rules.md) (one-line, split-note join).
+- **How Lift calls it**: `frontend.basic_pitch_notes()` → `predict(onset_threshold=0.5, frame_threshold=0.3, minimum_note_length=50 ms, min/max frequency from the horn, melodia_trick=True)`; `infer_onsets` is on (library default). The library's default minimum note is 127.7 ms; we use 50 ms because fast runs are the point. Core ML backend on the Mac, ONNX elsewhere; one automatic retry because the first Core ML call sometimes fails while loading. Output then goes through the [note rules](note-rules.md) (one-line, split-note join).
 - **Citation**: Bittner, Bosch, Rubinstein, Meseguer-Brocal, Ewert, "A Lightweight Instrument-Agnostic Model for Polyphonic Note Transcription and Multipitch Estimation", ICASSP 2022.
 
 ## Intended use
-- **In Saxscribe**: Layer 3 default for all use cases; also the baseline the v1 gate must beat on mixes.
+- **In Lift**: Layer 3 default for all use cases; also the baseline the v1 gate must beat on mixes.
 - **Out of scope**: articulation (no tags), sub-50 ms grace notes.
 
 ## Factors

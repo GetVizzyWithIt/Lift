@@ -16,8 +16,10 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-REPO="$(cd "$HERE/../.." && pwd)"
-PYTHON="$HOME/Library/Application Support/saxscribe/python/bin/python"
+REPO="$(cd "$HERE/../.." && pwd -P)"   # the real folder, not a link to it
+PYTHON="$HOME/Library/Application Support/Lift/python/bin/python"
+OLD_PYTHON="$HOME/Library/Application Support/saxscribe/python/bin/python"   # before the rename (ADR-0047)
+if [ ! -x "$PYTHON" ] && [ -x "$OLD_PYTHON" ]; then PYTHON="$OLD_PYTHON"; fi
 DEST_DIR="${LIFT_APP_DIR:-$HOME/Applications}"
 DEST="$DEST_DIR/Lift.app"
 
@@ -65,13 +67,13 @@ else
   PLIST="$APP/Contents/Info.plist"
   plutil -replace CFBundleName -string "Lift" "$PLIST"
   plutil -replace CFBundleDisplayName -string "Lift" "$PLIST"
-  plutil -replace CFBundleIdentifier -string "local.saxscribe.lift" "$PLIST"
+  plutil -replace CFBundleIdentifier -string "local.lift.app" "$PLIST"
   plutil -replace CFBundleShortVersionString -string "1.1" "$PLIST"
   plutil -replace CFBundleIconFile -string "applet" "$PLIST"
   plutil -remove CFBundleIconName "$PLIST" 2>/dev/null || true
   plutil -replace LSUIElement -bool YES "$PLIST"   # starts the app and exits: stays out of the Dock
   plutil -replace NSDesktopFolderUsageDescription \
-    -string "Lift runs the transcription app from the saxscribe folder on your Desktop and saves sheet music there." "$PLIST"
+    -string "Lift saves a copy of each finished transcription in the Lift Sheets folder on your Desktop." "$PLIST"
 
   echo "$FINGERPRINT" > "$RES/lift-build.sha256"
   # A local signature, so macOS can remember the permission you give Lift.

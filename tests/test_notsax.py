@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 import soundfile as sf
 
-from saxscribe.layers import notsax
+from lift.layers import notsax
 
 RATE = notsax.CQT_RATE
 

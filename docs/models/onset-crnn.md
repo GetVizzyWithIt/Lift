@@ -2,14 +2,14 @@
 
 ## Model details
 - **What it does**: marks the moment each sax note starts, including a same-pitch note tongued again, from the sound of the stem.
-- **Developed by / version / date**: Saxscribe build thread; v1 2026-11-04 (training finished 04:11 UTC); v2 2026-11-04 (finished 18:04 UTC), same network retrained with reverb, bleed and soft-attack augmentation. Experimental, not in the app.
+- **Developed by / version / date**: Lift build thread; v1 2026-11-04 (training finished 04:11 UTC); v2 2026-11-04 (finished 18:04 UTC), same network retrained with reverb, bleed and soft-attack augmentation. Experimental, not in the app.
 - **Type**: small convolutional-recurrent network (CRNN), about 0.15M weights. Input is a log-mel spectrogram (128 bands, 30 Hz–8 kHz, 22.05 kHz audio, 10 ms hop) plus its positive frame-to-frame difference. Three conv blocks (two 3×3 convolutions with batch norm and ReLU, frequency max-pool 4), a two-layer bidirectional GRU (64 units), and a per-frame sigmoid.
 - **Source and licence**: our code (training script copy at `/mnt/project-files/scripts/train_onset.py`). Weights derive from GRFIA-RealSax (CC BY-NC-SA 4.0) and the Omnibook (CC BY 4.0), so they are for personal, non-commercial use only.
-- **How Saxscribe calls it**: not wired in yet. Checkpoint `~/saxscribe-runs/exp/2026-11-04-onset-model/onset_crnn.pt` on the Mac; v1 frame threshold 0.7, at most one onset per 30 ms. v2 files in `~/saxscribe-runs/exp/2026-11-04-onset-model-v2/`, threshold 0.5. Next: split-only integration scored against #74. Plan: [onset model plan](https://claude.ai/artifact/FU1G7EehsP3qVnragnApGx).
+- **How Lift calls it**: not wired in yet. Checkpoint `~/lift-runs/exp/2026-11-04-onset-model/onset_crnn.pt` on the Mac; v1 frame threshold 0.7, at most one onset per 30 ms. v2 files in `~/lift-runs/exp/2026-11-04-onset-model-v2/`, threshold 0.5. Next: split-only integration scored against #74. Plan: [onset model plan](https://claude.ai/artifact/FU1G7EehsP3qVnragnApGx).
 - **Citation**: none (in-house).
 
 ## Intended use
-- **In Saxscribe**: Layer 3 (notes), to split notes Basic Pitch merges, chiefly soft re-tongued repeats with little loudness dip (the onset recall still lost since #52, [log E29](../evaluation/log.md), [E31](../evaluation/log.md)). U1 own takes first.
+- **In Lift**: Layer 3 (notes), to split notes Basic Pitch merges, chiefly soft re-tongued repeats with little loudness dip (the onset recall still lost since #52, [log E29](../evaluation/log.md), [E31](../evaluation/log.md)). U1 own takes first.
 - **Out of scope**: full-band mixes (trained on solo sax only); deciding pitch; deleting notes. It may only add note starts, never remove notes ([ADR-0016](../decisions/0016-notation-never-drops-notes.md)).
 
 ## Factors

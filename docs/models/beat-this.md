@@ -5,11 +5,11 @@
 - **Developed by**: Foscarin, Schlüter, Widmer (JKU Linz), 2024.
 - **Type**: transformer over a spectrogram, predicting beat and downbeat frames directly, without the dynamic Bayesian network (DBN) clean-up older trackers needed.
 - **Licence**: MIT for code and weights ([upstream review](upstream-review.md)).
-- **How Saxscribe calls it**: `frontend.detect_beats()` → `File2Beats(checkpoint_path="final0", dbn=False)` on the full `source.wav`; CPU retry on GPU failure. Falls back to librosa's beat tracker (and a 4/4 low-end-energy guess for downbeats) if fewer than 8 beats are found or the model can't load.
+- **How Lift calls it**: `frontend.detect_beats()` → `File2Beats(checkpoint_path="final0", dbn=False)` on the full `source.wav`; CPU retry on GPU failure. Falls back to librosa's beat tracker (and a 4/4 low-end-energy guess for downbeats) if fewer than 8 beats are found or the model can't load.
 - **Citation**: Foscarin, Schlüter, Widmer, "Beat this! Accurate beat tracking without DBN postprocessing", ISMIR 2024.
 
 ## Intended use
-- **In Saxscribe**: Layer 3 beats and downbeats; Layer 4 uses them as the grid for quantizing and bar lines.
+- **In Lift**: Layer 3 beats and downbeats; Layer 4 uses them as the grid for quantizing and bar lines.
 - **Out of scope**: solo sax with no rhythm section is a weak case (few percussive cues); expect drift.
 
 ## Factors

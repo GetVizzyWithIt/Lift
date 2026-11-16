@@ -1,4 +1,4 @@
-"""The dataset fetcher (saxscribe/datasets.py), on local files only."""
+"""The dataset fetcher (lift/datasets.py), on local files only."""
 from __future__ import annotations
 
 import hashlib
@@ -7,7 +7,7 @@ import zipfile
 
 import pytest
 
-from saxscribe import datasets
+from lift import datasets
 
 
 def make_manifest(tmp_path, md5=None):

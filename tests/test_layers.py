@@ -16,8 +16,8 @@ import mido
 import numpy as np
 import soundfile as sf
 
-from saxscribe.layers import contour, notes
-from saxscribe.pipeline import transcribe
+from lift.layers import contour, notes
+from lift.pipeline import transcribe
 
 from . import fixture
 
@@ -162,7 +162,7 @@ def test_rerun_skips_layers_and_redo_keeps_lower_ones(fixture_wav, tmp_path):
 def test_cli_runs_end_to_end(fixture_wav, tmp_path):
     out = tmp_path / "cli"
     env = {**os.environ, "PYTHONPATH": os.getcwd()}
-    result = subprocess.run([sys.executable, "-m", "saxscribe", "transcribe", str(fixture_wav),
+    result = subprocess.run([sys.executable, "-m", "lift", "transcribe", str(fixture_wav),
                              "-o", str(out), "--contour-tool", "pyin", "--notes-tool", "contour"],
                             capture_output=True, text=True, env=env)
     assert result.returncode == 0, result.stderr
@@ -183,7 +183,7 @@ def test_notes_tagged_not_sax_stay_in_notes_json_but_leave_the_score(fixture_wav
 
 
 def test_note_spacing_is_the_median_gap_between_starts():
-    from saxscribe import frontend
+    from lift import frontend
     assert frontend.note_spacing([0, 0.25, 0.5, 0.75, 1.0, 1.005, 1.5]) == 0.25
     assert frontend.note_spacing([0, 1.0]) == 0.0      # too few notes to say
 
@@ -194,7 +194,7 @@ def test_basic_pitch_shortest_note_follows_the_take(monkeypatch, tmp_path):
     import sys
     import types
 
-    from saxscribe import frontend
+    from lift import frontend
     reads = []
     runs = []
     starts = [i * 0.3 for i in range(10)]          # notes 300 ms apart -> shortest 120 ms
@@ -229,7 +229,7 @@ def test_basic_pitch_shortest_note_follows_the_take(monkeypatch, tmp_path):
 def test_short_notes_come_back_when_the_recording_confirms_them():
     """A fast real note (own attack, a new pitch) dropped by the longer
     shortest-note read is put back; a split note or a ghost is not."""
-    from saxscribe import frontend
+    from lift import frontend
     kept = [{"onset": 1.0, "offset": 1.2, "pitch": 60}, {"onset": 1.3, "offset": 1.5, "pitch": 64}]
     short = kept + [
         {"onset": 1.22, "offset": 1.27, "pitch": 62},   # passing note, own attack: back
@@ -241,7 +241,7 @@ def test_short_notes_come_back_when_the_recording_confirms_them():
 
 
 def test_a_retongued_note_after_a_dip_comes_back_even_on_the_same_pitch():
-    from saxscribe import frontend
+    from lift import frontend
     db = np.full(300, -20.0)
     db[95:100] = -40.0                        # the player stops the reed just before 1.00 s
     kept = [{"onset": 0.5, "offset": 0.95, "pitch": 60}, {"onset": 2.0, "offset": 2.5, "pitch": 62}]
@@ -253,7 +253,7 @@ def test_a_retongued_note_after_a_dip_comes_back_even_on_the_same_pitch():
 
 def test_demucs_runs_two_shifts(tmp_path, monkeypatch):
     """Demucs averages two shifted passes (log E30: the one separator change that found more notes everywhere)."""
-    from saxscribe import frontend
+    from lift import frontend
     seen = {}
 
     def fake_run(cmd, check=False):

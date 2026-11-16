@@ -1,4 +1,4 @@
-# Sax Transcription Tool (saxscribe)
+# Lift (formerly Saxscribe): sax transcription tool
 
 ## What this project is
 A tool that transcribes saxophone performances to notes and readable
@@ -10,7 +10,7 @@ it is not attached. Alto first; check transfer to tenor once alto works.
 
 ## How to work
 - Build in small, runnable steps. Every pull request leaves the CLI working:
-  `python -m saxscribe transcribe file.wav` runs end to end.
+  `python -m lift transcribe file.wav` runs end to end.
 - Measure before and after any model change. Report onset F1, note F1 and
   pitch accuracy with mir_eval on the fixed test set. A change with no
   scorecard is not done.
@@ -22,7 +22,7 @@ it is not attached. Alto first; check transfer to tenor once alto works.
 - Fidelity over playability. This tool is the opposite of the Songs in the Key
   of Life chart model: it must not learn to omit notes. If a shortcut from the
   game would do that, say so and don't take it.
-- Separate from the game. `saxscribe/frontend.py` is a private copy of the
+- Separate from the game. `lift/frontend.py` is a private copy of the
   game analyzer's front end. Never import from the game repo, and never bring
   over anything from its chart model.
 - Explain choices in plain language. Austin is a strong analyst and a
@@ -74,7 +74,7 @@ one question at a time. Prefer a working rough cut to a plan.
 - Current priority: a clean dataset before any more training (Austin, 2026-11-14:
   "bad data in, bad data out"). Every PDF chart is matched confidently to its
   recording or excluded. The PDF ledger tracks it (Mac
-  `~/saxscribe-runs/catalog/_tools/pdf_ledger.py`; snapshot in docs/data/ledger/),
+  `~/lift-runs/catalog/_tools/pdf_ledger.py`; snapshot in docs/data/ledger/),
   and the Results page's Dataset health tab shows it. E84 (held-out player swap,
   pre-registered) is on hold until then; no training run starts before the data
   is clean (ADR-0045).
@@ -86,19 +86,19 @@ one question at a time. Prefer a working rough cut to a plan.
   hide -> held notes follow the pitch line -> sax-playing check -> bar lines ->
   swing. In the app, band records run setup D: the Filosax separator, our E77
   fine-tuned note finder (ADR-0041), and the vocal review mark from MVSep Mega's
-  vocal stem (E82, ADR-0043; needs the Mega weights in ~/.cache/saxscribe/models).
+  vocal stem (E82, ADR-0043; needs the Mega weights in ~/.cache/lift/models).
   CLI equivalent: `--separator filosax --notes-tool filosax`. No model picker in
   the main UI. E83 (a second fine-tune) didn't beat E77.
 - App pages: Library (`/library`: matched answer keys and finished takes, song
   pages, play-along on the engraved answer key, solo-only playback; PRs
   #181-#184), Results (`/results`: Progress, Songs, Lab, Log, Dataset health,
   Match pairs), Review (`/review`: one question at a time from the Mac's
-  review queues, ADR-0047), and the play-along with review flags (flags.json, ADR-0039).
+  review queues, ADR-0048), and the play-along with review flags (flags.json, ADR-0039).
   Library step 4 (Library as the home screen) waits on Austin's go.
 - Audio for answer keys comes in this order: Internet Archive (Mac
   `catalog/_tools/archive_fetch.py`, then `archive_check.py`), then Austin's
   library CDs, then spotDL as a last resort that Austin runs himself (ADR-0046). The page
-  reader (homr) runs in its own environment, `~/saxscribe-runs/.venv-omr`.
+  reader (homr) runs in its own environment, `~/lift-runs/.venv-omr`.
 - Mac jobs: don't run two torch key jobs at once (the Mac crashed on
   2026-11-15 with two running); chain them in one caffeinate.
 - Pipeline development is step by step: no change to the transcription

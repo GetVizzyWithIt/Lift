@@ -5,6 +5,8 @@ The same runs, machine-readable, are in [results.jsonl](results.jsonl) (one line
 Machine is Austin's M3 Pro MacBook unless noted. "Default" = torchcrepe full
 for the contour, Basic Pitch for notes, Beat This! for beats.
 
+On 2026-11-16 Saxscribe was renamed Lift ([ADR-0047](../decisions/0047-rename-saxscribe-to-lift.md)). Entries before that date keep the old names (`python -m saxscribe`, ~/saxscribe-runs); those commands and paths still work.
+
 ## Change by change: what each model or pipeline change did
 
 One row per change, newest first, with the main number before and after.

@@ -6,8 +6,8 @@ import json
 import numpy as np
 import pytest
 
-from saxscribe.horns import HORNS, hz
-from saxscribe.layers import ranges
+from lift.horns import HORNS, hz
+from lift.layers import ranges
 
 RATE = ranges.RATE
 
@@ -138,7 +138,7 @@ def test_the_fixture_passes_the_range_rules_untouched(take):
 
 @pytest.mark.parametrize("mode", ranges.MODES)
 def test_cli_takes_every_range_mode(fixture_wav, tmp_path, mode):
-    from saxscribe.__main__ import main
+    from lift.__main__ import main
     out = tmp_path / mode
     assert main(["transcribe", str(fixture_wav), "-o", str(out), "--range-rules", mode,
                  "--notes-tool", "contour", "--contour-tool", "pyin"]) == 0
@@ -147,6 +147,6 @@ def test_cli_takes_every_range_mode(fixture_wav, tmp_path, mode):
 
 def test_crepe_never_searches_near_its_top_bins():
     # A band reaching CREPE's top bins made it lock there with confidence 0 (Omnibook, 2026-11-04).
-    from saxscribe.horns import CREPE_MAX_HZ
+    from lift.horns import CREPE_MAX_HZ
     assert CREPE_MAX_HZ <= 1600
     assert hz(HORNS["tenor"].altissimo) <= CREPE_MAX_HZ  # tenor altissimo still on the pitch line

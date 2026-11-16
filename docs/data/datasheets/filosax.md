@@ -12,7 +12,7 @@ names it the primary train and test set for solo-recording transcription.
 
 ## Uses
 - **Role**: v1 gate 1 (solo targets on its test split); training for a note/onset head; like-for-like check against CREPE Notes' published 82.3 note F-measure.
-- Loader ready: `python -m saxscribe score filosax --split test` (via mirdata).
+- Loader ready: `python -m lift score filosax --split test` (via mirdata).
 - Check its terms before training on it.
 
 ## Distribution

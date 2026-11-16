@@ -67,7 +67,7 @@ Plain-language meanings of terms used in the code and these docs.
 | Term | Meaning |
 | --- | --- |
 | Layer | One of isolate, contour, notes, notation; each its own file(s) |
-| Take folder | `<file>.saxscribe/`, holding every layer for one recording |
+| Take folder | `<file>.lift/`, holding every layer for one recording |
 | Notes tool | Which method makes Layer 3: `basic_pitch` (default), `basic_pitch_join`, `segment`, `contour`; `basic_pitch_raw` is an alias of the default |
 | Horn / instrument profile | Pitch range plus transposition (alto, tenor, baritone) |
 | Fixture | The synthetic 10-second alto phrase the tests run on |
@@ -82,13 +82,15 @@ Plain-language meanings of terms used in the code and these docs.
 | Match check | The check that an answer key fits its recording (`match_check.py`, or Austin's verdict on the app's Review page). Every chart/audio pair must pass it before training or scoring ([ADR-0042](decisions/0042-match-check-and-benchmark-rule.md)) |
 | Benchmark | The songs the Results page tracks progress on: key passed the match check or Austin marked it good, not marked wrong, and no model trained on it ([ADR-0042](decisions/0042-match-check-and-benchmark-rule.md)) |
 | Match review verdict | Austin's call on a key in the app: good, wrong, unsure or none, with a note; stored on the Mac in `keys/match_review.jsonl` |
-| Review hub | The older Mac page for listening queues (`~/saxscribe-runs/review/server.py`, port 8770), replaced in the app by the Review page; same queue and answer files; "same recording?" verdicts also go to `keys/match_review.jsonl` |
+| Review hub | The older Mac page for listening queues (`~/lift-runs/review/server.py`, port 8770), replaced in the app by the Review page; same queue and answer files; "same recording?" verdicts also go to `keys/match_review.jsonl` |
 | PDF ledger | One row per PDF chart, each with one status on the way to a confident match with its recording: matched, check, wrong audio, needs audio, unreadable, not started, unsorted or excluded (`pdf_ledger.py` on the Mac; [data/ledger/](data/ledger/README.md), [ADR-0045](decisions/0045-clean-data-before-training.md)) |
 | Dataset health | The Results page tab that shows the PDF ledger: counts by status, by source and horn, the main reasons, and progress over runs (PR #177) |
-| Library | The app page (`/library`) listing every answer key the ledger calls matched, plus finished takes. Badges: "Answer key" (a matched chart) and "Made by Saxscribe" (a take the app transcribed) (PRs #181–#184) |
+| Library | The app page (`/library`) listing every answer key the ledger calls matched, plus finished takes. Badges: "Answer key" (a matched chart) and "Made by Lift" (a take the app transcribed) (PRs #181–#184) |
 | Song page | A Library song's page: the chart, its recording and the match facts, with a play-along on the engraved answer key (PRs #182, #183) |
 | Solo clip | On a song page, playback of just the solo span of the recording, with a switch to the full track (PR #184) |
 | Re-score | Lining a chart up again with its recording on the Filosax sax stem instead of the full mix, to rescue charts that scored 0% or were set aside (log P11) |
 | Great 78 Project | The Internet Archive's collection of 78 rpm record transfers; the first place we look for older recordings ([ADR-0046](decisions/0046-audio-sourcing-order.md)) |
-| Lift | The double-click Mac launcher for the app (`scripts/mac_app/`, builds `~/Applications/Lift.app` and a Desktop shortcut). It starts the app in the background with `--quit-when-idle 30`, so the app quits after 30 idle minutes, never during a take (PR #188). Austin's likely new name for the tool, with the record-and-tone-arm logo; renaming the app itself is undecided |
-| Review page | The app page (`/review`, PR #191) that asks Austin one question at a time, only what automatic checks couldn't settle: is this chart this recording, where does the chart start, or one quick listen. Questions come from queue files the Mac scripts write ([ADR-0047](decisions/0047-review-questions-from-queue-files.md)) |
+| Lift | The tool's name since 2026-11-16 (formerly Saxscribe; ADR-0047): the package `lift/`, the command `python -m lift`, and the Mac folders ~/lift-runs, ~/lift-library, and ~/dev/lift. Also the double-click Mac launcher (`scripts/mac_app/`, builds `~/Applications/Lift.app` and a Desktop shortcut), which starts the app in the background with `--quit-when-idle 30`, so the app quits after 30 idle minutes, never during a take (PR #188) |
+| Saxscribe | Lift's former name. Old commands (`python -m saxscribe`), imports, settings (`SAXSCRIBE_*`), and folders (~/saxscribe-runs and the rest, now links) still work (ADR-0047) |
+| Lift Sheets | ~/Desktop/Lift Sheets: where the app copies each finished transcription (was ~/Desktop/Saxscribe) |
+| Review page | The app page (`/review`, PR #191) that asks Austin one question at a time, only what automatic checks couldn't settle: is this chart this recording, where does the chart start, or one quick listen. Questions come from queue files the Mac scripts write ([ADR-0048](decisions/0048-review-questions-from-queue-files.md)) |

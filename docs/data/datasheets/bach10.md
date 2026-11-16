@@ -31,6 +31,6 @@ yet checked*. Folder `Bach10/Bach10_v1.1`.
 ## Maintenance
 Checksums in the manifest.
 
-## Saxscribe results
+## Lift results
 2026-11-02: solo pitch 96.9%, onset F1 92.2%, note F1 87.5% (first set past the
 onset and note targets); mix note F1 3.9%. See the [log](../../evaluation/log.md).

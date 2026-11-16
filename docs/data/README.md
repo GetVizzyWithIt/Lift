@@ -1,6 +1,6 @@
 # Data
 
-Every dataset Saxscribe uses or plans to use, what its labels are worth, and
+Every dataset Lift uses or plans to use, what its labels are worth, and
 the rules for using it. Detail per dataset is in [datasheets/](datasheets/).
 Last updated 2026-11-15.
 
@@ -10,7 +10,7 @@ Last updated 2026-11-15.
 - On Austin's Mac in `~/mir_datasets/<Folder>/` (about 125 GB), downloaded
   archives in `<Folder>/_zips/`, unpacked beside them.
 - `datasets/manifest.json` (in the repo) lists every source, licence, access
-  type and md5. `python -m saxscribe fetch` rebuilds the folder on any machine
+  type and md5. `python -m lift fetch` rebuilds the folder on any machine
   ([ADR-0011](../decisions/0011-dataset-manifest-and-fetch.md)).
 - Other paths go in `config.local.toml` (ignored by git).
 - When a GPU is needed: a slim private sax pack on private Hugging Face or
@@ -43,7 +43,7 @@ Last updated 2026-11-15.
 | GRFIA audio-to-score | 1,026 short alto and tenor takes (~3 h), written score per take, technique tags | B (machine-aligned, not spot-checked); C (techniques) | `grfia-alto`, `grfia-tenor` | Notation and rhythm answer key; technique tags; tenor | Non-commercial | [grfia-audio-to-score](datasheets/grfia-audio-to-score.md) |
 | Alto etude keys (Ferling Op. 31, Luft Op. 1 No. 2) | 52 alto takes of written studies, keys read from public-domain scores | B (score-reader keys, machine-aligned; 92% agree with heard pitch) | `etudes-alto` | Written-music test on real alto; held-note and vibrato checks | Scores public domain; recordings *to verify* | [etude-keys](datasheets/etude-keys.md) |
 | Austin's recordings and answer keys | Etude takes; records paired with his paper transcriptions | A (once aligned and checked) | `pairs` | Frozen 20-take test set; fine-tuning; personal answer keys | Private | [austin-recordings](datasheets/austin-recordings.md) |
-| Freesound sax instrument samples | 495 single-note and phrase clips by sax type (originals, all downloaded 2026-11-09) | C | none | Range and technique checks, not-sax negatives later | CC0 and CC-BY (9 CC-BY-NC alto-with-band clips kept apart) | Mac `~/saxscribe-runs/sample-clips/`; manifest and credits in the project files (`datasets/freesound/`) |
+| Freesound sax instrument samples | 495 single-note and phrase clips by sax type (originals, all downloaded 2026-11-09) | C | none | Range and technique checks, not-sax negatives later | CC0 and CC-BY (9 CC-BY-NC alto-with-band clips kept apart) | Mac `~/lift-runs/sample-clips/`; manifest and credits in the project files (`datasets/freesound/`) |
 | FiloBass | Jazz bass, no sax | — | none | Future bass instrument | CC BY 4.0 | listed in manifest only |
 
 ## Chart sources for answer keys
@@ -86,7 +86,7 @@ below.
 
 Austin's goal (2026-11-14): every PDF transcription is matched confidently to
 its recording, or excluded ([ADR-0045](../decisions/0045-clean-data-before-training.md)).
-The ledger (`~/saxscribe-runs/catalog/_tools/pdf_ledger.py` on the Mac) gives
+The ledger (`~/lift-runs/catalog/_tools/pdf_ledger.py` on the Mac) gives
 every PDF one status: matched, check, wrong audio, needs audio, unreadable,
 not started, unsorted or excluded. Meanings, columns and the snapshot are in
 [ledger/](ledger/README.md); the Results page's Dataset health tab shows it,
@@ -113,9 +113,9 @@ When a chart has no recording, or the wrong one, audio is found in this order
 
 1. **Internet Archive** (the Great 78 Project and other 78 rpm transfers).
    `catalog/_tools/archive_fetch.py` searches and downloads to
-   `~/Desktop/Saxscribe_Recent_Downloads/archive_org/`; clear mismatches go to
+   `~/Desktop/Lift_Recent_Downloads/archive_org/`; clear mismatches go to
    `_likely_wrong/`. `catalog/_tools/archive_check.py` lines each download up
-   with its chart (the page reader runs from `~/saxscribe-runs/.venv-omr`).
+   with its chart (the page reader runs from `~/lift-runs/.venv-omr`).
    First passes: 202 charts searched, 47 files downloaded, 6 set aside as
    clearly wrong; of 41 checked, 3 need a check, 18 were set aside (wrong take
    or mislabelled), 20 read after the page-reader environment was installed.
@@ -123,7 +123,7 @@ When a chart has no recording, or the wrong one, audio is found in this order
 3. **spotDL**, a last resort that Austin runs himself on the short list left
    over. Threads build no tooling for it.
 
-Austin drops new audio in `~/Desktop/Saxscribe_Recent_Downloads`. The list of
+Austin drops new audio in `~/Desktop/Lift_Recent_Downloads`. The list of
 recordings still to find is in the project files
 (`datasets/recordings-search/recordings_to_find_2026-11-15.md`).
 

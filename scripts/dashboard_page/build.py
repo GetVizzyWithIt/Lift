@@ -1,7 +1,7 @@
 """Build the model dashboard as one static web page, for the handbook.
 
     python3 scripts/dashboard_page/build.py        # writes build/dashboard.html
-    python3 scripts/dashboard_page/build.py --runs ~/saxscribe-runs --open   # on the Mac
+    python3 scripts/dashboard_page/build.py --runs ~/lift-runs --open   # on the Mac
 
 It is the app's Results page (/results) with its CSS and scripts inlined and
 the data the app would serve from /api/results baked in. By default only the
@@ -27,12 +27,12 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-STATIC = ROOT / "saxscribe" / "app" / "static"
+STATIC = ROOT / "lift" / "app" / "static"
 sys.path.insert(0, str(ROOT))
 
 SHIM = """<script>
 // Static copy: answer the page's API calls from the baked-in data.
-window.__SAXSCRIBE_STATIC__ = true;
+window.__LIFT_STATIC__ = true;
 (function () {
   const DATA = %s;
   const realFetch = window.fetch;
@@ -55,7 +55,7 @@ NOTE = ('<p class="quiet small" style="margin:0;padding:8px 16px"><b>Data as of 
 
 
 def data(runs: str | Path | None = None) -> dict:
-    from saxscribe.score import history
+    from lift.score import history
     # an empty runs folder means repo records only
     return history.dashboard_data(Path(runs).expanduser() if runs else tempfile.mkdtemp())
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     import argparse
     import webbrowser
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--runs", help="also merge this folder's results.jsonl and experiments.jsonl (the Mac's ~/saxscribe-runs)")
+    ap.add_argument("--runs", help="also merge this folder's results.jsonl and experiments.jsonl (the Mac's ~/lift-runs)")
     ap.add_argument("--out", type=Path, help="where to write the page (default build/dashboard.html)")
     ap.add_argument("--open", action="store_true", help="open the page in the browser when done")
     a = ap.parse_args()

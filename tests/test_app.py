@@ -9,8 +9,8 @@ pytest.importorskip("httpx")
 
 from fastapi.testclient import TestClient  # noqa: E402
 
-from saxscribe.app.library import Library  # noqa: E402
-from saxscribe.app.server import create_app  # noqa: E402
+from lift.app.library import Library  # noqa: E402
+from lift.app.server import create_app  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -103,10 +103,10 @@ def test_pages(client):
 
 
 def test_job_keeps_a_log_for_the_page(client):
-    from saxscribe.app.library import last_lines
+    from lift.app.library import last_lines
     log = client.library.folder(client.take_id) / "log.txt"
     assert "Layer 4/4" in log.read_text()
-    assert last_lines(log, 1) and last_lines(log, 1)[0].startswith("[saxscribe]")
+    assert last_lines(log, 1) and last_lines(log, 1)[0].startswith("[lift]")
 
 
 def test_stop_and_remove(tmp_path, fixture_wav):
@@ -145,7 +145,7 @@ def test_a_take_cut_off_by_a_restart_waits_for_run_again(tmp_path, fixture_wav):
 
 def test_pdf_falls_back_to_a_print_page(client):
     """Without MuseScore's PDF, the PDF link opens a printable page of the same score."""
-    from saxscribe.app import score_view
+    from lift.app import score_view
     take = client.library.take(client.take_id)
     r = client.get(f"/take/{client.take_id}/pdf", params={"view": "tenor"}, follow_redirects=False)
     if score_view.pdf(take, "tenor") is None:
@@ -178,13 +178,13 @@ def test_sheet_music_carries_title_artist_and_credit(tmp_path, fixture_wav):
         assert "Blues for Testing - Test Player" in unquote(xml.headers["content-disposition"])
         text = xml.text
         assert "<work-title>Blues for Testing</work-title>" in text
-        assert "As played by Test Player" in text and "Transcribed with Saxscribe" in text
+        assert "As played by Test Player" in text and "Transcribed with Lift" in text
     page = c.get(f"/api/takes/{job['id']}/pages").json()["pages"][0]
-    assert "Blues for Testing" in page and "Test Player" in page and "Saxscribe" in page
+    assert "Blues for Testing" in page and "Test Player" in page and "Lift" in page
 
 
 def test_stamp_keeps_every_note():
-    from saxscribe.app.meta import stamp
+    from lift.app.meta import stamp
     xml = ('<score-partwise><work><work-title>Transcription</work-title></work>'
            '<identification><creator type="composer">saxscribe</creator></identification>'
            '<part-list/><part><note/><note/></part></score-partwise>')
@@ -196,7 +196,7 @@ def test_stamp_keeps_every_note():
 def test_musescore_files_have_no_printed_credits():
     """MuseScore 4 piles position-less <credit>s at the page foot, so the files carry header
     fields only (MuseScore builds its title block from them); credits are for Verovio's page."""
-    from saxscribe.app.meta import stamp
+    from lift.app.meta import stamp
     xml = ('<score-partwise><work><work-title>T</work-title></work><identification>'
            '<rights>old</rights></identification><credit page="1"><credit-words>old</credit-words>'
            '</credit><part-list/></score-partwise>')
@@ -210,7 +210,7 @@ def test_a_finished_upload_is_copied_to_the_desktop_folder(client):
     import os
     from pathlib import Path
     job = client.get(f"/api/takes/{client.take_id}").json()
-    dst = Path(os.environ["SAXSCRIBE_DESKTOP"]) / "Fixture phrase"
+    dst = Path(os.environ["LIFT_DESKTOP"]) / "Fixture phrase"
     assert job.get("desktop") == str(dst)
     names = sorted(p.name for p in dst.iterdir())
     assert "Fixture phrase (alto).musicxml" in names and "Fixture phrase (concert).musicxml" in names
@@ -219,8 +219,8 @@ def test_a_finished_upload_is_copied_to_the_desktop_folder(client):
 
 
 def test_the_desktop_copy_can_be_turned_off(monkeypatch):
-    from saxscribe.app import export
-    monkeypatch.setenv("SAXSCRIBE_DESKTOP", "off")
+    from lift.app import export
+    monkeypatch.setenv("LIFT_DESKTOP", "off")
     assert export.folder_setting() is None
 
 
@@ -264,7 +264,7 @@ def test_flag_a_bar_for_review(client):
     # The Desktop copy (a temp folder in tests) gets the file and the summary.
     import os
     from pathlib import Path
-    DESKTOP = os.environ["SAXSCRIBE_DESKTOP"]
+    DESKTOP = os.environ["LIFT_DESKTOP"]
     assert list(Path(DESKTOP).glob("Fixture phrase/* flags.json"))
     assert list(Path(DESKTOP).glob("Fixture phrase/* flags.txt"))
 
@@ -413,7 +413,7 @@ def test_flags_json_survives_saves_at_the_same_moment(client):
     """The page can save a flag and the bars heard at once; flags.json must stay whole."""
     import json
     import threading
-    from saxscribe.app import flags as store
+    from lift.app import flags as store
     take = client.library.take(client.take_id)
     folder = client.library.folder(client.take_id)
     job = client.library.job(client.take_id)

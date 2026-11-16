@@ -1,11 +1,11 @@
-"""The CREPE Notes style note cutter (saxscribe/layers/segment.py)."""
+"""The CREPE Notes style note cutter (lift/layers/segment.py)."""
 from __future__ import annotations
 
 import numpy as np
 
-from saxscribe.layers import notes, segment
-from saxscribe.pipeline import transcribe
-from saxscribe.score import metrics
+from lift.layers import notes, segment
+from lift.pipeline import transcribe
+from lift.score import metrics
 
 from . import fixture
 
