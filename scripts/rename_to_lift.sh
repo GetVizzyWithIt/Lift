@@ -28,8 +28,9 @@ MOVES=(
   "$H/Library/Application Support/saxscribe|$H/Library/Application Support/Lift"
   "$H/Desktop/saxscribe|$H/dev/lift"
   "$H/Desktop/Saxscribe_Recent_Downloads|$H/Desktop/Lift_Recent_Downloads"
-  "$H/lift-runs/catalog/saxscribe_catalog.db|$H/lift-runs/catalog/lift_catalog.db"
 )
+# The catalog keeps its file name, saxscribe_catalog.db: a database reached under two
+# file names can end up with two journals, and a crash could then lose changes.
 NEW_CODE="$H/dev/lift"
 NEW_PY="$H/Library/Application Support/Lift/python/bin/python"
 OLD_PY="$H/Library/Application Support/saxscribe/python/bin/python"
@@ -258,12 +259,12 @@ check_all() {
       bad "~/saxscribe-runs/$sub doesn't show the same files as ~/lift-runs/$sub"
     fi
   done
-  if [ -e "$H/lift-runs/catalog/lift_catalog.db" ]; then
+  if [ -e "$H/lift-runs/catalog/saxscribe_catalog.db" ]; then
     if "$py" -c "import sqlite3,sys; [sqlite3.connect('file:'+p+'?mode=ro', uri=True).execute('select count(*) from sqlite_master').fetchone() for p in sys.argv[1:]]" \
-         "$H/saxscribe-runs/catalog/saxscribe_catalog.db" "$H/lift-runs/catalog/lift_catalog.db" 2>>"$LOG"; then
-      ok "the catalog opens under its old and new names"
+         "$H/saxscribe-runs/catalog/saxscribe_catalog.db" "$H/lift-runs/catalog/saxscribe_catalog.db" 2>>"$LOG"; then
+      ok "the catalog opens through ~/saxscribe-runs and ~/lift-runs"
     else
-      bad "the catalog doesn't open under both its old and new names"
+      bad "the catalog doesn't open through both ~/saxscribe-runs and ~/lift-runs"
     fi
   fi
 
@@ -330,7 +331,7 @@ if [ "$MODE" = "dry" ]; then
     old="${pair%%|*}"; new="${pair##*|}"
     if [ -L "$old" ]; then log "   done  $old already links to $(readlink "$old")"
     elif [ -e "$new" ]; then log "   STOP  $new already exists; --apply will stop here"
-    elif [ -e "$old" ] || [ "$old" = "$H/lift-runs/catalog/saxscribe_catalog.db" ]; then log "   move  $old  ->  $new"
+    elif [ -e "$old" ]; then log "   move  $old  ->  $new"
     else log "   skip  $old (not on this Mac)"; fi
   done
   log "   then: point the code's .venv at the new Python folder, rebuild Lift.app, run every check"
