@@ -223,7 +223,9 @@ button.danger { color: var(--bad); margin-left: auto; }
 .grp[open] summary::before { content: "▾"; }
 .songs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 6px; }
 .song { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: flex;
-  flex-direction: column; gap: 3px; min-width: 0; color: var(--ink); text-decoration: none; }
+  align-items: center; gap: 12px; min-width: 0; color: var(--ink); text-decoration: none; }
+.song .art { flex: none; width: 64px; height: 64px; border-radius: 8px; object-fit: cover; background: var(--record); }
+.song .body { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
 .song.link:hover, .song.link:focus-visible { border-color: var(--accent); }
 .song .t { font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
 .song .chips, .songlist .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }

@@ -19,6 +19,7 @@ API (JSON unless noted):
   GET  /api/library/<id>          one song's fields, match facts, page count, and which files it has
   GET  /api/library/<id>/page/<n> page n of the chart PDF as a PNG (drawn once, then cached)
   GET  /api/library/<id>/pdf      the chart PDF itself
+  GET  /api/library/<id>/cover    the record's cover, once `python -m lift covers` found one (else 404)
   GET  /api/library/<id>/audio/<which>  record or stem (sax only), only the files the match used
   GET  /api/library/<id>/key      the answer key's notes, for playing it along as soft tones
   GET  /api/library/<id>/job      the play-along's view of the song (title, horn, sax-only stem or not)
@@ -172,6 +173,14 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
             return FileResponse(pdf_pages.png(f["pdf"], catalog.sha256(f["pdf"]), n), media_type="image/png")
         except IndexError:
             raise HTTPException(404, "No such page")
+
+    @app.get("/api/library/{song_id}/cover")
+    def song_cover(song_id: str):
+        from . import covers
+        p = covers.cached(song_id) if re.fullmatch(r"[\w.\-]+", song_id) else None
+        if p is None:
+            raise HTTPException(404, "No cover for this song yet.")
+        return FileResponse(p, headers={"Cache-Control": "max-age=86400"})
 
     @app.get("/api/library/{song_id}/pdf")
     def song_pdf(song_id: str):

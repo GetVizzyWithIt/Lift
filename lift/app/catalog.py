@@ -21,6 +21,7 @@ from pathlib import Path
 
 from .. import paths
 from ..score import ledger, review
+from . import covers
 
 TAGS = Path(__file__).resolve().parents[2] / "docs" / "evaluation" / "benchmark_tags.json"
 HORNS = {"as": "alto", "alto": "alto", "ts": "tenor", "tenor": "tenor", "ss": "soprano", "soprano": "soprano",
@@ -224,11 +225,13 @@ def load(runs: str | Path | None = None, takes: list[dict] | None = None) -> dic
     tags = benchmark_tags()
     report = {e["id"]: e for e in review.load(runs)["entries"]}
     etudes = etude_links(runs)
+    with_cover = covers.have()
     songs = []
     for row in ok:
         item = key_item(row, tags, report)
         f = files(runs, row, report.get(row.get("chart_id")), etudes)
-        item.update(href=f"/library/{item['id']}", has_audio=f["audio"] is not None)
+        item.update(href=f"/library/{item['id']}", has_audio=f["audio"] is not None,
+                    cover=f"/api/library/{item['id']}/cover" if item["id"] in with_cover else None)
         songs.append(item)
     done = [take_item(j) for j in (takes or []) if j.get("state") == "done"]
     charts = (about or {}).get("charts") or sum(1 for r in rows if r.get("status") != "excluded")

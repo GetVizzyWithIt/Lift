@@ -40,10 +40,17 @@ function chips(s) {
   if (s.heard != null) c.push(`<span class="chip">Key heard ${pct(s.heard)}</span>`);
   return c.join('');
 }
+// The record's cover when `python -m lift covers` found one; otherwise (and for your own takes) the Lift icon.
+const LOGO = '/static/brand/app-icon.svg';
+function art(s) {
+  const src = s.cover || LOGO;
+  return `<img class="art" src="${esc(src)}" alt="" loading="lazy" width="64" height="64"` +
+    (s.cover ? ` onerror="this.onerror=null;this.src='${LOGO}'"` : '') + '>';
+}
 function card(s) {
   const [a, b] = meta(s);
-  const inner = `<div class="t">${esc(s.title)}</div><div class="small quiet">${esc(a)}</div>` +
-    (b ? `<div class="small quiet">${esc(b)}</div>` : '') + `<div class="chips">${chips(s)}</div>`;
+  const inner = art(s) + `<div class="body"><div class="t">${esc(s.title)}</div><div class="small quiet">${esc(a)}</div>` +
+    (b ? `<div class="small quiet">${esc(b)}</div>` : '') + `<div class="chips">${chips(s)}</div></div>`;
   return s.href ? `<a class="song link" href="${esc(s.href)}">${inner}</a>` : `<div class="song">${inner}</div>`;
 }
 function row(s) {

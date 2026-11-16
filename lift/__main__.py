@@ -183,6 +183,11 @@ def main(argv: list[str] | None = None) -> int:
                         help="quit after this many minutes with no page open and nothing transcribing "
                              "(the Lift launcher uses 30; default 0 = run until Ctrl+C)")
 
+    cv = sub.add_parser("covers", help="find album covers for the Library cards (saved in ~/.cache/lift/covers)")
+    cv.add_argument("--runs", help="runs folder with the ledger (default ~/lift-runs)")
+    cv.add_argument("--offline", action="store_true", help="only covers inside or beside the recordings; no lookups")
+    cv.add_argument("--redo", action="store_true", help="look again for songs that already have a cover")
+
     sc = sub.add_parser("score", help="run a set of recordings with known answers and score each layer")
     sets = ("omnibook", "omnibook-mix", "filosax", "urmp", "urmp-mix", "choralebricks", "bach10", "bach10-mix", "pairs",
             "grfia-alto", "grfia-tenor")
@@ -243,6 +248,12 @@ def main(argv: list[str] | None = None) -> int:
                             not args.no_extract)
     if args.cmd == "app":
         return run_app(args)
+    if args.cmd == "covers":
+        from .app import covers
+        counts = covers.run(args.runs, online=not args.offline, redo=args.redo)
+        print(", ".join(f"{k} {v}" for k, v in counts.items()))
+        print(f"Details: {covers.folder() / '_summary.txt'}; check {covers.folder() / 'needs_a_look.csv'}")
+        return 0
     if args.cmd == "score":
         from .score import card
         card.run(args.set, args.data, args.split, args.limit, args.runs, args.contour_tool,
