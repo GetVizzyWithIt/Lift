@@ -260,8 +260,8 @@ All decisions: [docs/decisions](docs/decisions/README.md).
 
 | | |
 | --- | --- |
-| Repository | **GetVizzyWithIt/Saxscribe** (private): <https://github.com/GetVizzyWithIt/Saxscribe> |
-| Pull requests | <https://github.com/GetVizzyWithIt/Saxscribe/pulls> |
+| Repository | **GetVizzyWithIt/lift** (private, renamed from Saxscribe on 2026-11-16; the old address forwards): <https://github.com/GetVizzyWithIt/lift> |
+| Pull requests | <https://github.com/GetVizzyWithIt/lift/pulls> |
 | Mac copy | `~/dev/lift` |
 | Runs and keys | `~/lift-runs/` |
 | App library | `~/lift-library/` |
