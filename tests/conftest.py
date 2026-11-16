@@ -5,12 +5,17 @@ import tempfile
 
 import pytest
 
-from lift.pipeline import transcribe
+# Settings exported in the shell (LIFT_* or the old SAXSCRIBE_*, e.g. LIFT_FINDER=original)
+# would change what the tests see, so the tests start without any of them.
+for _name in [n for n in os.environ if n.startswith(("LIFT_", "SAXSCRIBE_"))]:
+    del os.environ[_name]
+
+from lift.pipeline import transcribe  # noqa: E402
 
 from . import fixture
 
 # Tests never write to the real Desktop: the app's copy goes to a temp folder.
-DESKTOP = os.environ.setdefault("LIFT_DESKTOP", tempfile.mkdtemp(prefix="lift-desktop-"))
+DESKTOP = os.environ["LIFT_DESKTOP"] = tempfile.mkdtemp(prefix="lift-desktop-")
 
 
 @pytest.fixture(scope="session")

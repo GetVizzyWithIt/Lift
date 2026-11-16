@@ -84,3 +84,26 @@ def test_no_code_still_runs_the_old_command():
     for rel in ("setup_mac.sh", "scripts/mac_app/launch.sh", "scripts/mac_app/build_app.sh",
                 ".github/workflows/tests.yml"):
         assert "-m saxscribe" not in (ROOT / rel).read_text(), rel
+
+
+def test_hold_jobs_leaves_waiting_and_cut_off_takes_alone(tmp_path, monkeypatch):
+    # The Mac rename script starts the app with --hold-jobs to look at it: nothing may start or change.
+    import json
+    from lift.app.library import Library
+    for name, state in (("20261116-090000-waiting", "queued"), ("20261116-080000-cut-off", "running")):
+        (tmp_path / name).mkdir()
+        (tmp_path / name / "job.json").write_text(json.dumps({"id": name, "state": state, "filename": "a.wav", "title": "a", "artist": ""}))
+    started = []
+    monkeypatch.setattr(Library, "_enqueue", lambda self, take_id: started.append(take_id))
+    Library(tmp_path, hold_jobs=True)
+    assert started == []
+    assert json.loads((tmp_path / "20261116-080000-cut-off" / "job.json").read_text())["state"] == "running"
+    Library(tmp_path)                                  # a normal start carries on as before
+    assert started == ["20261116-090000-waiting"]
+
+
+def test_old_alias_runs_submodules_and_reports_missing_ones():
+    import importlib.util
+    assert importlib.util.find_spec("saxscribe.no_such_module") is None
+    out = subprocess.run([sys.executable, "-m", "saxscribe.datasets"], cwd=ROOT, capture_output=True, text=True)
+    assert out.returncode == 0, out.stderr

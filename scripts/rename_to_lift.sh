@@ -82,9 +82,11 @@ log ""
 log "=== rename_to_lift $MODE, $(date '+%Y-%m-%d %H:%M:%S') ==="
 
 # ---------------------------------------------------------------- jobs running?
-running_jobs() {
-  /bin/ps -axo pid=,command= | grep -E "saxscribe|lift-runs|-m lift|run_keys|stem_contour|pdf_ledger|archive_fetch|archive_check|file_archive|key_batch|homr|review/server.py|match_check" \
-    | grep -v -E "grep|rename_to_lift|LIFT_RENAME" || true
+running_jobs() {  # programs working on Lift's folders; viewers such as tail or less don't count
+  /bin/ps -axo pid=,command= \
+    | grep -v -E "^ *[0-9]+ +[^ ]*/?(tail|less|more|vi|vim|nano|cat|open|man|mdworker[^ ]*|mds[^ ]*) " \
+    | grep -E "saxscribe|lift-runs|-m lift|run_keys|stem_contour|pdf_ledger|archive_fetch|archive_check|file_archive|key_batch|homr|review/server.py|match_check" \
+    | grep -v -E "grep|rename_to_lift|LIFT_RENAME|lift app --no-browser --port $PORT --hold-jobs" || true
 }
 
 # ---------------------------------------------------------------- the app, seen from outside
@@ -168,10 +170,18 @@ print(f"   {len(snap['songs'])} songs, {len(snap['takes'])} takes, {sum(v['found
 PY
 
 APP_PID=""
+trap 'stop_app' EXIT
+trap 'echo; echo "Stopped by you. Undo list so far: $REPORT/moves.tsv (run --undo to put moves back)."; exit 130' INT TERM
 start_app() {
   local dir py
   dir="$(code_dir)"; py="$(python_bin)"
-  (cd "$dir" && "$py" -m lift app --no-browser --port "$PORT" >> "$REPORT/app.log" 2>&1) &
+  if /usr/bin/curl -s -o /dev/null --max-time 2 "http://127.0.0.1:$PORT/"; then
+    log "   something already answers on port $PORT; stopping it (a leftover from an interrupted run)"
+    pkill -f "lift app --no-browser --port $PORT --hold-jobs" 2>/dev/null; sleep 2
+    if /usr/bin/curl -s -o /dev/null --max-time 2 "http://127.0.0.1:$PORT/"; then return 1; fi
+  fi
+  # --hold-jobs: waiting transcriptions stay waiting, and no take is changed.
+  (cd "$dir" && exec "$py" -m lift app --no-browser --port "$PORT" --hold-jobs >> "$REPORT/app.log" 2>&1) &
   APP_PID=$!
   for _ in $(seq 1 180); do
     if /usr/bin/curl -s -o /dev/null --max-time 2 "http://127.0.0.1:$PORT/"; then return 0; fi
@@ -187,9 +197,14 @@ stop_app() {
   APP_PID=""
 }
 snapshot() {  # $1 = before or after
+  rm -f "$REPORT/$1.json"
   if start_app; then
     "$(python_bin)" "$SNAP_PY" "$PORT" "$REPORT/$1.json" 2>&1 | tee -a "$LOG"
-    ok "app answered on port $PORT ($1 the move)"
+    if [ "${PIPESTATUS[0]}" -eq 0 ] && [ -f "$REPORT/$1.json" ]; then
+      ok "app answered on port $PORT ($1 the move)"
+    else
+      bad "could not record what the app shows ($1 the move); see run.log"
+    fi
   else
     bad "the app did not start ($1 the move); see $REPORT/app.log"
   fi
@@ -235,13 +250,21 @@ check_all() {
   done
 
   bar "Saved Mac scripts still find their folders"
-  for d in "$H/saxscribe-runs/catalog/_tools" "$H/saxscribe-runs/keys/transcribed/_tools" "$H/saxscribe-runs/review" "$H/lift-runs/catalog/_tools"; do
-    if [ -d "$d" ]; then ok "$d"; else bad "$d is missing"; fi
+  for sub in catalog/_tools keys/transcribed/_tools review; do
+    [ -d "$H/lift-runs/$sub" ] || continue   # not on this Mac
+    if [ "$(ls "$H/saxscribe-runs/$sub" 2>/dev/null)" = "$(ls "$H/lift-runs/$sub")" ]; then
+      ok "~/saxscribe-runs/$sub and ~/lift-runs/$sub show the same files"
+    else
+      bad "~/saxscribe-runs/$sub doesn't show the same files as ~/lift-runs/$sub"
+    fi
   done
-  if [ -f "$H/saxscribe-runs/catalog/saxscribe_catalog.db" ] && [ -f "$H/lift-runs/catalog/lift_catalog.db" ]; then
-    ok "catalog opens under its old and new names"
-  else
-    bad "the catalog database isn't at both its old and new names"
+  if [ -e "$H/lift-runs/catalog/lift_catalog.db" ]; then
+    if "$py" -c "import sqlite3,sys; [sqlite3.connect('file:'+p+'?mode=ro', uri=True).execute('select count(*) from sqlite_master').fetchone() for p in sys.argv[1:]]" \
+         "$H/saxscribe-runs/catalog/saxscribe_catalog.db" "$H/lift-runs/catalog/lift_catalog.db" 2>>"$LOG"; then
+      ok "the catalog opens under its old and new names"
+    else
+      bad "the catalog doesn't open under both its old and new names"
+    fi
   fi
 
   bar "Lift.app points at the new code folder"
@@ -324,15 +347,26 @@ if [ "$MODE" = "undo" ]; then
   jobs_now="$(running_jobs)"
   if [ -n "$jobs_now" ]; then log "These are running; stop them first:"; log "$jobs_now"; exit 1; fi
   STEPS=$(wc -l < "$REPORT/moves.tsv" | tr -d ' ')
-  sed '1!G;h;$!d' "$REPORT/moves.tsv" | while IFS=$'\t' read -r old new; do
+  REVERSED="$(mktemp "${TMPDIR:-/tmp}/lift_undo.XXXXXX")"; LEFT="$REVERSED.left"
+  sed '1!G;h;$!d' "$REPORT/moves.tsv" > "$REVERSED"; : > "$LEFT"
+  while IFS=$'\t' read -r old new; do   # not a pipe, so failures are counted
     bar "Put back $old"
-    if [ -L "$old" ] && [ -e "$new" ]; then rm "$old" && mv "$new" "$old" && ok "$new -> $old"
-    else bad "could not put back $old (link or folder missing)"; fi
-  done
+    if [ -e "$new" ] && { [ -L "$old" ] || [ ! -e "$old" ]; }; then
+      if { [ ! -L "$old" ] || rm "$old"; } && mv "$new" "$old"; then ok "$new -> $old"
+      else bad "could not put back $old"; printf '%s\t%s\n' "$old" "$new" >> "$LEFT"; fi
+    else
+      bad "could not put back $old ($new is missing, or $old is a real folder now)"; printf '%s\t%s\n' "$old" "$new" >> "$LEFT"
+    fi
+  done < "$REVERSED"
   if [ -L "$H/Desktop/saxscribe/.venv" ]; then ln -sfn "$H/Library/Application Support/saxscribe/python" "$H/Desktop/saxscribe/.venv"; fi
-  mv "$REPORT/moves.tsv" "$REPORT/moves.undone-$(date +%Y%m%d-%H%M%S).tsv"
-  log "Undo finished. Rebuild the launcher with: cd ~/Desktop/saxscribe && bash scripts/mac_app/build_app.sh"
-  exit 0
+  if [ "$FAILED" = 0 ]; then
+    mv "$REPORT/moves.tsv" "$REPORT/moves.undone-$(date +%Y%m%d-%H%M%S).tsv"
+    log "Undo finished. Rebuild the launcher with: cd ~/Desktop/saxscribe && bash scripts/mac_app/build_app.sh"
+    exit 0
+  fi
+  sed '1!G;h;$!d' "$LEFT" > "$REPORT/moves.tsv"   # only what is still moved, in the original order
+  log "$FAILED could not be put back; they stay in $REPORT/moves.tsv for another --undo. See needs_a_look.txt."
+  exit 1
 fi
 
 # ---------------------------------------------------------------- check only
@@ -347,20 +381,42 @@ fi
 # ---------------------------------------------------------------- apply
 STEPS=$((3 + ${#MOVES[@]} + 3 + 8))
 bar "Waiting until no jobs are running"
+shown=""
 while true; do
   jobs_now="$(running_jobs)"
   [ -z "$jobs_now" ] && break
-  printf '\r   still running (checking again in 60 s): %s' "$(echo "$jobs_now" | head -1 | cut -c1-70)"
+  if [ -z "$shown" ]; then
+    log "   Waiting for these to finish (nothing has moved; Ctrl-C stops safely):"; log "$jobs_now"; shown=1
+  fi
+  printf '\r   still running, checking again every 60 s (%s)   ' "$(date '+%H:%M')"
   sleep 60
 done
 ok "nothing running"
 
 bar "Stopping before anything moves if a new name is already taken"
+rm -f "$REPORT/before.json" "$REPORT/after.json"
 for pair in "${MOVES[@]}"; do
   old="${pair%%|*}"; new="${pair##*|}"
-  if [ -e "$new" ] && [ ! -L "$old" ]; then log "   STOP  $new already exists. Nothing was moved."; exit 1; fi
+  [ -L "$old" ] && continue   # moved on an earlier run
+  case "$new" in   # the catalog's new name, as it is before ~/lift-runs exists
+    "$H/lift-runs/"*) alt="$H/saxscribe-runs/${new#"$H/lift-runs/"}" ;;
+    *) alt="$new" ;;
+  esac
+  for n in "$new" "$alt"; do
+    if [ -e "$n" ]; then log "   STOP  $n already exists. Nothing was moved."; exit 1; fi
+  done
 done
 ok "all new names are free"
+CAT="$H/saxscribe-runs/catalog/saxscribe_catalog.db"
+if [ -f "$CAT" ] && [ ! -L "$CAT" ]; then
+  # Fold any write-ahead log into the catalog, so nothing is left in a -wal file under the old name.
+  "$(python_bin)" -c "import sqlite3,sys; c=sqlite3.connect(sys.argv[1]); c.execute('PRAGMA wal_checkpoint(TRUNCATE)'); c.close()" "$CAT" 2>>"$LOG"
+  for side in -wal -shm -journal; do
+    if [ -s "$CAT$side" ]; then log "   STOP  $CAT$side still holds changes (is a catalog script running?). Nothing was moved."; exit 1; fi
+    rm -f "$CAT$side"
+  done
+  ok "catalog has no pending changes"
+fi
 
 bar "What the app shows before the move"
 snapshot before
@@ -372,12 +428,14 @@ for pair in "${MOVES[@]}"; do
   bar "Move $(basename "$old")"
   if [ -L "$old" ]; then ok "already moved: $old -> $(readlink "$old")"; continue; fi
   if [ ! -e "$old" ]; then ok "not on this Mac: $old"; continue; fi
+  if [ -e "$new" ]; then bad "$new appeared after the check; stopping here. Run --undo to put back what moved."; exit 1; fi
   mkdir -p "$(dirname "$new")"
-  if mv "$old" "$new" && ln -s "$new" "$old"; then
-    printf '%s\t%s\n' "$old" "$new" >> "$REPORT/moves.tsv"
+  if ! mv "$old" "$new"; then bad "could not move $old; stopping here. Run --undo to put back what moved."; exit 1; fi
+  printf '%s\t%s\n' "$old" "$new" >> "$REPORT/moves.tsv"   # written before the link, so undo knows of it
+  if ln -s "$new" "$old"; then
     ok "$old -> $new (link left at the old name)"
   else
-    bad "could not move $old; stopping here. Run --undo to put back what moved."
+    bad "moved $old but could not leave a link there; stopping here. Run --undo to put it back."
     exit 1
   fi
 done
@@ -401,7 +459,7 @@ scan_leftovers
 {
   echo "Lift rename, $(date '+%Y-%m-%d %H:%M')"
   echo "Moved (old name left as a link):"
-  sed 's/\t/  ->  /; s/^/  /' "$REPORT/moves.tsv"
+  awk -F'\t' '{print "  " $1 "  ->  " $2}' "$REPORT/moves.tsv"
   if [ "$FAILED" = 0 ]; then echo "Every check passed."; else echo "$FAILED checks FAILED: see needs_a_look.txt and run.log. To put everything back: bash ~/dev/lift/scripts/rename_to_lift.sh --undo"; fi
   echo "Needs a look: $(wc -l < "$NEEDS" | tr -d ' ') lines in $NEEDS"
   echo "From now on the code is in ~/dev/lift (cd ~/Desktop/saxscribe still works)."
