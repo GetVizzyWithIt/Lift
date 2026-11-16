@@ -120,7 +120,7 @@ def run_app(args) -> int:
     except ImportError as exc:
         print(f"The app needs packages that aren't installed ({exc.name}). Run: pip install -r requirements.txt")
         return 1
-    library = Library(Path(args.library) if args.library else None)
+    library = Library(Path(args.library) if args.library else None, hold_jobs=args.hold_jobs)
     local = f"http://127.0.0.1:{args.port}/"
     print(f"Lift is running. Library: {library.root}")
     print(f"  On this Mac:  {local}")
@@ -177,6 +177,8 @@ def main(argv: list[str] | None = None) -> int:
     ap_app.add_argument("--host", default="0.0.0.0",
                         help="0.0.0.0 lets an iPad on the same Wi-Fi open it; 127.0.0.1 keeps it to this Mac")
     ap_app.add_argument("--no-browser", action="store_true", help="don't open a browser tab")
+    ap_app.add_argument("--hold-jobs", action="store_true",
+                        help="don't start transcriptions left waiting, and change no take (for checks)")
     ap_app.add_argument("--quit-when-idle", type=float, default=0, metavar="MINUTES",
                         help="quit after this many minutes with no page open and nothing transcribing "
                              "(the Lift launcher uses 30; default 0 = run until Ctrl+C)")

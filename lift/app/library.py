@@ -67,8 +67,10 @@ def last_lines(path: Path, n: int = 3) -> list[str]:
 ENGINES = ("auto", "standard", "filosax")
 
 class Library:
-    def __init__(self, root: Path | None = None, inline: bool = False):
-        """inline=True runs each job inside add() instead of on the worker (for tests)."""
+    def __init__(self, root: Path | None = None, inline: bool = False, hold_jobs: bool = False):
+        """inline=True runs each job inside add() instead of on the worker (for tests).
+        hold_jobs=True leaves every take exactly as it is at start: nothing waiting starts
+        and nothing is marked stopped (for checks such as scripts/rename_to_lift.sh)."""
         self.root = Path(root or DEFAULT).expanduser().resolve()
         self.root.mkdir(parents=True, exist_ok=True)
         self.inline = inline
@@ -78,7 +80,7 @@ class Library:
         self.proc: subprocess.Popen | None = None
         self.current: str | None = None
         # Waiting jobs carry on after a restart; one cut off mid-run waits for Run again.
-        for item in reversed(self.list()):
+        for item in ([] if hold_jobs else reversed(self.list())):
             if item["state"] == "running":
                 self._set(item["id"], state="stopped", error="The app was closed while this ran.")
             elif item["state"] == "queued":
