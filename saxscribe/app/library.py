@@ -179,6 +179,10 @@ class Library:
             self.worker = threading.Thread(target=self._work, name="saxscribe-jobs", daemon=True)
             self.worker.start()
 
+    def busy(self) -> bool:
+        """True while a take is transcribing or waiting in the queue."""
+        return self.current is not None or not self.jobs.empty()
+
     def _work(self) -> None:
         while True:
             self.run(self.jobs.get())

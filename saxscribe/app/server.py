@@ -53,6 +53,7 @@ from __future__ import annotations
 
 import re
 import socket
+import time
 from pathlib import Path
 
 from fastapi import Body, FastAPI, File, Form, HTTPException, UploadFile
@@ -91,6 +92,17 @@ def file_name(job: dict, view: str) -> str:
 
 def create_app(library: Library, port: int = 8765, runs: str | Path | None = None) -> FastAPI:
     app = FastAPI(title="Saxscribe", docs_url=None, redoc_url=None)
+    app.state.last_seen = time.monotonic()  # when a page last talked to the app (see idle_watch)
+
+    @app.middleware("http")
+    async def note_activity(request, call_next):
+        app.state.last_seen = time.monotonic()
+        return await call_next(request)
+
+    @app.post("/api/alive", include_in_schema=False)
+    def alive():
+        """Open pages check in every minute, so the app knows someone is using it."""
+        return {"ok": True, "busy": library.busy()}
 
     def take_or_404(take_id: str):
         try:
@@ -524,3 +536,17 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
 
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
     return app
+
+
+def should_quit(last_seen: float, now: float, idle_minutes: float, busy: bool) -> bool:
+    """Quit only when no page has checked in for idle_minutes and nothing is transcribing."""
+    return idle_minutes > 0 and not busy and now - last_seen >= idle_minutes * 60
+
+
+def idle_watch(app: FastAPI, library: Library, server, idle_minutes: float, every: float = 30.0) -> None:
+    """Stop the server once should_quit says so. Runs in a background thread."""
+    while not server.should_exit:
+        time.sleep(every)
+        if should_quit(app.state.last_seen, time.monotonic(), idle_minutes, library.busy()):
+            print(f"[saxscribe] No page open for {idle_minutes:g} minutes; quitting.", flush=True)
+            server.should_exit = True

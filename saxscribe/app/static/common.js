@@ -56,3 +56,9 @@ function clipLabel(clip) {
   const m = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
   return `${m(clip.first_note ?? clip.start)}–${m(clip.last_note ?? clip.end)}`;
 }
+// Check in with the app every minute while this page is open. When the app was started
+// from Lift, it quits once no page has checked in for a while (see idle_watch in server.py).
+function checkIn() { fetch('/api/alive', {method: 'POST'}).catch(() => {}); }
+checkIn();
+setInterval(checkIn, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkIn(); });
