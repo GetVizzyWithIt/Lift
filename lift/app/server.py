@@ -26,6 +26,8 @@ API (JSON unless noted):
   GET  /api/library/<id>/file/musicxml   the answer key's score as MusicXML (?view=)
   .../flags, flags.txt, flags.json, heard, suggestions, flags/<fid>: as for a take, saved in
                                   <library>/_keys/<id>/flags.json
+  POST /api/quit                  stop the app (top bar's Quit); 409 mid-transcription unless ?force=true
+  GET  /api/version               {code}: the git commit this server started at (Lift.app restarts an old one)
   GET  /api/results               scorecard runs, change markers and targets (score/history.py)
   GET  /api/review                the match check's chart/recording pairs and Austin's verdicts (score/review.py)
   POST /api/review/<id>           Austin's verdict on one pair: {verdict: good|wrong|unsure|null, note}
@@ -109,6 +111,23 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
     def alive():
         """Open pages check in every minute, so the app knows someone is using it."""
         return {"ok": True, "busy": library.busy()}
+
+    app.state.server = None          # run_app sets the uvicorn server, so Quit can stop it
+    app.state.code = code_version()  # the code this server started with (Lift.app restarts it after an update)
+
+    @app.get("/api/version", include_in_schema=False)
+    def version():
+        return {"code": app.state.code}
+
+    @app.post("/api/quit", include_in_schema=False)
+    def quit_app(force: bool = False):
+        """Stop the app (the top bar's Quit). Refuses mid-transcription unless force=true."""
+        if library.busy() and not force:
+            raise HTTPException(409, "A transcription is still running. Quitting now stops it.")
+        print("[lift] Quit from the page.", flush=True)
+        if app.state.server is not None:
+            app.state.server.should_exit = True
+        return {"quitting": True}
 
     def take_or_404(take_id: str):
         try:
@@ -630,6 +649,17 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
 
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
     return app
+
+
+def code_version() -> str:
+    """The git commit the code is at, so the launcher can tell an old server from an updated one."""
+    import subprocess
+    repo = Path(__file__).resolve().parents[2]
+    try:
+        r = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"], capture_output=True, text=True, timeout=5)
+        return r.stdout.strip() if r.returncode == 0 else ""
+    except (OSError, subprocess.SubprocessError):
+        return ""
 
 
 def should_quit(last_seen: float, now: float, idle_minutes: float, busy: bool) -> bool:

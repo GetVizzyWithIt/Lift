@@ -134,6 +134,7 @@ def run_app(args) -> int:
         threading.Timer(1.0, lambda: webbrowser.open(local)).start()
     app = create_app(library, args.port, args.runs)
     server = uvicorn.Server(uvicorn.Config(app, host=args.host, port=args.port, log_level="warning"))
+    app.state.server = server
     if args.quit_when_idle > 0:
         import threading
         threading.Thread(target=idle_watch, args=(app, library, server, args.quit_when_idle),
