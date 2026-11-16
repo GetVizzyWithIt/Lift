@@ -127,7 +127,10 @@ The app has two more pages:
   as the matching work finishes.
 - **Results** (`/results`): Progress, Songs, Lab, Log, **Dataset health** (the
   PDF ledger: how many charts are matched, need a check, have the wrong
-  recording or no recording yet), and Needs review.
+  recording or no recording yet), and Match pairs (past match verdicts).
+- **Review** (`/review`): one question at a time, only what the automatic
+  checks couldn't settle, with the chart, the recording at the right spot, and
+  the answer key as soft tones.
 
 It runs on the Mac. To use it on an iPad on the same Wi-Fi, open the address
 it prints ("On your iPad: http://…:8765/"). Uploads and their take folders

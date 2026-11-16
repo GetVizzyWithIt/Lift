@@ -92,7 +92,8 @@ one question at a time. Prefer a working rough cut to a plan.
 - App pages: Library (`/library`: matched answer keys and finished takes, song
   pages, play-along on the engraved answer key, solo-only playback; PRs
   #181-#184), Results (`/results`: Progress, Songs, Lab, Log, Dataset health,
-  Needs review), and the play-along with review flags (flags.json, ADR-0039).
+  Match pairs), Review (`/review`: one question at a time from the Mac's
+  review queues, ADR-0048), and the play-along with review flags (flags.json, ADR-0039).
   Library step 4 (Library as the home screen) waits on Austin's go.
 - Audio for answer keys comes in this order: Internet Archive (Mac
   `catalog/_tools/archive_fetch.py`, then `archive_check.py`), then Austin's

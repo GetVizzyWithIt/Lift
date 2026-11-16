@@ -209,7 +209,8 @@ beat detection takes a file.
 | Library (`/library`) | Every answer key the PDF ledger calls matched (its PDF checked against the ledger's fingerprint first), plus finished takes, badged "Answer key" or "Made by Lift" (PR #181) | `catalog.py`, `static/library.*` |
 | Song page (`/library/<id>`) | The chart, its recording and the match facts (PR #182); play just the solo or the full track (PR #184) | `static/song.*` |
 | Key play-along (`/library/<id>/play`) | The take player on the engraved answer key, with flags (PR #183) | `key_take.py` |
-| Results (`/results`) | Tabs: Progress, Songs, Lab, Log, Dataset health (the PDF ledger, `score/ledger.py`, PR #177), Needs review (match verdicts) | `static/results*` |
+| Results (`/results`) | Tabs: Progress, Songs, Lab, Log, Dataset health (the PDF ledger, `score/ledger.py`, PR #177), Match pairs (past match verdicts) | `static/results*` |
+| Review (`/review`) | One question at a time from the Mac's review queues: match check, start point, or a quick listen (PR #191, [ADR-0048](../decisions/0048-review-questions-from-queue-files.md)) | `review_inbox.py` |
 
 ## 9. Dependencies (from `requirements.txt`)
 

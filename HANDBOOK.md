@@ -123,7 +123,7 @@ The update also rebuilds **Lift**, the double-click launcher.
 cd ~/dev/lift && source .venv/bin/activate && python -m lift app
 ```
 
-The app is at http://localhost:8765 (Library: `/library`; key review: `/results`, Needs review; scores and charts are on the model dashboard linked at the top). On the iPad on the
+The app is at http://localhost:8765 (Library: `/library`; Review page: `/review`, one question at a time; scores and charts are on the model dashboard linked at the top). On the iPad on the
 same Wi-Fi, open the address it prints. Sheet music is also copied to
 `~/Desktop/Lift Sheets`.
 
@@ -201,7 +201,7 @@ Note F1 by group:
 | E76 | 2026-11-09 | Training set for the note finder: Mega-separated Weimar and Parker solos | 134 solo spans ready for fine-tuning. |
 | E75 | 2026-11-08 | New alto etude answer keys: Ferling Op. 31 and Luft Op. 1 No. 2 | Baseline 57.5; slow studies lose on held notes split by vibrato. |
 
-Full record: [evaluation log](docs/evaluation/log.md). Charts: the [model dashboard](https://claude.ai/artifact/TRLsrbmKzM2UVwaaW8atZr) (Progress, Songs, Lab, Log; rebuilt with `python3 scripts/dashboard_page/build.py`). Reviewing keys and flags stays in the app (`/results`, Needs review).
+Full record: [evaluation log](docs/evaluation/log.md). Charts: the [model dashboard](https://claude.ai/artifact/TRLsrbmKzM2UVwaaW8atZr) (Progress, Songs, Lab, Log; rebuilt with `python3 scripts/dashboard_page/build.py`). Questions only Austin's ears can settle are on the app's Review page (`/review`); past match verdicts are in `/results`, Match pairs.
 <!-- /auto:results -->
 
 ---
@@ -212,8 +212,9 @@ Full record: [evaluation log](docs/evaluation/log.md). Charts: the [model dashbo
   a song counts only if its key passed the match check or Austin marked it
   good, Austin hasn't marked it wrong, and no model trained on it.
 - **Match check:** every chart/recording pair is checked before any training
-  or scoring. Austin's verdicts from the app's Needs review tab go to
-  `~/lift-runs/keys/match_review.jsonl`.
+  or scoring. Austin's verdicts from the app's Review page (`/review`) go to
+  `~/lift-runs/keys/match_review.jsonl`; the Results page's Match pairs
+  tab keeps their history ([ADR-0048](docs/decisions/0048-review-questions-from-queue-files.md)).
 - **Naming:** IDs are `player_tune_year`. Each song has a folder
   `~/lift-runs/keys/<group>/<ID>/` holding `<ID>.mp3`, `<ID>_key.json`,
   `<ID>_transcription.pdf` and a `links.csv` with file fingerprints.
