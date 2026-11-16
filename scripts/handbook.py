@@ -157,7 +157,7 @@ def block_results(bench: dict[str, list[dict]]) -> str:
         out.append(f"| E{num} | {date} | {title} | {verdict} |")
     out += ["", "Full record: [evaluation log](docs/evaluation/log.md). Charts: the [model dashboard](https://claude.ai/artifact/TRLsrbmKzM2UVwaaW8atZr) "
             "(Progress, Songs, Lab, Log; rebuilt with `python3 scripts/dashboard_page/build.py`). "
-            "Reviewing keys and flags stays in the app (`/results`, Needs review)."]
+            "Questions only Austin's ears can settle are on the app's Review page (`/review`); past match verdicts are in `/results`, Match pairs."]
     return "\n".join(out)
 
 
