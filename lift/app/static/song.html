@@ -6,6 +6,7 @@
 <title>Library · Lift</title>
 <link rel="icon" href="/static/brand/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/static/brand/apple-touch-icon.png">
+<script>try{var t=localStorage.getItem("lift-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body data-page="library">
@@ -14,7 +15,7 @@
   <div class="songhead">
     <div><h1 id="title">Loading…</h1><p class="quiet" id="sub"></p></div>
     <div class="headacts"><a class="button" id="openPdf" target="_blank" rel="noopener">Open PDF</a>
-      <a class="button primary" id="playAlong" hidden>Play along</a>
+      <a class="button primary" id="playAlong" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg> Play along</a>
       <span class="quiet small" id="noPlay" hidden></span></div>
   </div>
   <div class="songgrid">

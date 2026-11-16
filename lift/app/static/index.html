@@ -6,16 +6,17 @@
 <title>Lift</title>
 <link rel="icon" href="/static/brand/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/static/brand/apple-touch-icon.png">
+<script>try{var t=localStorage.getItem("lift-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body data-page="transcribe">
 <div class="wrap">
-  <div class="head"><h1>Transcribe</h1></div>
+  <div class="head"><h1>Transcribe a recording</h1></div>
   <p class="quiet">Upload a recording and get the sax part back as sheet music, with a play-along that scrolls with the record.</p>
 
   <section class="card" id="upload">
-    <h2>Transcribe a recording</h2>
     <label class="drop" id="drop">
+      <svg class="record" viewBox="0 0 48 48" aria-hidden="true"><circle class="disc" cx="24" cy="24" r="19"/><circle class="groove" cx="24" cy="24" r="8"/><circle class="groove" cx="24" cy="24" r="11.5"/><circle class="groove" cx="24" cy="24" r="15"/><circle class="label" cx="24" cy="24" r="4.4"/></svg>
       <strong id="dropText">Choose an audio file</strong>
       <span class="quiet small">or drop one here: WAV, MP3, M4A, AIFF, FLAC</span>
       <input type="file" id="file" accept="audio/*,.wav,.mp3,.m4a,.aif,.aiff,.flac,.ogg,.opus" hidden>
@@ -52,9 +53,9 @@
       <label for="artist">Artist (optional)</label>
       <input type="text" id="artist" placeholder="from the file's tags, e.g. Stan Getz">
     </div>
-    <div class="field">
-      <button class="primary" id="go" disabled>Transcribe</button>
+    <div class="field go">
       <span class="quiet small" id="upMsg"></span>
+      <button class="primary" id="go" disabled>Transcribe</button>
     </div>
     <div class="bar" id="upBar" hidden><div></div></div>
   </section>

@@ -3,22 +3,28 @@
   --accent: #b5532a; --accent-ink: #ffffff; --good: #2f7d4f; --bad: #b3261e; --paper: #ffffff;
   /* Lift theme: the record's black (top bar), its groove grey, and the track behind pill toggles. */
   --record: #1f1d1a; --record-ink: #f1ede6; --record-quiet: #bdb7ad; --record-line: #1f1d1a;
-  --groove: #959390; --pill-track: #ece7df; --arm: #e07a4c;
-  --radius: 12px; --tap: 44px;
+  --groove: #959390; --pill-track: #ece7df; --arm: #e07a4c; --disc: #1f1d1a;
+  --radius: 16px; --tap: 44px; color-scheme: light dark;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   color: var(--ink); background: var(--bg);
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #171614; --card: #22211e; --ink: #f1ede6; --quiet: #a39d93; --line: #35322d;
+  :root:not([data-theme="light"]) { --bg: #171614; --card: #22211e; --ink: #f1ede6; --quiet: #a39d93; --line: #35322d;
           --accent: #e07a4c; --accent-ink: #1a1a1a; --paper: #fbfaf7;
-          --record: #0f0e0d; --record-line: #35322d; --groove: #797772; --pill-track: #2a2825; }
+          --record: #0f0e0d; --record-line: #35322d; --groove: #797772; --pill-track: #2a2825; --disc: #f1ede6; --good: #4caf78; --bad: #ef6b5f;
+          color-scheme: dark; }
 }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { --bg: #171614; --card: #22211e; --ink: #f1ede6; --quiet: #a39d93; --line: #35322d;
+          --accent: #e07a4c; --accent-ink: #1a1a1a; --paper: #fbfaf7;
+          --record: #0f0e0d; --record-line: #35322d; --groove: #797772; --pill-track: #2a2825; --disc: #f1ede6; --good: #4caf78; --bad: #ef6b5f;
+          color-scheme: dark; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 body { margin: 0; background: var(--bg); color: var(--ink); -webkit-text-size-adjust: 100%; }
 a { color: var(--accent); }
-h1 { font-size: 1.6rem; margin: 0; letter-spacing: -0.01em; }
-h2 { font-size: 1.1rem; margin: 0 0 12px; }
+h1 { font-size: 1.875rem; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
+h2 { font-size: 1.2rem; font-weight: 650; margin: 0 0 12px; }
 .wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 48px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-top: 20px; }
 .quiet { color: var(--quiet); }
@@ -217,7 +223,9 @@ button.danger { color: var(--bad); margin-left: auto; }
 .libtools label { display: inline-flex; align-items: center; gap: 6px; }
 .libtools .seg button { min-width: 0; padding: 0 12px; }
 .grp { margin-top: 14px; }
-.grp summary { display: flex; align-items: baseline; gap: 10px; cursor: pointer; padding: 6px 0; list-style: none; }
+.grp summary { display: flex; align-items: baseline; gap: 10px; cursor: pointer; padding: 6px 0; list-style: none;
+  font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--quiet); }
+.grp summary h2, .grp summary h3, .grp summary strong, .grp summary b { font-size: inherit; color: inherit; margin: 0; }
 .grp summary::-webkit-details-marker { display: none; }
 .grp summary::before { content: "▸"; color: var(--quiet); width: 1em; }
 .grp[open] summary::before { content: "▾"; }
@@ -231,8 +239,9 @@ button.danger { color: var(--bad); margin-left: auto; }
 .song .chips, .songlist .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
 .chip { display: inline-flex; align-items: center; font-size: 0.74rem; border-radius: 999px; padding: 2px 9px; border: 1px solid var(--line);
   color: var(--quiet); white-space: nowrap; }
-.chip.key { color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, transparent); }
-.chip.made { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+.chip { border-color: transparent; background: var(--pill-track); font-weight: 600; }
+.chip.key { color: var(--good); background: color-mix(in srgb, var(--good) 16%, var(--card)); }
+.chip.made { color: var(--quiet); }
 .scroll { overflow-x: auto; }
 .songlist { width: 100%; border-collapse: collapse; font-size: 0.92rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
 .songlist td { padding: 8px 12px; border-top: 1px solid var(--line); vertical-align: top; }
@@ -281,3 +290,35 @@ dl.facts dd { margin: 0; overflow-wrap: anywhere; }
 .liftbar .count { background: var(--arm); color: #1f1d1a; border-radius: 999px; font-size: 0.75rem; font-weight: 700;
   padding: 1px 7px; }
 @media (max-width: 600px) { .liftbar .in { gap: 0 12px; } .liftbar nav a { padding: 0 9px; } }
+
+/* Line icons (one stroke weight) and the record motif, as in the Lift mockup. */
+.ico { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round;
+  stroke-linejoin: round; vertical-align: -3px; }
+.liftbar nav .ico { width: 17px; height: 17px; opacity: 0.85; }
+.record { flex: none; width: 44px; height: 44px; display: block; }
+.record .disc { fill: var(--disc); }
+.record .groove { fill: none; stroke: var(--groove); stroke-width: 0.9; }
+.record .label { fill: var(--accent); }
+.record .arc { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linecap: round; transition: stroke-dashoffset 0.4s; }
+.drop .record { width: 48px; height: 48px; margin: 0 auto 8px; }
+.takes li > .record { align-self: flex-start; margin-top: 2px; }
+.button.ghost, button.ghost { border-color: transparent; background: transparent; color: var(--accent); font-weight: 600; }
+.libtools .search { flex: 1 1 240px; display: flex; align-items: center; gap: 8px; min-height: var(--tap); padding: 0 14px;
+  border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--quiet); }
+.libtools .search input[type=search] { flex: 1; min-width: 0; border: 0; background: transparent; padding: 0; min-height: 0;
+  outline: none; }
+.liftbar .tools { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.liftbar .tools .quit { margin-left: 0; }
+.liftbar .theme { min-height: 36px; padding: 0 12px; background: transparent; color: var(--record-quiet);
+  border: 1px solid color-mix(in srgb, var(--record-quiet) 40%, transparent); font-size: 0.9rem; }
+.liftbar .theme:hover { color: var(--record-ink); border-color: var(--record-ink); }
+
+/* Pass 2 review fixes: the Transcribe button on the right, a clearer disabled look, the drop zone's
+   dashes, and select menus with their own arrow inside the pill. */
+.field.go { justify-content: flex-end; }
+.field.go #go { min-height: 48px; padding: 0 26px; }
+button.primary:disabled { background: var(--pill-track); border-color: var(--pill-track); color: var(--quiet); opacity: 1; }
+.drop { border-color: color-mix(in srgb, var(--quiet) 45%, var(--line)); }
+select { -webkit-appearance: none; appearance: none; padding-right: 38px; background-repeat: no-repeat;
+  background-position: right 14px center; background-size: 12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%238a847b' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
