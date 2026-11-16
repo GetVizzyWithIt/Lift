@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-REPO = "https://github.com/GetVizzyWithIt/Saxscribe/blob/main/"
+REPO = "https://github.com/GetVizzyWithIt/lift/blob/main/"
 TEMPLATE = Path(__file__).with_name("template.html")
 
 
