@@ -1,7 +1,6 @@
 """The Lift launcher (scripts/mac_app) and the app's quit-when-idle check."""
 from __future__ import annotations
 
-import plistlib
 import shutil
 import struct
 import subprocess
@@ -12,13 +11,14 @@ import pytest
 MAC_APP = Path(__file__).resolve().parents[1] / "scripts" / "mac_app"
 
 
-def test_info_plist_names_the_launcher_and_icon():
-    info = plistlib.loads((MAC_APP / "Info.plist").read_bytes())
-    assert info["CFBundleName"] == "Lift"
-    assert info["CFBundleExecutable"] == "launch"
-    assert info["CFBundleIconFile"] == "AppIcon"
-    assert info["LSUIElement"] is True
-    assert info["NSDesktopFolderUsageDescription"]
+def test_build_makes_an_applescript_app_that_can_ask_for_the_desktop():
+    # A shell-script app never gets macOS's Desktop permission question, so Lift
+    # is an AppleScript app that runs launch.sh; its Info.plist says why it asks.
+    text = (MAC_APP / "build_app.sh").read_text()
+    assert "osacompile" in text and 'path to resource "launch.sh"' in text
+    assert "NSDesktopFolderUsageDescription" in text
+    assert "LSUIElement -bool YES" in text
+    assert "lift-build.sha256" in text  # unchanged builds leave the app (and its permission) alone
 
 
 def test_icon_is_a_1024_png():
