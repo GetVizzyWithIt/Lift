@@ -345,7 +345,7 @@ if [ "$MODE" = "check" ]; then
 fi
 
 # ---------------------------------------------------------------- apply
-STEPS=$((3 + ${#MOVES[@]} + 2 + 8))
+STEPS=$((3 + ${#MOVES[@]} + 3 + 8))
 bar "Waiting until no jobs are running"
 while true; do
   jobs_now="$(running_jobs)"
