@@ -8,6 +8,8 @@ Pages:
   /take/<id>         the play-along for one take
   /take/<id>/pdf     the PDF (MuseScore's), or the print page when there is none
   /take/<id>/print   the score as letter pages, to print or save as PDF from the browser
+  /review            questions only Austin's ears can settle, each with the chart, the recording
+                     at the right moment and the answer key as tones (review_inbox.py)
   /results           the scorecard history: every run per test set over time, with
                      a marker for each model or pipeline change
 
@@ -29,6 +31,10 @@ API (JSON unless noted):
   POST /api/review/<id>           Austin's verdict on one pair: {verdict: good|wrong|unsure|null, note}
   GET  /api/review/<id>/audio     the pair's recording (only the file the report names)
   GET  /api/review/<id>/key       the pair's answer key notes, to play along with the recording
+  GET  /api/review/inbox          the review questions still waiting: {left, minutes, done, items}
+  GET  /api/review/item/<q>/<id>  one question: chart, bars, loop, guesses, answer buttons
+  POST /api/review/item/<q>/<id>/answer   {answer, note, extra: {time|bar}}; "undo" takes it back
+  GET  /api/review/item/<q>/<id>/audio/<which>, /key, /bars (engraved SVG), /page/<n>?top=&bottom=, /pdf
   GET  /api/takes                 every take, newest first
   POST /api/takes                 upload (form: file, horn, mix, title, artist, engine, sections)
   GET  /api/takes/<id>            one take's status
@@ -339,6 +345,94 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
             raise HTTPException(404, "No such pair in the match report")
         except (OSError, ValueError) as e:
             raise HTTPException(422, f"Could not read the key: {e}")
+
+    # ---- the Review page: questions only Austin's ears can settle (review_inbox.py)
+    @app.get("/review", include_in_schema=False)
+    def review_page():
+        return FileResponse(STATIC / "review.html")
+
+    @app.get("/api/review/inbox")
+    def review_inbox():
+        from . import review_inbox as rq
+        return rq.inbox(runs)
+
+    def question_or_404(queue: str, item_id: str):
+        from . import review_inbox as rq
+        try:
+            return rq.find(runs, queue, item_id)
+        except KeyError:
+            raise HTTPException(404, "That question is no longer in the review queue")
+
+    @app.get("/api/review/item/{queue}/{item_id}")
+    def review_item(queue: str, item_id: str):
+        from . import review_inbox as rq
+        question_or_404(queue, item_id)
+        return rq.detail(runs, queue, item_id)
+
+    @app.post("/api/review/item/{queue}/{item_id}/answer")
+    def review_answer(queue: str, item_id: str, body: dict = Body(...)):
+        from . import review_inbox as rq
+        question_or_404(queue, item_id)
+        try:
+            saved = rq.save(runs, queue, item_id, str(body.get("answer") or ""), body.get("note") or "",
+                            body.get("extra") or {})
+        except ValueError as e:
+            raise HTTPException(400, str(e))
+        return {"saved": saved, "inbox": rq.inbox(runs)}
+
+    @app.get("/api/review/item/{queue}/{item_id}/audio/{which}")
+    def review_item_audio(queue: str, item_id: str, which: str):
+        from . import review_inbox as rq
+        _, it = question_or_404(queue, item_id)
+        p = {"record": "audio", "stem": "stem"}.get(which)
+        path = rq.files(runs, it)[p] if p else None
+        if path is None:
+            raise HTTPException(404, "No such recording for this question")
+        return FileResponse(path)
+
+    @app.get("/api/review/item/{queue}/{item_id}/key")
+    def review_item_key(queue: str, item_id: str):
+        from ..score import review
+        from . import review_inbox as rq
+        _, it = question_or_404(queue, item_id)
+        try:
+            return {"notes": review.notes_in(rq.files(runs, it)["key"])}
+        except (OSError, ValueError) as e:
+            raise HTTPException(422, f"Could not read the key: {e}")
+
+    @app.get("/api/review/item/{queue}/{item_id}/bars")
+    def review_item_bars(queue: str, item_id: str):
+        from . import review_inbox as rq
+        question_or_404(queue, item_id)
+        try:
+            return rq.engraved(runs, queue, item_id, library.root)
+        except LookupError as e:
+            raise HTTPException(404, str(e))
+        except Exception as e:  # a key the engraver can't draw still leaves the page image and the audio
+            raise HTTPException(422, f"Could not draw these bars: {e}")
+
+    @app.get("/api/review/item/{queue}/{item_id}/page/{n}")
+    def review_item_page(queue: str, item_id: str, n: int, top: float | None = None, bottom: float | None = None):
+        from fastapi.responses import Response
+        from . import review_inbox as rq
+        _, it = question_or_404(queue, item_id)
+        pdf = rq.files(runs, it)["pdf"]
+        if pdf is None:
+            raise HTTPException(404, "This question has no chart PDF on this Mac")
+        crop = {"top": top, "bottom": bottom} if top is not None and bottom is not None and 0 <= top < bottom <= 1 else None
+        try:
+            return Response(rq.page_png(pdf, n, crop), media_type="image/png")
+        except IndexError:
+            raise HTTPException(404, "No such page")
+
+    @app.get("/api/review/item/{queue}/{item_id}/pdf")
+    def review_item_pdf(queue: str, item_id: str):
+        from . import review_inbox as rq
+        _, it = question_or_404(queue, item_id)
+        pdf = rq.files(runs, it)["pdf"]
+        if pdf is None:
+            raise HTTPException(404, "This question has no chart PDF on this Mac")
+        return FileResponse(pdf, media_type="application/pdf", content_disposition_type="inline")
 
     @app.get("/take/{take_id}", include_in_schema=False)
     def play(take_id: str):

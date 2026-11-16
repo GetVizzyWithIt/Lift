@@ -1,10 +1,10 @@
-// Results page, Needs review tab: the match check's chart/recording pairs (GET /api/review,
+// Results page, Match pairs tab: the match check's chart/recording pairs (GET /api/review,
 // score/review.py). Each pair opens to its recording with the answer key playing along as soft tones,
 // and Austin's verdict (good / wrong / not sure, plus a note) is saved back to the Mac.
 
 const VERDICT = {pass: 'Passed', check: 'Check', reject: 'Set aside', pending: 'No key yet'};
 const MINE = {good: 'You: good match', wrong: 'You: wrong match', unsure: 'You: not sure'};
-const rv = {filter: 'todo', open: null};
+const rv = {filter: 'all', open: null};  // questions for Austin live on /review now
 
 // A pair needs a look when the check is unsure (or set it aside) and Austin has not said yet.
 function needsLook(e) { return ['check', 'reject'].includes(e.verdict) && !e.austin_verdict; }
@@ -34,14 +34,14 @@ function renderReview() {
   }
   const E = R.entries;
   const todo = E.filter(needsLook);
-  badge.hidden = !todo.length; badge.textContent = todo.length;
+  badge.hidden = true; // no to-do count here: the Review page holds the questions
   const by = v => E.filter(e => e.verdict === v).length;
   sum.textContent = `${E.length} pairs: ${by('pass')} passed, ${by('check')} to check, ${by('reject')} set aside` +
     `${by('pending') ? `, ${by('pending')} with no key yet` : ''}. ${E.filter(e => e.benchmark).length} count toward the benchmark.`;
   const shown = E.filter(e => rv.filter === 'all' ? true : rv.filter === 'todo' ? needsLook(e) : e.verdict === rv.filter)
     .sort((a, b) => (a.heard_agree ?? 2) - (b.heard_agree ?? 2));
   if (!shown.length) {
-    list.append(el('p', {class: 'quiet'}, rv.filter === 'todo' ? 'Nothing waiting for you.' : 'None.'));
+    list.append(el('p', {class: 'quiet'}, 'None.'));
     return;
   }
   for (const e of shown) list.append(pairCard(e));

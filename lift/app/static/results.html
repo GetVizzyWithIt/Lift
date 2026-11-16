@@ -9,9 +9,9 @@
 </head>
 <body>
 <div class="wrap wide">
-  <div class="head"><h1>Results</h1><a class="button" href="/">Library</a></div>
+  <div class="head"><h1>Results</h1><div class="headacts"><a class="button" href="/library">Library</a><a class="button" href="/review">Review</a></div></div>
   <nav class="tabs" role="tablist" aria-label="Results pages">
-    <a role="tab" href="#progress" data-tab="progress">Progress</a><a role="tab" href="#songs" data-tab="songs">Songs</a><a role="tab" href="#lab" data-tab="lab">Lab</a><a role="tab" href="#log" data-tab="log">Log</a><a role="tab" href="#health" data-tab="health">Dataset health</a><a role="tab" href="#review" data-tab="review">Needs review <span class="count" id="review-count" hidden></span></a>
+    <a role="tab" href="#progress" data-tab="progress">Progress</a><a role="tab" href="#songs" data-tab="songs">Songs</a><a role="tab" href="#lab" data-tab="lab">Lab</a><a role="tab" href="#log" data-tab="log">Log</a><a role="tab" href="#health" data-tab="health">Dataset health</a><a role="tab" href="#review" data-tab="review">Match pairs <span class="count" id="review-count" hidden></span></a>
   </nav>
 
   <div class="tab" id="tab-progress" role="tabpanel" data-tab="progress">
@@ -323,12 +323,14 @@
   </div>
 
   <div class="tab" id="tab-review" role="tabpanel" data-tab="review" hidden>
-    <p class="quiet lede">Chart and recording pairs the match check is unsure of. Listen with the key playing along and
-      say whether they match. Nothing here is used for training or the benchmark until it passes the check or you
-      mark it good.</p>
+    <p class="note-box small">Questions for you are on the <a href="/review">Review</a> page now: only the ones every
+      automatic check left unsettled, each with the chart bars and the right moment of the recording.</p>
+    <p class="quiet lede">Every chart and recording pair in the match report, with the check&rsquo;s verdict and yours. Most
+      pairs marked &ldquo;check&rdquo; here are still being worked on automatically; you don&rsquo;t need to go through them.
+      Nothing is used for training or the benchmark until it passes the check or you mark it good.</p>
     <div class="filters">
       <div class="seg" id="review-filter" role="group" aria-label="Which pairs">
-        <button type="button" data-v="todo" class="on">To review</button><button type="button" data-v="reject">Set aside</button><button type="button" data-v="pass">Passed</button><button type="button" data-v="all">All</button>
+        <button type="button" data-v="all" class="on">All</button><button type="button" data-v="todo">Unsure, no verdict</button><button type="button" data-v="reject">Set aside</button><button type="button" data-v="pass">Passed</button>
       </div>
     </div>
     <div id="review-summary" class="quiet small"></div>
