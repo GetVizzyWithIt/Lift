@@ -16,7 +16,7 @@ async function main() {
   const r = await fetch(api);
   if (!r.ok) { $('#title').textContent = 'This song isn’t in the Library'; return; }
   const s = await r.json();
-  document.title = `${s.title} · Saxscribe`;
+  document.title = `${s.title} · Lift`;
   $('#title').textContent = s.title;
   $('#crumb').textContent = `› ${s.player || ''}`;
   $('#sub').textContent = [s.player, s.year, HORN_NAMES[s.horn], s.played_by && `played by ${s.played_by}`].filter(Boolean).join(' · ');

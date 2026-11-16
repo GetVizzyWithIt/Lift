@@ -62,3 +62,25 @@ function checkIn() { fetch('/api/alive', {method: 'POST'}).catch(() => {}); }
 checkIn();
 setInterval(checkIn, 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkIn(); });
+
+// Lift top bar: the same bar on every page that sets <body data-page="...">. The Review tab shows
+// how many review questions are waiting (GET /api/review/inbox -> {left}), hidden at zero.
+const LIFT_PAGES = [['transcribe', '/', 'Transcribe'], ['library', '/library', 'Library'],
+  ['results', '/results', 'Results'], ['review', '/review', 'Review']];
+function liftBar() {
+  const page = document.body.dataset.page;
+  if (!page || document.querySelector('.liftbar')) return;
+  const bar = document.createElement('header');
+  bar.className = 'liftbar';
+  bar.innerHTML = `<div class="in"><a class="brand" href="/library" aria-label="Lift: Library">` +
+    `<img src="/static/brand/logo-dark.svg" alt="Lift" width="99" height="32"></a><nav aria-label="Pages">` +
+    LIFT_PAGES.map(([id, href, name]) => `<a href="${href}"${id === page ? ' aria-current="page"' : ''}>${name}` +
+      (id === 'review' ? ' <span class="count" id="liftReviewCount" hidden></span>' : '') + '</a>').join('') +
+    '</nav></div>';
+  document.body.prepend(bar);
+  fetch('/api/review/inbox').then(r => r.ok ? r.json() : null).then(d => {
+    const n = d && d.left, el = document.getElementById('liftReviewCount');
+    if (el && n > 0) { el.textContent = n; el.hidden = false; }
+  }).catch(() => {});
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', liftBar); else liftBar();

@@ -1,5 +1,5 @@
 // Results page: scorecard history per test set, with a marker for each model or pipeline change.
-// Data: GET /api/results (saxscribe/score/history.py). Charts are plain SVG.
+// Data: GET /api/results (lift/score/history.py). Charts are plain SVG.
 
 const SERIES = [
   {key: 'note_f1', name: 'Note F1', color: 'var(--s-note)'},
@@ -23,7 +23,7 @@ const SET_INFO = {
 };
 const ORDER = ['omnibook', 'omnibook-mix', 'urmp', 'bach10', 'choralebricks', 'grfia-alto', 'grfia-tenor',
                'filosax', 'pairs', 'urmp-mix', 'bach10-mix', 'weimar-key'];
-const REPO = 'https://github.com/GetVizzyWithIt/Saxscribe/pull/';
+const REPO = 'https://github.com/GetVizzyWithIt/lift/pull/';
 
 let DATA = null;
 const state = {range: 'all', marks: 'scored'};
@@ -329,5 +329,5 @@ let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() 
   render();
   const local = DATA.runs.filter(r => r.source === 'scorecard').length;
   $('#sources').textContent = `${DATA.runs.length} runs: ${DATA.runs.length - local} from the evaluation log, ` +
-    `${local} from scorecards run on this Mac. Every python -m saxscribe score run adds itself here.`;
+    `${local} from scorecards run on this Mac. Every python -m lift score run adds itself here.`;
 })();

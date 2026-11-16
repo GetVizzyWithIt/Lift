@@ -3,19 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Saxscribe results</title>
+<title>Results · Lift</title>
+<link rel="icon" href="/static/brand/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/brand/apple-touch-icon.png">
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/results.css">
 </head>
-<body>
+<body data-page="results">
 <div class="wrap wide">
-  <div class="head"><h1>Results</h1><div class="headacts"><a class="button" href="/library">Library</a><a class="button" href="/review">Review</a></div></div>
+  <div class="head"><h1>Results</h1></div>
   <nav class="tabs" role="tablist" aria-label="Results pages">
     <a role="tab" href="#progress" data-tab="progress">Progress</a><a role="tab" href="#songs" data-tab="songs">Songs</a><a role="tab" href="#lab" data-tab="lab">Lab</a><a role="tab" href="#log" data-tab="log">Log</a><a role="tab" href="#health" data-tab="health">Dataset health</a><a role="tab" href="#review" data-tab="review">Match pairs <span class="count" id="review-count" hidden></span></a>
   </nav>
 
   <div class="tab" id="tab-progress" role="tabpanel" data-tab="progress">
-    <p class="quiet lede">How well Saxscribe transcribes band records today, and how it got here. Every number on
+    <p class="quiet lede">How well Lift transcribes band records today, and how it got here. Every number on
       this page is measured on the same benchmark, so a step up means the transcriber got better, not that the
       test changed. The main score is note F1 ignoring note ends: the notes&rsquo; starts and pitches must match the
       answer key, but not their ends, because keys read from a page get note ends wrong (ADR-0044). The score with note
@@ -319,7 +321,7 @@
       <div class="scroll"><table class="grid" id="health-pdfs"></table></div>
       <p><button type="button" id="health-more" hidden>Show more</button></p>
     </section>
-    <p class="quiet small" id="health-empty" hidden>No PDF ledger yet (docs/data/ledger/ or ~/saxscribe-runs/catalog/ledger/).</p>
+    <p class="quiet small" id="health-empty" hidden>No PDF ledger yet (docs/data/ledger/ or ~/lift-runs/catalog/ledger/).</p>
   </div>
 
   <div class="tab" id="tab-review" role="tabpanel" data-tab="review" hidden>

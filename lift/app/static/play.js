@@ -55,7 +55,7 @@ function lastAtOrBefore(list, q) {
 // ---- loading. The chart is always the horn it was made for; transposing will live in the library.
 async function loadJob() {
   job = await (await fetch(libraryId ? `${API}/job` : API)).json();
-  document.title = `${job.title} · Saxscribe`;
+  document.title = `${job.title} · Lift`;
   if (libraryId) {
     // An answer key: back goes to its song page, the PDF is the chart itself, and there is no band-only track.
     const back = $('.top a.button'); back.href = `/library/${encodeURIComponent(libraryId)}`; back.textContent = '‹ Song';

@@ -28,7 +28,7 @@ async function loadInbox() {
 function renderInbox() {
   const I = S.inbox;
   $('#inbox').hidden = false; $('#item').hidden = true;
-  document.title = I.left ? `Review (${I.left}) · Saxscribe` : 'Review · Saxscribe';
+  document.title = I.left ? `Review (${I.left}) · Lift` : 'Review · Lift';
   $('#inboxHead').textContent = I.left === 0 ? 'Nothing needs your ears right now'
     : I.left === 1 ? '1 thing needs your ears' : `${I.left} things need your ears`;
   $('#inboxSub').textContent = I.left
@@ -63,7 +63,7 @@ async function openItem(queue, id) {
   $('#question').textContent = it.question;
   $('#listenFor').textContent = it.listen_for ? `Listen for: ${it.listen_for}` : '';
   $('#listenFor').hidden = !it.listen_for;
-  document.title = `${it.kind} · Review · Saxscribe`;
+  document.title = `${it.kind} · Review · Lift`;
 
   // what the machines tried
   $('#triedCard').hidden = !(it.why || it.tried.length);
