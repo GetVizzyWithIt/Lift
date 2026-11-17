@@ -251,9 +251,10 @@ def song(runs: str | Path | None, song_id: str) -> tuple[dict, dict]:
     rep = report.get(song_id)
     item = key_item(row, benchmark_tags(), report)
     f = files(runs, row, rep, etude_links(runs))
+    f["pdf"], f["pages"] = chart_pages(runs, song_id, f["pdf"], f["key"])
     rep = rep or {}
     item.update(href=f"/library/{song_id}", has_audio=f["audio"] is not None, has_stem=f["stem"] is not None,
-                has_key=f["key"] is not None, clip=solo_clip(f["key"]) if f["audio"] is not None else None,
+                has_key=f["key"] is not None, book_pages=f["pages"], clip=solo_clip(f["key"]) if f["audio"] is not None else None,
                 match={"verdict": rep.get("verdict"), "reason": rep.get("reason") or row.get("reason", ""),
                        "length_s": rep.get("length_s"), "tempo_jumps": rep.get("tempo_jumps"),
                        "checked": rep.get("checked"), "austin": rep.get("austin_verdict") or None})
@@ -283,12 +284,69 @@ def bars_file(runs: str | Path | None, song_id: str, key: Path | None) -> Path |
     cands = []
     if key is not None:
         cands.append(key.parent / f"{song_id}_bars.txt")
+    cands.append(runs_dir(runs) / "keys" / "transcribed" / song_id / f"{song_id}_bars.txt")
     m = re.match(r"(ferling|luft)(\d+)_", song_id)
     if m:
         etude_keys = runs_dir(runs) / "keys" / "etudes" / "keys"
         cands.append(etude_keys / (f"study{int(m.group(2)):02d}_bars.txt" if m.group(1) == "ferling"
                                    else f"luft{int(m.group(2)):02d}_bars.txt"))
     return next((c for c in cands if c.is_file()), None)
+
+
+PAGES = re.compile(r"\(pages? (\d+)(?:\s*[-–]\s*(\d+))?\b")  # "(pages 5-7)", "(pages 63-65 of the book; ..."
+ENDS = re.compile(r"ends on ([a-z])-(\d+)\.")             # "# study 8, ... ends on f-04.musicxml"
+
+
+def _head(path: Path | None) -> str:
+    """The first line of a bars.txt: the page reader's note on where the chart came from."""
+    if path is None:
+        return ""
+    try:
+        with path.open() as f:
+            return f.readline()
+    except OSError:
+        return ""
+
+
+def chart_pages(runs: str | Path | None, song_id: str, pdf: Path | None, key: Path | None):
+    """(the PDF to show, its pages for this song or None for all of it).
+
+    Songs cut from a book share the book's PDF in the ledger (one fingerprint for the whole
+    book), so the Library would show every song in it. The page reader wrote down which pages
+    it read, and those are this song's pages:
+      - book solos: "(pages 5-7)" on the first line of <id>_bars.txt, page numbers of the book PDF;
+      - etudes: "ends on f-04" (page 4 of the etude book); it starts on that page, or on the page
+        after the one before it ends when it runs longer (the first one read: the reader's first page).
+    A song whose folder holds its own <id>_transcription.pdf, and no page note, shows that file."""
+    bars = bars_file(runs, song_id, key)
+    head = _head(bars)
+    m = PAGES.search(head)
+    if m and pdf is not None and pdf.parent.name != song_id:
+        a, b = int(m.group(1)), int(m.group(2) or m.group(1))
+        if 1 <= a <= b:
+            return pdf, list(range(a, b + 1))
+    folder = (key.parent if key is not None and key.parent.name == song_id
+              else runs_dir(runs) / "keys" / "transcribed" / song_id)
+    own = folder / f"{song_id}_transcription.pdf"
+    if own.is_file() and not m:
+        return own, None
+    e = ENDS.search(head)
+    if e and pdf is not None and bars is not None:
+        letter, end = e.group(1), int(e.group(2))
+        start = end
+        n = re.search(r"(\d+)_bars\.txt$", bars.name)
+        prev = (bars.with_name(re.sub(r"\d+_bars\.txt$", f"{int(n.group(1)) - 1:02d}_bars.txt", bars.name))
+                if n and int(n.group(1)) > 1 else None)
+        p = ENDS.search(_head(prev)) if prev is not None and prev.is_file() else None
+        if p and p.group(1) == letter and int(p.group(2)) < end:
+            start = int(p.group(2)) + 1  # the page after the one before ends
+        elif prev is None or not prev.is_file():  # the first etude read from this book
+            read = sorted(int(x.stem.split("-")[1]) for x in (bars.parent.parent / "omr").glob(f"{letter}-*.musicxml")
+                          if x.stem.split("-")[1].isdigit())
+            start = read[0] if read and read[0] <= end else end
+        start = min(start, end)
+        return pdf, list(range(start, end + 1))
+    return pdf, None
 
 
 def masks(runs: str | Path | None, song_id: str) -> str:

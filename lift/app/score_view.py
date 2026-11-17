@@ -141,8 +141,9 @@ def bar_q(nota: dict):
     """bar number -> quarter notes from the top to that bar's first beat. Takes have four beats in
     every bar; an answer key (key_take.py) can change meter and lists where each bar starts."""
     if nota.get("bar_starts"):
-        starts = {b: Fraction(s) for b, s in zip(nota.get("bar_numbers") or range(1, len(nota["bar_starts"]) + 1),
-                                                 nota["bar_starts"])}
+        starts = {}  # a bar played twice (a repeat) is found at its first pass
+        for b, s in zip(nota.get("bar_numbers") or range(1, len(nota["bar_starts"]) + 1), nota["bar_starts"]):
+            starts.setdefault(b, Fraction(s))
         last = max(starts) if starts else 0
         end = Fraction(nota.get("bar_end") or (starts.get(last, Fraction(0)) + BEATS_PER_BAR))
         return lambda bar: starts[bar] if bar in starts else end + BEATS_PER_BAR * (bar - last - 1)

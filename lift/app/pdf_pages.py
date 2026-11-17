@@ -44,3 +44,27 @@ def png(pdf: Path, sha: str, n: int, cache: Path | None = None) -> Path:
     image.save(tmp, optimize=True)
     tmp.replace(out)
     return out
+
+
+def cut(pdf: Path, sha: str, pages: list[int], cache: Path | None = None) -> Path:
+    """A PDF of just these pages (from 1) of a book, made once and kept next to the page images.
+    The book itself is never changed."""
+    out = (cache or CACHE) / sha / f"pages-{pages[0]}-{pages[-1]}.pdf"
+    if out.exists():
+        return out
+    import pypdfium2 as pdfium
+    doc = pdfium.PdfDocument(str(pdf))
+    try:
+        keep = [n - 1 for n in pages if 1 <= n <= len(doc)]
+        if not keep:
+            raise IndexError(pages[0])
+        new = pdfium.PdfDocument.new()
+        new.import_pages(doc, keep)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        tmp = out.with_suffix(".tmp.pdf")
+        new.save(str(tmp))
+        new.close()
+    finally:
+        doc.close()
+    tmp.replace(out)
+    return out
