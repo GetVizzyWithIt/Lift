@@ -252,7 +252,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "covers":
         from .app import covers
         counts = covers.run(args.runs, online=not args.offline, redo=args.redo)
+        why = counts.pop("why", {})
         print(", ".join(f"{k} {v}" for k, v in counts.items()))
+        if why:
+            print("errors by reason: " + ", ".join(f"{k} {v}" for k, v in sorted(why.items(), key=lambda kv: -kv[1])))
         print(f"Details: {covers.folder() / '_summary.txt'}; check {covers.folder() / 'needs_a_look.csv'}")
         return 0
     if args.cmd == "score":

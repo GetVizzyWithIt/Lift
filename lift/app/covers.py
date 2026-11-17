@@ -26,6 +26,7 @@ import shutil
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -37,6 +38,7 @@ NEAR = ("cover", "folder", "front", "album")
 USER_AGENT = "Lift/1.0 (personal sax transcription tool; https://github.com/GetVizzyWithIt/lift)"
 MB = "https://musicbrainz.org/ws/2/"
 CAA = "https://coverartarchive.org/release/{}/front-250"
+CAA_GROUP = "https://coverartarchive.org/release-group/{}/front-250"  # any release of the album that has art
 SURE = 90  # MusicBrainz match score (0-100) needed to use a lookup without a look
 
 
@@ -108,10 +110,64 @@ def nearby(audio: Path) -> bytes | None:
     return None
 
 
-def _get(url: str, timeout: float = 20) -> bytes:
+def _get(url: str, timeout: float = 20, tries: int = 4) -> bytes:
+    """Fetch a URL. MusicBrainz answers 503 when asked too fast, and the network blips: wait and
+    try again (2, 4, 8 s). A 404 (no such page or no cover) is final and raised at once."""
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read()
+    for n in range(tries):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code not in (429, 500, 502, 503, 504) or n == tries - 1:
+                raise
+        except (urllib.error.URLError, TimeoutError, ConnectionError):
+            if n == tries - 1:
+                raise
+        time.sleep(2 ** (n + 1))
+    raise RuntimeError("unreachable")
+
+
+def _missing(e: Exception) -> bool:
+    return isinstance(e, urllib.error.HTTPError) and e.code == 404
+
+
+def art_urls(url: str, get=_get) -> list[str]:
+    """The cover URLs to try for one pick, best first. A Cover Art Archive release often has no
+    scan of its own while another pressing of the same album does, so a release URL is followed
+    by its album's (release group's) cover."""
+    m = re.match(r"https://coverartarchive\.org/release/([0-9a-f-]{36})/", url)
+    if not m:
+        return [url]
+    try:
+        info = json.loads(get(MB + f"release/{m.group(1)}?" + urllib.parse.urlencode({"inc": "release-groups",
+                                                                                       "fmt": "json"})))
+        group = (info.get("release-group") or {}).get("id")
+    except Exception:  # noqa: BLE001 - the release URL itself may still work
+        group = None
+    return [url] + ([CAA_GROUP.format(group)] if group else [])
+
+
+def fetch_art(urls: list[str], get=_get) -> bytes | None:
+    """The first of these cover URLs that has a picture; None if every one says there is none."""
+    for u in urls:
+        try:
+            data = get(u)
+        except Exception as e:  # noqa: BLE001
+            if _missing(e):
+                continue
+            raise
+        if _kind(data):
+            return data
+    return None
+
+
+def _why(e: Exception) -> str:
+    if isinstance(e, urllib.error.HTTPError):
+        return {404: "no cover", 503: "MusicBrainz busy", 429: "too many requests"}.get(e.code, f"HTTP {e.code}")
+    if isinstance(e, (urllib.error.URLError, TimeoutError, ConnectionError)):
+        return "network"
+    return type(e).__name__
 
 
 def _clean(s: str) -> str:
@@ -143,7 +199,9 @@ def lookup(player: str, record: str, title: str, get=_get) -> dict | None:
         if not rel.get("id"):
             continue
         sure = bool(record) and score >= SURE and bool(want) and want in artist.lower()
-        return {"url": CAA.format(rel["id"]), "score": score, "release": rel.get("title", ""), "artist": artist,
+        group = (rel.get("release-group") or {}).get("id")
+        urls = [CAA.format(rel["id"])] + ([CAA_GROUP.format(group)] if group else [])
+        return {"url": urls[-1], "urls": urls, "score": score, "release": rel.get("title", ""), "artist": artist,
                 "sure": sure}
     return None
 
@@ -181,7 +239,14 @@ def run(runs: str | Path | None = None, online: bool = True, redo: bool = False,
     over = overrides(where)
     counts = {"songs": len(songs), "already": 0, "override": 0, "embedded": 0, "nearby": 0, "lookup": 0,
               "logo": 0, "needs_a_look": 0, "errors": 0}
-    look, log = [], []
+    look, log, why = [], [], {}
+
+    def failed(sid, what, e):
+        counts["errors"] += 1
+        reason = _why(e)
+        why[reason] = why.get(reason, 0) + 1
+        log.append(f"{sid}\t{what} failed: {reason}: {e}")
+
     for i, s in enumerate(songs, 1):
         sid = s["id"]
         _bar(i, len(songs), s.get("title", sid))
@@ -190,10 +255,14 @@ def run(runs: str | Path | None = None, online: bool = True, redo: bool = False,
             data = None
             if src.lower() != "none":
                 try:
-                    data = get(src) if src.startswith("http") else Path(src).expanduser().read_bytes()
+                    if src.startswith("http"):
+                        data = fetch_art(art_urls(src, get), get)
+                        if data is None:
+                            log.append(f"{sid}\toverride has no cover at {src}")
+                    else:
+                        data = Path(src).expanduser().read_bytes()
                 except Exception as e:  # noqa: BLE001 - one bad override shouldn't stop the run
-                    counts["errors"] += 1
-                    log.append(f"{sid}\toverride failed: {e}")
+                    failed(sid, "override", e)
             for ext in EXTS:
                 (where / f"{sid}{ext}").unlink(missing_ok=True)
             if data and save(sid, data, where):
@@ -219,15 +288,17 @@ def run(runs: str | Path | None = None, online: bool = True, redo: bool = False,
                 hit = lookup(s.get("player", ""), s.get("record", ""), s.get("title", ""), get=get)
                 time.sleep(pause)
                 if hit and hit["sure"]:
-                    if save(sid, get(hit["url"]), where):
+                    data = fetch_art(hit.get("urls") or [hit["url"]], get)
+                    if data and save(sid, data, where):
                         found = "lookup"
+                    elif data is None:
+                        log.append(f"{sid}\tlookup matched {hit['release']!r} but it has no cover")
                 elif hit:
                     look.append({"id": sid, "title": s.get("title", ""), "player": s.get("player", ""),
                                  "record": s.get("record", ""), "found_release": hit["release"],
                                  "found_artist": hit["artist"], "score": hit["score"], "url": hit["url"]})
-            except Exception as e:  # noqa: BLE001 - a 404 (no art) or a network blip: try the rest
-                counts["errors"] += 1
-                log.append(f"{sid}\tlookup failed: {e}")
+            except Exception as e:  # noqa: BLE001 - a network blip that outlasted the retries: try the rest
+                failed(sid, "lookup", e)
         if found:
             counts[found] += 1
             log.append(f"{sid}\t{found}")
@@ -240,6 +311,7 @@ def run(runs: str | Path | None = None, online: bool = True, redo: bool = False,
         w = csv.DictWriter(f, fieldnames=cols)
         w.writeheader()
         w.writerows(look)
+    counts["why"] = why
     lines = [f"Covers run {time.strftime('%Y-%m-%d %H:%M')}"] + [f"{k}: {v}" for k, v in counts.items()]
     lines += ["", "To use a cover from needs_a_look.csv, or to drop a wrong one, add a row to overrides.csv",
               "(columns id,source; source is a URL, a file path, or none) and run again.", ""] + log
