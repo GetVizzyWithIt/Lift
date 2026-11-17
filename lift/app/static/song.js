@@ -30,7 +30,7 @@ async function main() {
   if (!s.pages) box.innerHTML = `<p class="quiet card">${esc(s.pdf_error || 'This PDF has no pages to show.')}</p>`;
   for (let n = 1; n <= s.pages; n++) {
     const img = el('img', {src: `${api}/page/${n}`, alt: `Page ${n} of ${s.pages}`, loading: n > 2 ? 'lazy' : 'eager'});
-    const fig = el('figure', {class: 'page'}); fig.append(img, el('figcaption', {class: 'quiet small'}, `Page ${n} of ${s.pages}`));
+    const fig = el('figure', {class: 'page'}); fig.append(img, el('figcaption', {class: 'quiet small'}, `Page ${n} of ${s.pages}` + (s.book_pages ? ` · book page ${s.book_pages[n - 1]}` : '')));
     box.append(fig);
   }
 

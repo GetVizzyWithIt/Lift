@@ -44,7 +44,7 @@ let Q = [], T = [];
 const qToT = q => interp(q, Q, T);
 const tToQ = t => interp(t, T, Q);
 const barStart = b => Math.max(0, qToT(barQ(b)));
-const barEnd = b => qToT(barQ(b + 1));
+const barEnd = b => qToT(BAR && b in BAR.after ? BAR.after[b] : barQ(b + 1));
 
 function lastAtOrBefore(list, q) {
   let lo = 0, hi = list.length - 1, best = -1;
@@ -104,7 +104,12 @@ async function loadScore(v) {
   if (data.bar_starts && data.bar_starts.length) {
     const num = data.bar_numbers || data.bar_starts.map((_, i) => i + 1);
     BAR = {num, q: data.bar_starts, end: data.bar_end ?? (data.bar_starts[data.bar_starts.length - 1] + BEATS), at: {}};
-    num.forEach((n, i) => { BAR.at[n] = data.bar_starts[i]; });
+    BAR.after = {};  // where each bar's first pass ends (the next bar played, which a repeat can make any bar)
+    num.forEach((n, i) => {
+      if (n in BAR.at) return;  // a repeated bar: its first pass
+      BAR.at[n] = data.bar_starts[i];
+      BAR.after[n] = i + 1 < num.length ? data.bar_starts[i + 1] : BAR.end;
+    });
   }
   starts = []; measures = []; qOf = {}; barOf = {}; lit = []; litMeasure = null;
   // Verovio's clock can slip by a tuplet note (a tie inside a 16th triplet loses 1/6 beat), which

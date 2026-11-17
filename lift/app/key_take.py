@@ -33,7 +33,7 @@ from pathlib import Path
 from ..horns import HORNS
 from ..take import Take
 
-VERSION = 2
+VERSION = 4
 GREY = "#8C877E"
 TOKEN = re.compile(r"^(?P<grace>g)?(?P<name>r|[A-G][#b]*-?\d)(?:/(?P<dur>[\d.]+))?(?P<tie>~)?$")
 
@@ -49,28 +49,67 @@ def read_key(path: Path) -> list[dict]:
             and n.get("onset") is not None]
 
 
+def _tokens(text: str) -> list[dict]:
+    q, out = Fraction(0), []
+    for tok in text.split():
+        m = TOKEN.match(tok)
+        if not m:
+            continue
+        if m.group("grace"):
+            out.append({"q": q, "dur": Fraction(0), "rest": False, "grace": True, "name": m.group("name"), "tie": False})
+            continue
+        dur = fr(m.group("dur") or 1)
+        out.append({"q": q, "dur": dur, "rest": m.group("name") == "r", "grace": False,
+                    "name": m.group("name"), "tie": bool(m.group("tie"))})
+        q += dur
+    return out
+
+
 def read_bars(path: Path | None) -> list[dict]:
-    """[{bar, length, tokens: [{q (from the bar's start), dur, rest, grace, name, tie}]}] from a bars.txt."""
+    """[{bar, length, tokens: [{q (from the bar's start), dur, rest, grace, name, tie}]}] from a bars.txt,
+    in the order the record plays them.
+
+    A "# perform: 1-16 1-8 r32 17-40" line (repeats, D.C., gaps; the same line run_keys.py lines the
+    key up with) unrolls the page: bars come back once per pass, and "rN" adds N empty 4-beat bars
+    (numbered 0) for stretches of the record that aren't on the page. A "5-7 @4 rest" line is three
+    bars, and proofreading notes after " #" on a line are not notes."""
     if path is None or not path.exists():
         return []
-    out = []
+    page: dict[int, dict] = {}
+    seq: list[int] = []
+    order = None
     for line in path.read_text().splitlines():
-        parts = line.split()
-        if len(parts) < 2 or not parts[0].isdigit() or not parts[1].startswith("@"):
+        t = line.strip()
+        if t.startswith("# perform:"):
+            order = t.split(":", 1)[1].split()
             continue
-        length, q, tokens = fr(parts[1][1:]), Fraction(0), []
-        for tok in parts[2:]:
-            m = TOKEN.match(tok)
-            if not m:
-                continue
-            if m.group("grace"):
-                tokens.append({"q": q, "dur": Fraction(0), "rest": False, "grace": True, "name": m.group("name"), "tie": False})
-                continue
-            dur = fr(m.group("dur") or 1)
-            tokens.append({"q": q, "dur": dur, "rest": m.group("name") == "r", "grace": False,
-                           "name": m.group("name"), "tie": bool(m.group("tie"))})
-            q += dur
-        out.append({"bar": int(parts[0]), "length": length, "tokens": tokens})
+        if not t or t.startswith("#"):
+            continue
+        t = t.split(" #", 1)[0].strip()
+        parts = t.split(None, 2)
+        if len(parts) < 2 or not parts[1].startswith("@"):
+            continue
+        m = re.fullmatch(r"(\d+)(?:-(\d+))?", parts[0])
+        if not m:
+            continue
+        try:
+            length = fr(parts[1][1:])
+        except (ValueError, ZeroDivisionError):
+            continue
+        a, b = int(m.group(1)), int(m.group(2) or m.group(1))
+        for n in range(a, b + 1):
+            page[n] = {"bar": n, "length": length, "tokens": _tokens(parts[2] if len(parts) > 2 else "")}
+            seq.append(n)
+    if not order:
+        return [page[n] for n in seq]
+    out = []
+    for span in order:
+        if span.startswith("r") and span[1:].isdigit():
+            out += [{"bar": 0, "length": Fraction(4), "tokens": []} for _ in range(int(span[1:]))]
+            continue
+        m = re.fullmatch(r"(\d+)(?:-(\d+))?", span)
+        if m:
+            out += [page[n] for n in range(int(m.group(1)), int(m.group(2) or m.group(1)) + 1) if n in page]
     return out
 
 
@@ -182,6 +221,40 @@ def _from_page(key, order, bars, starts):
     return out
 
 
+GRID = Fraction(1, 48)  # a 64th-note triplet: every multiple of it can be written as sheet music
+
+
+def _snap(x: Fraction) -> Fraction:
+    return Fraction(round(x / GRID)) * GRID
+
+
+def tidy(bars: list[dict]) -> list[dict]:
+    """Rhythms the page can't show. A bar rebuilt from the key, or a page reading with a 5-tuplet or a
+    misread length, can put a note on a spot like 123/740 of a beat, which no note value can write
+    (music21 refuses: "inexpressible durations"). Snap each event's start and end inside its bar to
+    the nearest 1/48 of a beat. Only the drawing moves, by at most 1/96 of a beat; the key's note
+    times (and so the play-along's timing) are untouched, and no note is dropped."""
+    out = []
+    for b in bars:
+        length = max(_snap(b["length"]), GRID)
+        ev = []
+        for e in b["events"]:
+            q = min(max(_snap(e["q"]), Fraction(0)), length)
+            if e["grace"]:
+                ev.append({**e, "q": q})
+                continue
+            end = min(_snap(e["q"] + e["dur"]), length)
+            if e["rest"]:
+                if end > q:
+                    ev.append({**e, "q": q, "dur": end - q})
+                continue
+            if end <= q:  # never lose a note: it keeps the smallest written value
+                end = q + GRID
+            ev.append({**e, "q": q, "dur": end - q})
+        out.append({**b, "length": max(length, max((e["q"] + e["dur"] for e in ev), default=length)), "events": ev})
+    return out
+
+
 def time_signature(ql: Fraction) -> str | None:
     """A bar's length in quarter notes as a meter: 4 -> 4/4, 3 -> 3/4, 2.5 -> 5/8, 3.75 -> 15/16."""
     for unit in (4, 8, 16):
@@ -211,6 +284,7 @@ def build(key_path: Path, bars_path: Path | None, horn: str, folder: Path, masks
     folder.mkdir(parents=True, exist_ok=True)
     key = read_key(key_path)
     bars, made_from = layout(key, read_bars(bars_path))
+    bars = tidy(bars)
     mask = masked_bars(masks)
     h = HORNS.get(horn)
     shift = h.written_shift if h else 0

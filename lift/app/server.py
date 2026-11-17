@@ -179,7 +179,11 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
         from . import pdf_pages
         item, f = song_or_404(song_id)
         try:
-            item["pages"] = pdf_pages.count(f["pdf"])
+            total = pdf_pages.count(f["pdf"])
+            if f.get("pages"):  # a song cut from a book: only its own pages
+                f["pages"] = [n for n in f["pages"] if n <= total]
+                item["book_pages"] = f["pages"] or None
+            item["pages"] = len(f["pages"]) if f.get("pages") else total
         except Exception as e:  # an unreadable PDF still leaves the recording usable
             item["pages"], item["pdf_error"] = 0, f"Could not read the PDF: {e}"
         return item
@@ -189,6 +193,11 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
         from . import catalog, pdf_pages
         _, f = song_or_404(song_id)
         try:
+            pages = f.get("pages")
+            if pages:  # page n of this song = page pages[n-1] of the book
+                if not 1 <= n <= len(pages):
+                    raise IndexError(n)
+                n = pages[n - 1]
             return FileResponse(pdf_pages.png(f["pdf"], catalog.sha256(f["pdf"]), n), media_type="image/png")
         except IndexError:
             raise HTTPException(404, "No such page")
@@ -205,7 +214,14 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
     def song_pdf(song_id: str):
         item, f = song_or_404(song_id)
         name = re.sub(r'[\\/:*?"<>|]+', "", f"{item['title']} - {item['player']}").strip() or song_id
-        return FileResponse(f["pdf"], media_type="application/pdf", filename=f"{name}.pdf",
+        pdf = f["pdf"]
+        if f.get("pages"):  # just this song's pages of the book
+            from . import catalog, pdf_pages
+            try:
+                pdf = pdf_pages.cut(pdf, catalog.sha256(pdf), f["pages"])
+            except Exception:
+                pdf = f["pdf"]
+        return FileResponse(pdf, media_type="application/pdf", filename=f"{name}.pdf",
                             content_disposition_type="inline")
 
     @app.get("/api/library/{song_id}/audio/{which}")
@@ -234,7 +250,7 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
             raise HTTPException(404, "No such song in the Library")
         except LookupError as e:
             raise HTTPException(409, str(e))
-        except (OSError, ValueError) as e:
+        except Exception as e:  # a key music21 can't write (OSError, ValueError, MusicXMLExportException...)
             raise HTTPException(422, f"Could not turn the answer key into a score: {e}")
         return library.root / "_keys" / song_id, take, job
 
