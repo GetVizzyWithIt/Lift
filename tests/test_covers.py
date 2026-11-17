@@ -167,3 +167,40 @@ def test_busy_answers_are_retried(monkeypatch):
     monkeypatch.setattr(urllib.request, "urlopen", urlopen)
     monkeypatch.setattr(covers.time, "sleep", lambda s: None)
     assert covers._get("https://musicbrainz.org/x") == JPG and len(calls) == 3
+
+
+def test_record_notes_are_tidied_into_album_names():
+    assert covers.tidy_record("Blue Train (Blue Note BST 81577)") == ("", "Blue Train")
+    assert covers.tidy_record("Foreigner - 4 (Atlantic, 1981), 2008 remaster") == ("Foreigner", "4")
+    assert covers.tidy_record("Kaleidoscope,") == ("", "Kaleidoscope")
+    assert covers.tidy_record("") == ("", "")
+
+
+def test_the_researched_album_names_are_read_and_name_real_songs():
+    named = covers.albums()
+    assert named["andrew-love_takin-it-to-the-streets_1976"] == ("The Doobie Brothers", "Takin' It to the Streets")
+    assert all(album for _, album in named.values())
+
+
+def test_a_sidemans_solo_matches_on_the_album_artist():
+    """Andrew Love plays on a Doobie Brothers record: the release credits them, not him."""
+    seen = []
+
+    def get(url):
+        seen.append(urllib.parse.unquote_plus(url))
+        if "coverartarchive" in url:
+            return JPG
+        return fake_mb(100, "The Doobie Brothers")(url)
+    import urllib.parse
+    hit = covers.lookup("Andrew Love", "Takin' It to the Streets", "x", get=get, album_artist="The Doobie Brothers")
+    assert hit["sure"] and 'artist:"The Doobie Brothers"' in seen[0]
+    assert not covers.lookup("Andrew Love", "Takin' It to the Streets", "x", get=get)["sure"]
+
+
+def test_an_album_musicbrainz_doesnt_know_falls_back_to_a_tune_suggestion():
+    def get(url):
+        if "release/?" in url:
+            return json.dumps({"releases": []}).encode()
+        return fake_mb(100, "Charlie Parker", "recording")(url)
+    hit = covers.lookup("Charlie Parker", "Some Lost 78", "Confirmation", get=get)
+    assert hit and not hit["sure"]
