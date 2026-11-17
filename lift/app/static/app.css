@@ -229,7 +229,7 @@ button.danger { color: var(--bad); margin-left: auto; }
 .grp summary::-webkit-details-marker { display: none; }
 .grp summary::before { content: "▸"; color: var(--quiet); width: 1em; }
 .grp[open] summary::before { content: "▾"; }
-.songs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 6px; }
+div.songs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 6px; }
 .song { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: flex;
   align-items: center; gap: 12px; min-width: 0; color: var(--ink); text-decoration: none; }
 .song .art { flex: none; width: 64px; height: 64px; border-radius: 8px; object-fit: cover; background: var(--record); }
