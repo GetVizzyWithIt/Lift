@@ -220,16 +220,25 @@ def lookup(player: str, record: str, title: str, get=_get, album_artist: str = "
         data = json.loads(get(MB + "recording/?" + urllib.parse.urlencode({"query": q, "fmt": "json", "limit": 5})))
         releases = [(rec.get("score", 0), rel) for rec in data.get("recordings", []) for rel in rec.get("releases", [])]
     want = {w for w in (surname(player), surname(album_artist)) if w}
+    found, seen = [], set()
     for score, rel in releases:
         artist = " ".join(c.get("name", "") for c in rel.get("artist-credit", []) if isinstance(c, dict))
-        if not rel.get("id"):
-            continue
-        sure = by_album and score >= SURE and any(w in artist.lower() for w in want)
         group = (rel.get("release-group") or {}).get("id")
+        if not rel.get("id") or (group or rel["id"]) in seen:
+            continue
+        seen.add(group or rel["id"])
+        sure = by_album and score >= SURE and any(w in artist.lower() for w in want)
         urls = [CAA.format(rel["id"])] + ([CAA_GROUP.format(group)] if group else [])
-        return {"url": urls[-1], "urls": urls, "score": score, "release": rel.get("title", ""), "artist": artist,
-                "sure": sure}
-    return None
+        found.append({"url": urls[-1], "urls": urls, "score": score, "release": rel.get("title", ""),
+                      "artist": artist, "sure": sure})
+    if not found:
+        return None
+    # the first candidate, plus every candidate in order: many MusicBrainz releases have no scan, so
+    # callers walk the list until one has a picture
+    return {**found[0], "candidates": found}
+
+
+TRIES = 4  # candidates checked for a picture per song
 
 
 def overrides(where: Path) -> dict[str, str]:
@@ -265,7 +274,7 @@ def run(runs: str | Path | None = None, online: bool = True, redo: bool = False,
     over = overrides(where)
     named = albums()
     counts = {"songs": len(songs), "already": 0, "override": 0, "embedded": 0, "nearby": 0, "lookup": 0,
-              "logo": 0, "needs_a_look": 0, "errors": 0}
+              "logo": 0, "needs_a_look": 0, "no_picture": 0, "errors": 0}
     look, log, why = [], [], {}
 
     def failed(sid, what, e):
@@ -295,9 +304,11 @@ def run(runs: str | Path | None = None, online: bool = True, redo: bool = False,
             if data and save(sid, data, where):
                 counts["override"] += 1
                 log.append(f"{sid}\toverride")
-            else:
+                continue
+            if src.lower() == "none":
                 counts["logo"] += 1
-            continue
+                continue
+            # an override whose picture is gone: look for one the usual way
         if not redo and cached(sid, where):
             counts["already"] += 1
             continue
@@ -315,16 +326,25 @@ def run(runs: str | Path | None = None, online: bool = True, redo: bool = False,
                 album_artist, album = named.get(sid) or tidy_record(s.get("record", ""))
                 hit = lookup(s.get("player", ""), album, s.get("title", ""), get=get, album_artist=album_artist)
                 time.sleep(pause)
-                if hit and hit["sure"]:
-                    data = fetch_art(hit.get("urls") or [hit["url"]], get)
+                cands = (hit or {}).get("candidates") or ([hit] if hit else [])
+                for c in [c for c in cands if c["sure"]][:TRIES]:
+                    data = fetch_art(c.get("urls") or [c["url"]], get)
                     if data and save(sid, data, where):
                         found = "lookup"
-                    elif data is None:
-                        log.append(f"{sid}\tlookup matched {hit['release']!r} but it has no cover")
-                elif hit:
-                    look.append({"id": sid, "title": s.get("title", ""), "player": s.get("player", ""),
-                                 "record": s.get("record", ""), "found_release": hit["release"],
-                                 "found_artist": hit["artist"], "score": hit["score"], "url": hit["url"]})
+                        break
+                if not found:
+                    for c in [c for c in cands if not c["sure"]][:TRIES]:
+                        good = next((u for u in c.get("urls") or [c["url"]] if fetch_art([u], get)), None)
+                        if good:                      # only suggest covers that have a picture
+                            look.append({"id": sid, "title": s.get("title", ""), "player": s.get("player", ""),
+                                         "record": s.get("record", ""), "found_release": c["release"],
+                                         "found_artist": c["artist"], "score": c["score"], "url": good})
+                            break
+                if not found and cands and not any(r["id"] == sid for r in look):
+                    counts["no_picture"] += 1
+                    log.append(f"{sid}\tfound {len(cands)} matching release(s), none with a cover picture")
+                elif not cands:
+                    log.append(f"{sid}\tMusicBrainz found nothing for {album or s.get('title', '')!r}")
             except Exception as e:  # noqa: BLE001 - a network blip that outlasted the retries: try the rest
                 failed(sid, "lookup", e)
         if found:

@@ -204,3 +204,54 @@ def test_an_album_musicbrainz_doesnt_know_falls_back_to_a_tune_suggestion():
         return fake_mb(100, "Charlie Parker", "recording")(url)
     hit = covers.lookup("Charlie Parker", "Some Lost 78", "Confirmation", get=get)
     assert hit and not hit["sure"]
+
+
+def test_candidates_without_a_picture_are_skipped(tmp_path):
+    """MusicBrainz often lists a release with no scan first: the run walks on to one that has a cover."""
+    import urllib.error
+
+    def rel(i, artist="Michael Brecker"):
+        return {"id": f"rel-{i}", "title": f"Press {i}", "score": 100, "artist-credit": [{"name": artist}],
+                "release-group": {"id": f"grp-{i}"}}
+
+    def get(url):
+        if "musicbrainz.org/ws/2/release/?" in url:
+            return json.dumps({"releases": [rel(1), rel(2)]}).encode()
+        if "rel-2/" in url:
+            return PNG
+        if "coverartarchive" in url:
+            raise urllib.error.HTTPError(url, 404, "x", {}, None)
+        raise AssertionError(url)
+    counts = covers.run(where=tmp_path, songs=[{"id": "a", "player": "Michael Brecker", "record": "Album", "title": "T"}],
+                        audio_of=lambda s: None, get=get, pause=0)
+    assert counts["lookup"] == 1 and covers.cached("a", tmp_path).suffix == ".png"
+
+
+def test_an_override_with_no_picture_falls_back_to_a_lookup(tmp_path):
+    import urllib.error
+
+    def get(url):
+        if "dead" in url:
+            raise urllib.error.HTTPError(url, 404, "x", {}, None)
+        return fake_mb(100, "Charlie Parker")(url)
+    (tmp_path / "overrides.csv").write_text("id,source\na,https://example.org/dead.jpg\n")
+    counts = covers.run(where=tmp_path, songs=[{"id": "a", "player": "Charlie Parker", "record": "Bird", "title": "T"}],
+                        audio_of=lambda s: None, get=get, pause=0)
+    assert counts["lookup"] == 1 and covers.cached("a", tmp_path)
+
+
+def test_suggestions_only_list_covers_that_exist(tmp_path):
+    import urllib.error
+
+    def get(url):
+        if "recording/?" in url:
+            return json.dumps({"recordings": [{"score": 100, "releases": [
+                {"id": "r1", "title": "No Scan", "artist-credit": [{"name": "P"}]},
+                {"id": "r2", "title": "Has Scan", "artist-credit": [{"name": "P"}]}]}]}).encode()
+        if "/r1/" in url:
+            raise urllib.error.HTTPError(url, 404, "x", {}, None)
+        return JPG
+    covers.run(where=tmp_path, songs=[{"id": "a", "player": "P", "record": "", "title": "T"}],
+               audio_of=lambda s: None, get=get, pause=0)
+    text = (tmp_path / "needs_a_look.csv").read_text()
+    assert "Has Scan" in text and "No Scan" not in text
