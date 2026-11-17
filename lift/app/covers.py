@@ -10,10 +10,13 @@ Where a cover comes from, first match wins:
   2. Art embedded in the recording itself (MP3/M4A tags), pulled out with ffmpeg. Offline.
   3. An image saved next to the recording: same name as the audio file, or cover/folder/front.jpg.
      Internet Archive downloads often come with one (the 78's label).
-  4. Cover Art Archive (the free cover library behind MusicBrainz), looked up by player and record
-     (or tune). Only the names go out, never audio. A lookup is used only when MusicBrainz scores it
-     90+ and the player's surname is in the release's artist; anything weaker goes on the
-     "needs a look" list with its link, and the card keeps the logo.
+  4. Cover Art Archive (the free cover library behind MusicBrainz), looked up by album and album
+     artist (or by tune). Only the names go out, never audio. The album names come from albums.csv
+     beside this file (researched by hand: the original album, and whose album it is, since a
+     sideman's solo sits on someone else's record), else from the catalog's record note, tidied.
+     A lookup is used only when MusicBrainz scores it 90+ and the player's or album artist's
+     surname is in the release's artist; anything weaker goes on the "needs a look" list with its
+     link, and the card keeps the logo.
 
 Each run writes _summary.txt and needs_a_look.csv in the covers folder.
 """
@@ -40,6 +43,25 @@ MB = "https://musicbrainz.org/ws/2/"
 CAA = "https://coverartarchive.org/release/{}/front-250"
 CAA_GROUP = "https://coverartarchive.org/release-group/{}/front-250"  # any release of the album that has art
 SURE = 90  # MusicBrainz match score (0-100) needed to use a lookup without a look
+ALBUMS = Path(__file__).with_name("albums.csv")
+
+
+def albums(path: Path = ALBUMS) -> dict[str, tuple[str, str]]:
+    """Song id -> (album artist, album), researched by hand."""
+    if not path.is_file():
+        return {}
+    with path.open(newline="") as f:
+        return {r["id"]: (r.get("album_artist", "").strip(), r.get("album", "").strip())
+                for r in csv.DictReader(f) if r.get("id") and r.get("album")}
+
+
+def tidy_record(record: str) -> tuple[str, str]:
+    """The catalog's record note -> (album artist, album). Notes look like "Blue Train (Blue Note
+    BST 81577)", "Foreigner - 4 (Atlantic, 1981), 2008 remaster" or "Monsoon,": drop the label and
+    year in brackets and anything after them, and split "Artist - Album"."""
+    r = re.sub(r"\(.*$", "", record or "").strip().rstrip(",;").strip()
+    artist, _, album = r.partition(" - ")
+    return (artist.strip(), album.strip()) if album else ("", r)
 
 
 def folder() -> Path:
@@ -179,26 +201,30 @@ def surname(player: str) -> str:
     return words[-1].lower() if words else ""
 
 
-def lookup(player: str, record: str, title: str, get=_get) -> dict | None:
+def lookup(player: str, record: str, title: str, get=_get, album_artist: str = "") -> dict | None:
     """The best Cover Art Archive candidate: {url, score, release, artist, sure} or None.
-    Searches releases by record name when there is one, else recordings by tune; MusicBrainz asks
+    Searches releases by album name when there is one, else (or when that finds nothing) recordings by
+    tune, which are only ever suggestions; MusicBrainz asks
     for at most one request a second, so callers wait between songs."""
     if not player or not (record or title):
         return None
+    releases, by_album = [], False
     if record:
-        q = f'release:"{_clean(record)}" AND artist:"{_clean(player)}"'
+        who = " OR ".join(f'artist:"{_clean(a)}"' for a in dict.fromkeys(x for x in (player, album_artist) if x))
+        q = f'release:"{_clean(record)}" AND ({who})'
         data = json.loads(get(MB + "release/?" + urllib.parse.urlencode({"query": q, "fmt": "json", "limit": 5})))
         releases = [(r.get("score", 0), r) for r in data.get("releases", [])]
-    else:
+        by_album = bool(releases)
+    if not releases and title:  # no album name, or MusicBrainz doesn't know it: try the tune (never trusted alone)
         q = f'recording:"{_clean(title)}" AND artist:"{_clean(player)}"'
         data = json.loads(get(MB + "recording/?" + urllib.parse.urlencode({"query": q, "fmt": "json", "limit": 5})))
         releases = [(rec.get("score", 0), rel) for rec in data.get("recordings", []) for rel in rec.get("releases", [])]
-    want = surname(player)
+    want = {w for w in (surname(player), surname(album_artist)) if w}
     for score, rel in releases:
         artist = " ".join(c.get("name", "") for c in rel.get("artist-credit", []) if isinstance(c, dict))
         if not rel.get("id"):
             continue
-        sure = bool(record) and score >= SURE and bool(want) and want in artist.lower()
+        sure = by_album and score >= SURE and any(w in artist.lower() for w in want)
         group = (rel.get("release-group") or {}).get("id")
         urls = [CAA.format(rel["id"])] + ([CAA_GROUP.format(group)] if group else [])
         return {"url": urls[-1], "urls": urls, "score": score, "release": rel.get("title", ""), "artist": artist,
@@ -237,6 +263,7 @@ def run(runs: str | Path | None = None, online: bool = True, redo: bool = False,
             except KeyError:
                 return None
     over = overrides(where)
+    named = albums()
     counts = {"songs": len(songs), "already": 0, "override": 0, "embedded": 0, "nearby": 0, "lookup": 0,
               "logo": 0, "needs_a_look": 0, "errors": 0}
     look, log, why = [], [], {}
@@ -285,7 +312,8 @@ def run(runs: str | Path | None = None, online: bool = True, redo: bool = False,
                     break
         if not found and online:
             try:
-                hit = lookup(s.get("player", ""), s.get("record", ""), s.get("title", ""), get=get)
+                album_artist, album = named.get(sid) or tidy_record(s.get("record", ""))
+                hit = lookup(s.get("player", ""), album, s.get("title", ""), get=get, album_artist=album_artist)
                 time.sleep(pause)
                 if hit and hit["sure"]:
                     data = fetch_art(hit.get("urls") or [hit["url"]], get)
