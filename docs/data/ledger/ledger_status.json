@@ -1,14 +1,14 @@
 {
- "generated": "2026-11-16 09:34",
+ "generated": "2026-11-18 21:54",
  "schema": 1,
  "total_pdfs": 751,
  "charts": 620,
- "healthy": 154,
- "healthy_share": 0.248,
+ "healthy": 157,
+ "healthy_share": 0.253,
  "counts": {
-  "matched": 154,
-  "check": 114,
-  "wrong_audio": 64,
+  "matched": 157,
+  "check": 112,
+  "wrong_audio": 63,
   "needs_audio": 129,
   "unreadable": 14,
   "not_started": 135,
@@ -70,9 +70,9 @@
    "excluded": 5
   },
   "transcribed": {
-   "matched": 91,
-   "check": 67,
-   "wrong_audio": 22,
+   "matched": 94,
+   "check": 65,
+   "wrong_audio": 21,
    "unreadable": 14,
    "not_started": 3,
    "excluded": 1
@@ -117,7 +117,7 @@
    "status": "check",
    "reason": "heard agreement 75.4% (below 80); tempo jumps in 11 of 37 bars (expected length not on file); audit: a block of bars off together",
    "group": "heard agreement # (below #); tempo jumps in # of # bars (expected length not on ",
-   "n": 19
+   "n": 16
   },
   {
    "status": "excluded",
@@ -144,6 +144,12 @@
    "n": 12
   },
   {
+   "status": "check",
+   "reason": "tempo jumps in 3 of 28 bars (expected length not on file)",
+   "group": "tempo jumps in # of # bars (expected length not on file)",
+   "n": 11
+  },
+  {
    "status": "wrong_audio",
    "reason": "chart and recording don't line up; exact recording listed",
    "group": "chart and recording don't line up; exact recording listed",
@@ -154,12 +160,6 @@
    "reason": "pass 92% in staging (charlie-parker_little-willie-leaps_1947__hN4g3E6yE_c); ready to file",
    "group": "pass # in staging (charlie-parker_little-willie-leaps_1947__hN4g3E6yE_c); ready ",
    "n": 11
-  },
-  {
-   "status": "check",
-   "reason": "tempo jumps in 3 of 28 bars (expected length not on file)",
-   "group": "tempo jumps in # of # bars (expected length not on file)",
-   "n": 10
   },
   {
    "status": "excluded",
