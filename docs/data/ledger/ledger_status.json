@@ -1,23 +1,23 @@
 {
- "generated": "2026-11-16 09:34",
+ "generated": "2026-11-19 08:27",
  "schema": 1,
  "total_pdfs": 751,
  "charts": 620,
- "healthy": 154,
- "healthy_share": 0.248,
+ "healthy": 215,
+ "healthy_share": 0.347,
  "counts": {
-  "matched": 154,
-  "check": 114,
-  "wrong_audio": 64,
+  "matched": 215,
+  "check": 117,
+  "wrong_audio": 69,
   "needs_audio": 129,
   "unreadable": 14,
-  "not_started": 135,
+  "not_started": 66,
   "unsorted": 10,
   "excluded": 131
  },
  "by_source": {
   "Anderson batch": {
-   "check": 36,
+   "check": 35,
    "wrong_audio": 42,
    "excluded": 2
   },
@@ -27,8 +27,11 @@
    "needs_audio": 33
   },
   "excerpt": {
+   "matched": 55,
+   "check": 7,
+   "wrong_audio": 6,
    "needs_audio": 1,
-   "not_started": 69
+   "not_started": 1
   },
   "inbox": {
    "unsorted": 10,
@@ -70,11 +73,11 @@
    "excluded": 5
   },
   "transcribed": {
-   "matched": 91,
-   "check": 67,
-   "wrong_audio": 22,
+   "matched": 97,
+   "check": 64,
+   "wrong_audio": 21,
    "unreadable": 14,
-   "not_started": 3,
+   "not_started": 2,
    "excluded": 1
   },
   "youtube_etude": {
@@ -88,12 +91,6 @@
    "reason": "pdf only, needs a recording",
    "group": "pdf only, needs a recording",
    "n": 118
-  },
-  {
-   "status": "not_started",
-   "reason": "chart and recording here, no key yet",
-   "group": "chart and recording here, no key yet",
-   "n": 69
   },
   {
    "status": "not_started",
@@ -115,9 +112,15 @@
   },
   {
    "status": "check",
-   "reason": "heard agreement 75.4% (below 80); tempo jumps in 11 of 37 bars (expected length not on file); audit: a block of bars off together",
+   "reason": "heard agreement 72.3% (below 80); tempo jumps in 4 of 17 bars (expected length not on file)",
    "group": "heard agreement # (below #); tempo jumps in # of # bars (expected length not on ",
-   "n": 19
+   "n": 17
+  },
+  {
+   "status": "check",
+   "reason": "heard agreement 73.8% (below 80) (expected length not on file)",
+   "group": "heard agreement # (below #) (expected length not on file)",
+   "n": 15
   },
   {
    "status": "excluded",
@@ -133,9 +136,9 @@
   },
   {
    "status": "check",
-   "reason": "heard agreement 75.3% (below 80) (expected length not on file)",
-   "group": "heard agreement # (below #) (expected length not on file)",
-   "n": 13
+   "reason": "tempo jumps in 3 of 16 bars (expected length not on file)",
+   "group": "tempo jumps in # of # bars (expected length not on file)",
+   "n": 12
   },
   {
    "status": "excluded",
@@ -153,13 +156,13 @@
    "status": "check",
    "reason": "pass 92% in staging (charlie-parker_little-willie-leaps_1947__hN4g3E6yE_c); ready to file",
    "group": "pass # in staging (charlie-parker_little-willie-leaps_1947__hN4g3E6yE_c); ready ",
-   "n": 11
+   "n": 10
   },
   {
    "status": "check",
-   "reason": "tempo jumps in 3 of 28 bars (expected length not on file)",
-   "group": "tempo jumps in # of # bars (expected length not on file)",
-   "n": 10
+   "reason": "octave fix pending (octave_check.py --fix): key sits +1 octave(s) off the record (82% of 87 notes); run octave_check.py --fix",
+   "group": "octave fix pending (octave_check.py --fix): key sits +# octave(s) off the record",
+   "n": 9
   },
   {
    "status": "excluded",
@@ -192,12 +195,6 @@
    "n": 7
   },
   {
-   "status": "check",
-   "reason": "octave fix pending (octave_check.py --fix): key sits +1 octave(s) off the record (99% of 542 notes); run octave_check.py --fix",
-   "group": "octave fix pending (octave_check.py --fix): key sits +# octave(s) off the record",
-   "n": 7
-  },
-  {
    "status": "excluded",
    "reason": "not a sax part (flute): page-1 sample of a longer Brian Falkowski transcription (ima",
    "group": "not a sax part (flute): page-# sample of a longer Brian Falkowski transcription ",
@@ -208,6 +205,12 @@
    "reason": "not identified yet (one solo, 2 pages)",
    "group": "not identified yet (one solo, # pages)",
    "n": 6
+  },
+  {
+   "status": "wrong_audio",
+   "reason": "chart and recording don't line up",
+   "group": "chart and recording don't line up",
+   "n": 5
   },
   {
    "status": "check",
