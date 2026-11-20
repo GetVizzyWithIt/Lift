@@ -206,6 +206,15 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--range-rules", choices=RANGE_MODES, default="out", help=RANGE_HELP)
     sc.add_argument("--tag", help="only recordings with this technique tag (GRFIA: altissimo, bend, growl, trill...)")
 
+    bm = sub.add_parser("benchmark", help="the growing benchmark: split every matched answer key, then score it with today's default")
+    bm.add_argument("action", choices=("split", "score"), help="split: write split.csv only; score: split, then score")
+    bm.add_argument("--runs", help="runs folder (default ~/lift-runs)")
+    bm.add_argument("--name", default="v2", help="folder under <runs>/benchmark/ (default v2)")
+    bm.add_argument("--tier", action="append", choices=("test", "benchmark", "session_hold", "seen", "train_reserve"),
+                    help="only these groups (repeat for more; default: all of them)")
+    bm.add_argument("--limit", type=int, help="only the first N records (a quick check)")
+    bm.add_argument("--wait", action="store_true", help="wait for other heavy Mac jobs (key checks, matching) to finish first")
+
     st = sub.add_parser("stress", help="score a set again under off-speed, reverb and lo-fi conditions, plus clean scores by technique tag")
     st.add_argument("set", choices=sets)
     st.add_argument("--data", help="dataset folder (default: config.local.toml, then ~/mir_datasets/)")
@@ -262,6 +271,17 @@ def main(argv: list[str] | None = None) -> int:
         from .score import card
         card.run(args.set, args.data, args.split, args.limit, args.runs, args.contour_tool,
                  args.notes_tool, args.redo, args.note, args.range_rules, args.tag, args.separator)
+        return 0
+    if args.cmd == "benchmark":
+        from .score import benchmark
+        if args.action == "split":
+            rows, folder = benchmark.run_split(args.runs, args.name)
+            print(", ".join(f"{k} {v}" for k, v in benchmark.split_counts(rows).items()))
+            print(f"Split: {folder / 'split.csv'}")
+            return 0
+        out = benchmark.run_score(args.runs, args.name, tuple(args.tier) if args.tier else benchmark.SCORED,
+                                  args.limit, args.wait)
+        print(f"Summary: {out['folder']}/summary.md; check {out['folder']}/needs_a_look.csv")
         return 0
     if args.cmd == "stress":
         from .score import stress
