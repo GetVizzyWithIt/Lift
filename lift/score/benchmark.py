@@ -10,8 +10,9 @@ whose fingerprint changed since it was matched is left out.
 
 Split (docs/evaluation/benchmark_split.json holds the rules, ADR-0049):
   test           Austin's own test tunes: scored and reported on their own, never trained on
-  benchmark      the E81 benchmark songs (benchmark_tags.json) and every record by a held-out
-                 player (Byas, Stitt, Marsh, Berg, Mobley, Sims, Bartz, Charles Davis; E84 pre-reg)
+  benchmark      the E81 benchmark songs (benchmark_tags.json), every record by a held-out
+                 player (Byas, Stitt, Marsh, Berg, Mobley, Sims, Bartz, Charles Davis; E84 pre-reg),
+                 and, when the rules set extra_share, that share of the other sessions
   session_hold   would be training material, but shares a session with a benchmark or test record
                  (same player and year, or the same album): kept out of training
   seen           a model already trained on it (match_report's in_training): scored for information
@@ -136,6 +137,14 @@ def split(items: list[dict], rule: dict) -> list[dict]:
         else:
             it["tier"], it["why"] = "train_reserve", ""
         out.append(it)
+    # A fixed share of the rest joins the benchmark, a whole session at a time (same player and year;
+    # a record without a year is its own session). The pick hashes the session's name, so it never
+    # changes as the ledger grows: a record keeps its group once it has one.
+    share = float(rule.get("extra_share", 0) or 0)
+    if share > 0:
+        for it in out:
+            if it["tier"] == "train_reserve" and session_pick(session_of(it), share):
+                it["tier"], it["why"] = "benchmark", f"sampled session ({session_of(it)})"
     # Session rule: nothing trains on a record from the same session as one we score against.
     guard = [x for x in out if x["tier"] in ("benchmark", "test")]
     for it in out:
@@ -153,6 +162,19 @@ def split(items: list[dict], rule: dict) -> list[dict]:
             if not it.get("year"):
                 it["why"] = "no year on file: session rule could not be checked"
     return out
+
+
+def session_of(it: dict) -> str:
+    """Same player and year; a record without a year is its own session (needs_a_look lists it)."""
+    if not it.get("year") or not norm(it.get("player")):
+        return f"record:{it['id']}"
+    return f"{norm(it['player'])}:{it['year']}"
+
+
+def session_pick(session: str, share: float) -> bool:
+    import hashlib
+    h = int(hashlib.sha256(session.encode()).hexdigest()[:8], 16) / 0xFFFFFFFF
+    return h < share
 
 
 SPLIT_COLS = ["id", "tier", "why", "kind", "player", "tune", "horn", "year", "album", "mix", "audio", "key"]

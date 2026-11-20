@@ -113,3 +113,15 @@ def test_read_key_drops_grace_notes_and_keeps_heard(tmp_path):
                                        {"onset": 2.0, "offset": 2.4, "pitch": 62, "heard_ok": False}]}))
     got = benchmark.read_key(p)
     assert [n["pitch"] for n in got] == [60, 62] and [n["heard_ok"] for n in got] == [True, False]
+
+
+def test_extra_share_takes_whole_sessions_and_is_stable():
+    items = [item(f"p{i}_t{j}_19{50 + i}", f"Player {i}", year=1950 + i) for i in range(40) for j in range(2)]
+    rows = benchmark.split(items, {**RULE, "extra_share": 0.25})
+    picked = {r["id"] for r in rows if r["tier"] == "benchmark"}
+    assert 4 <= len(picked) // 2 <= 18                       # roughly a quarter of 40 sessions
+    for i in range(40):                                      # both tunes of a session go the same way
+        assert (f"p{i}_t0_19{50 + i}" in picked) == (f"p{i}_t1_19{50 + i}" in picked)
+    again = benchmark.split(items + [item("new_1999", "Newcomer", year=1999)], {**RULE, "extra_share": 0.25})
+    assert {r["id"] for r in again if r["tier"] == "benchmark"} - {"new_1999"} == picked
+    assert not benchmark.split(items, RULE)[0]["why"].startswith("sampled")
