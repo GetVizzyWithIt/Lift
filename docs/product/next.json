@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-15",
+  "updated": "2026-11-20",
   "intro": "The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in the build thread):",
   "steps": [
     {
@@ -17,7 +17,7 @@
     {
       "step": 3,
       "title": "New test set",
-      "what": "bars from Austin's flags, 3\u20135 pop songs with vocals, 3 soprano songs",
+      "what": "bars from Austin's flags, 3–5 pop songs with vocals, 3 soprano songs",
       "status": "Not started"
     },
     {
@@ -29,7 +29,7 @@
     {
       "step": 5,
       "title": "E83",
-      "what": "whatever steps 1\u20132 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano)",
+      "what": "whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano)",
       "status": "Done 2026-11-14: E83 not adopted. Neither arm beat E77 (note F1 50.9 for all three); more mostly-older jazz doesn't move the finder, so new data must be pop, R&B, and soprano"
     },
     {
@@ -45,7 +45,7 @@
       "status": "In progress: handbook, its update script and the static dashboard done; not-sax instrument choices next"
     }
   ],
-  "running": "Clean data first (ADR-0045): the sax-stem re-score of every set-aside and wrong-recording chart (106 Anderson charts done, 444 alternative recordings under way, done around 1 to 2 PM PT 11-15), then match check and the PDF ledger. E84 is on hold until the data is clean.",
+  "running": "Clean data first (ADR-0045): the PDF ledger stands at 285 of 739 charts matched (39%, 11-20 22:32 PT, after the tuning regrade). Next on the Mac: benchmark v2 scoring (entry B2, ADR-0049) with today's default, no training. E84 is on hold until the data is clean.",
   "waiting": [
     "Filosax dataset access: no Zenodo reply yet, so the drafted email is ready to send.",
     "Library step 4 (the Library as the home screen): Austin's go in the Library thread.",
