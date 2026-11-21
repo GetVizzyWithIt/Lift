@@ -54,6 +54,9 @@ Plain-language meanings of terms used in the code and these docs.
 | Leakage | When test material (or the same performance) also influences training, inflating scores |
 | Session rule | No training span may come from the same recording session (or album sessions) as a benchmark song or one of Austin's six tunes, even if it's a different tune (E84) |
 | Held-out set | The players kept out of training and used only to pick the checkpoint; changed in E84 (Berg, Byas, Mobley, Stitt, Marsh, Sims, plus two alto players), so held-out scores before and after E84 don't compare |
+| Benchmark v2 | The fixed, growing benchmark from every matched chart (`python -m lift benchmark split` and `score`): E81 songs, E84 held-out players, and 1 in 5 of the other sessions ([ADR-0049](decisions/0049-benchmark-v2-split-rules.md)); results set `benchmark-v2` |
+| Session hold | A record that shares a session (same player and year, or same album) with a benchmark or test record: not scored as benchmark, never trained on (ADR-0049) |
+| Training reserve | Matched records left for training once data is clean: not benchmark, test, session hold, or already trained on (ADR-0049) |
 | Fine-tune | Further training of a pretrained model on our data |
 | Augmentation | Altering training audio (pitch shift, stretch, reverb, noise) to make more examples |
 | MPS / Core ML | Apple's GPU backend for PyTorch / Apple's model runtime |

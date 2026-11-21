@@ -51,14 +51,14 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 | 6 | **Rhythm**: a simpler-grid rule | Not started |
 | 7 | **Docs, dashboard, not-sax instrument choices**: the handbook, a static dashboard page, and which other instruments the not-sax check names | In progress: handbook, its update script and the static dashboard done; not-sax instrument choices next |
 
-**Running on the Mac now:** Clean data first (ADR-0045): the sax-stem re-score of every set-aside and wrong-recording chart (106 Anderson charts done, 444 alternative recordings under way, done around 1 to 2 PM PT 11-15), then match check and the PDF ledger. E84 is on hold until the data is clean.
+**Running on the Mac now:** Clean data first (ADR-0045): the PDF ledger stands at 285 of 739 charts matched (39%, 11-20 22:32 PT, after the tuning regrade). Next on the Mac: benchmark v2 scoring (entry B2, ADR-0049) with today's default, no training. E84 is on hold until the data is clean.
 
 **Waiting on Austin:**
 - Filosax dataset access: no Zenodo reply yet, so the drafted email is ready to send.
 - Library step 4 (the Library as the home screen): Austin's go in the Library thread.
 - Recordings the Internet Archive doesn't have: Austin's library CDs, then spotDL, which Austin runs himself.
 
-_Plan last changed 2026-11-15._
+_Plan last changed 2026-11-20._
 <!-- /auto:next -->
 
 Ideas for later live in the "Later" section of the
