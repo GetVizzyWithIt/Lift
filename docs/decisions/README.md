@@ -56,3 +56,4 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0047](0047-rename-saxscribe-to-lift.md) | Saxscribe is renamed Lift: package, command, repo, and Mac folders, with a link left at every old name | 2026-11-16 | Accepted |
 | [0048](0048-review-questions-from-queue-files.md) | Review questions come from queue files the Mac scripts write, machines first; one question at a time on the Review page | 2026-11-16 | Accepted (PR #191) |
 | [0049](0049-benchmark-v2-split-rules.md) | Benchmark v2: every matched chart goes to test, benchmark (E81 songs, E84 held-out players, and 1 in 5 other sessions), session hold, or training reserve | 2026-11-20 | Accepted (PR #213) |
+| [0050](0050-line-up-check-allows-record-tuning.md) | The line-up check subtracts each record's own tuning offset, measured from the recording alone, before the heard-pitch check; the 0.6-semitone window is unchanged | 2026-11-20 | Accepted |
