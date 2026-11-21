@@ -125,3 +125,22 @@ def test_extra_share_takes_whole_sessions_and_is_stable():
     again = benchmark.split(items + [item("new_1999", "Newcomer", year=1999)], {**RULE, "extra_share": 0.25})
     assert {r["id"] for r in again if r["tier"] == "benchmark"} - {"new_1999"} == picked
     assert not benchmark.split(items, RULE)[0]["why"].startswith("sampled")
+
+
+def test_pauses_when_a_heavy_job_starts_mid_run(tmp_path, monkeypatch):
+    runs = make_runs(tmp_path)
+    busy = ["9 python tuning_regrade.py"]
+    seen = iter([[], busy, busy, busy])        # free at the start, then busy when record 1 is due
+    monkeypatch.setattr(benchmark, "heavy_jobs", lambda *a: next(seen, []))
+    monkeypatch.setattr(benchmark.time, "sleep", lambda s: None)
+    monkeypatch.setattr(benchmark, "score_one", fake_score)
+    out = benchmark.run_score(runs)
+    assert out["scored"] == 2
+    log = (runs / "benchmark" / "v2" / "run.log").read_text()
+    assert "waiting for another heavy job" in log and "carrying on" in log
+
+
+def test_heavy_pattern_knows_the_key_jobs():
+    import re
+    for cmd in ("python3 tuning_regrade.py", "python -u run_keys.py --stem x", "python3 file_winners.py --go"):
+        assert re.search(benchmark.HEAVY, cmd)
