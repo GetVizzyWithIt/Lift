@@ -48,7 +48,8 @@ HORNS = {"as": "alto", "alto": "alto", "ts": "tenor", "tenor": "tenor", "ss": "s
 SOLO_KINDS = {"youtube_etude"}           # recorded alone: no band to separate
 SETUP_D = {"separator": "filosax", "spans_from": "same", "note_finder": "e77"}
 SETUP_SOLO = {"separator": "none", "spans_from": "same", "note_finder": "standard"}
-HEAVY = r"run_keys\.py|match_check\.py|archive_check\.py|video_to_key\.py|second_reader|yt-dlp|train8\d\.py"
+HEAVY = (r"run_keys\.py|match_check\.py|archive_check\.py|video_to_key\.py|second_reader|tuning_regrade\.py|"
+         r"file_winners\.py|octave_check\.py|clef_fix\.py|yt-dlp|train8\d\.py")
 LOOK_F1 = 0.25                           # no-offset note F1 below this: worth a look
 LOOK_FOUND = 0.5                         # sax_found below this: the stem may have lost the sax
 
@@ -207,11 +208,14 @@ def heavy_jobs(pattern: str = HEAVY) -> list[str]:
 
 
 def wait_for_quiet(log, every: int = 60) -> None:
-    t0 = time.time()
+    t0, first = time.time(), True
     while jobs := heavy_jobs():
         log(f"waiting for another heavy job to finish ({len(jobs)} running, {int(time.time() - t0) // 60} min so far)",
-            live=True)
+            live=not first)  # the first line goes to the log too
+        first = False
         time.sleep(every)
+    if not first:
+        log(f"the other job finished after {int(time.time() - t0) // 60} min; carrying on")
 
 
 class Progress:
@@ -374,6 +378,8 @@ def run_score(runs: str | Path | None = None, name: str = "v2", tiers: tuple[str
         if item["id"] in done:
             prog.done += 1
             continue
+        if heavy_jobs():  # one started after we did: never run two heavy jobs at once
+            wait_for_quiet(prog.line)
         try:
             rec = score_one(item, base / "takes" / item["id"])
         except (ValueError, OSError, RuntimeError, SystemExit) as exc:
