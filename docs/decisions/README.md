@@ -55,3 +55,4 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0046](0046-audio-sourcing-order.md) | Audio for answer keys: Internet Archive, then Austin's library CDs, then spotDL (Austin runs it) | 2026-11-15 | Accepted |
 | [0047](0047-rename-saxscribe-to-lift.md) | Saxscribe is renamed Lift: package, command, repo, and Mac folders, with a link left at every old name | 2026-11-16 | Accepted |
 | [0048](0048-review-questions-from-queue-files.md) | Review questions come from queue files the Mac scripts write, machines first; one question at a time on the Review page | 2026-11-16 | Accepted (PR #191) |
+| [0050](0050-line-up-check-allows-record-tuning.md) | The line-up check subtracts each record's own tuning offset, measured from the recording alone, before the heard-pitch check; the 0.6-semitone window is unchanged | 2026-11-20 | Accepted |
